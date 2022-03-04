@@ -1,0 +1,48 @@
+{
+  "id": 3,
+  "GitLab": {
+    "projectId": "PROJECTID",
+    "token": "TOKEN"
+  },
+  "teams": ["TEAM1", "TEAM2", "TEAM3", "TEAM4"],
+  "tabs": {
+    "monitoring": {
+      "panels": [
+        "StatusOperationalChartPanel",
+        "BitriseBuildsChartPanel",
+        "IssueListPanel",
+        "BitriseBuildsStatusPanel",
+        "BrowserStackBuildsChartPanel",
+        "BrowserStackBuildsStatusPanel",
+        "GitlabJobsChartPanel",
+        "GitlabMergeRequestsChartPanel",
+        "GitlabMergeRequestsClosedLast24hPanel",
+        "GitlabMergeRequestsListPanel",
+        "GitlabPipelinesChartPanel",
+        "GitlabPipelineSchedulesPanel",
+        "GitlabPipelinesListPanel"
+      ],
+      "gridSize": 3
+    },
+    "quality": {
+      "panels": ["AllureReportPanel", "SonarPanel"],
+      "gridSize": 3
+    }
+  },
+  "themes": {
+    "light": {
+      "backgroundColor": "#16113a",
+      "accentBackgroundColor": "#272A53",
+      "accentBackgroundColor2": "#fff",
+      "textColor": "#fff",
+      "textColor2": "#000"
+    },
+    "dark": {
+      "backgroundColor": "#E9EDC4",
+      "accentBackgroundColor": "#D9D4AB",
+      "accentBackgroundColor2": "#000000",
+      "textColor": "#000",
+      "textColor2": "#fff"
+    }
+  }
+}
