@@ -16,3 +16,7 @@ During development we can update the metrics running the command:
 
 `yarn collector`
 `yarn notificator`
+
+# Configuration
+
+Rename the file config.example.json to config.json and apply the configuration
