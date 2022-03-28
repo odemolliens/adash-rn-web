@@ -9,10 +9,9 @@ npm-debug.*
 *.mobileprovision
 *.orig.*
 web-build/
-data/*
-!data/.gitkeep
 config.json
-src/data/
+src/data/*
+!src/data/.gitkeep
 
 # macOS
 .DS_Store
