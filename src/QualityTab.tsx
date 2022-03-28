@@ -1,5 +1,6 @@
 import { Button, Menu } from 'native-base';
 import React, { useState } from 'react';
+import { ErrorBoundary } from 'react-error-boundary';
 import {
   SafeAreaView,
   ScrollView,
@@ -13,6 +14,7 @@ import ConfigMenu from './components/ConfigMenu/ConfigMenu';
 import EditGridSizeMenuItem from './components/ConfigMenu/EditGridSizeMenuItem';
 import EditPanelsMenuItem from './components/ConfigMenu/EditPanelsMenuItem';
 import Notifications from './components/Notifications';
+import Panel from './components/Panel';
 import PanelsBar from './components/PanelsBar';
 import { useAppContext } from './contexts/AppContext';
 import { AllureReportPanel, SonarPanel } from './panels';
@@ -55,7 +57,21 @@ export default function MonitoringTab() {
           Remove
         </Button>
       )}
-      {React.createElement(PANELS[item])}
+
+      <ErrorBoundary
+        FallbackComponent={({ error }) => (
+          <Panel id={item} variant="error">
+            <Panel.Title>{item}</Panel.Title>
+            <Panel.Error>
+              Something went wrong:
+              <br />
+              {error.message}
+            </Panel.Error>
+          </Panel>
+        )}
+      >
+        {React.createElement(PANELS[item])}
+      </ErrorBoundary>
     </View>
   );
 

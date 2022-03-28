@@ -36,6 +36,8 @@ import {
 import { applyChartTheme } from './panels/chartjs';
 import { styleSheetFactory } from './themes';
 import { config } from './utils';
+import { ErrorBoundary } from 'react-error-boundary';
+import Panel from './components/Panel';
 
 const PANELS: Record<string, () => JSX.Element> = {
   IssueListPanel,
@@ -83,7 +85,21 @@ export default function MonitoringTab() {
             Remove
           </Button>
         )}
-        {React.createElement(PANELS[item])}
+
+        <ErrorBoundary
+          FallbackComponent={({ error }) => (
+            <Panel id={item} variant="error">
+              <Panel.Title>{item}</Panel.Title>
+              <Panel.Error>
+                Something went wrong:
+                <br />
+                {error.message}
+              </Panel.Error>
+            </Panel>
+          )}
+        >
+          {React.createElement(PANELS[item])}
+        </ErrorBoundary>
       </VStack>
     </View>
   );
