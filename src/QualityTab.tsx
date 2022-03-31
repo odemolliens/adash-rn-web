@@ -17,7 +17,12 @@ import Notifications from './components/Notifications';
 import Panel from './components/Panel';
 import PanelsBar from './components/PanelsBar';
 import { useAppContext } from './contexts/AppContext';
-import { AllureReportPanel, SonarPanel } from './panels';
+import {
+  AllureReportPanel,
+  SonarPanel,
+  E2EKPIPanel,
+  E2EKPIReportTablePanel,
+} from './panels';
 import { applyChartTheme } from './panels/chartjs';
 import { styleSheetFactory } from './themes';
 import { config } from './utils';
@@ -25,6 +30,8 @@ import { config } from './utils';
 const PANELS: Record<string, () => JSX.Element> = {
   AllureReportPanel,
   SonarPanel,
+  E2EKPIPanel,
+  E2EKPIReportTablePanel,
 };
 
 export default function MonitoringTab() {

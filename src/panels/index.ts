@@ -13,6 +13,8 @@ import IssueListPanel from './IssueListPanel';
 import StatusOperationalChartPanel from './StatusOperationalChartPanel';
 import AllureReportPanel from './AllureReportPanel';
 import SonarPanel from './SonarPanel';
+import E2EKPIPanel from './E2EKPIPanel'
+import E2EKPIReportTablePanel from './E2EKPIReportTablePanel'
 
 export {
   IssueListPanel,
@@ -29,5 +31,7 @@ export {
   GitlabPipelineSchedulesPanel,
   GitlabPipelinesListPanel,
   AllureReportPanel,
-  SonarPanel
+  SonarPanel,
+  E2EKPIPanel,
+  E2EKPIReportTablePanel
 };
