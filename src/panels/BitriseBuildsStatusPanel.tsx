@@ -50,24 +50,8 @@ export default function BitriseBuildsStatusPanel() {
   const zoomed = zoomedPanel === PANEL_ID;
   const latest = last(bitriseData)!;
 
-  const workflows = {
-    dev: latest.BitRiseBuildLastNotCancelledWorkflowDev,
-    uat: latest.BitRiseBuildLastNotCancelledWorkflowUat,
-    lut: latest.BitRiseBuildLastNotCancelledWorkflowLut,
-    prodlike: latest.BitRiseBuildLastNotCancelledWorkflowProdlike,
-    prod: latest.BitRiseBuildLastNotCancelledWorkflowProd,
-    codeQuality: latest.BitRiseBuildLastNotCancelledWorkflowCodeQuality,
-  };
-
-  const inError = [
-    workflows.prod.status_text,
-    workflows.prodlike.status_text,
-  ].includes(ERROR);
-
-  const variant = inError ? 'error' : undefined;
-
   return (
-    <Panel variant={variant} id={PANEL_ID}>
+    <Panel id={PANEL_ID}>
       <Panel.Title>Bitrise builds status</Panel.Title>
 
       <Panel.Actions>
@@ -78,15 +62,17 @@ export default function BitriseBuildsStatusPanel() {
         />
 
         <Download
-          onPress={() => downloadPanelData(workflows, 'bitrise_status.json')}
+          onPress={() =>
+            downloadPanelData(latest.workflows, 'bitrise_status.json')
+          }
         />
 
         <ScreenshotButton panelId={PANEL_ID} />
       </Panel.Actions>
 
       <Panel.Body>
-        {Object.entries(workflows).map(obj => {
-          const [key, value] = obj;
+        {Object.entries(latest.workflows).map(obj => {
+          const [key, value] = obj as [string, any];
           const onPress = () =>
             Linking.openURL(`https://app.bitrise.io/build/${value.slug}`);
 
@@ -101,9 +87,11 @@ export default function BitriseBuildsStatusPanel() {
               <Text style={styles.text} onPress={onPress}>
                 {`${key.toUpperCase()} - #${
                   value.build_number
-                } Triggered: ${formatDate(
-                  value.triggered_at
-                )} Finished: ${formatDate(value.finished_at)}`}
+                } Triggered: ${formatDate(value.triggered_at)} Finished: ${
+                  value.finished_at
+                    ? formatDate(value.finished_at)
+                    : 'Not finished'
+                }`}
               </Text>
             </View>
           );

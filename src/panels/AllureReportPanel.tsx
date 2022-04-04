@@ -9,7 +9,7 @@ import Panel from '../components/Panel';
 import ScreenshotButton from '../components/ScreenshotButton';
 import ZoomButton from '../components/ZoomButton';
 import { useAppContext } from '../contexts/AppContext';
-import suites from '../data/allure/ios/suites.json';
+import suites from '../allure/ios/suites.json';
 import { styleSheetFactory } from '../themes';
 
 const PANEL_ID = 'AllureReportPanel';

@@ -12,6 +12,7 @@ web-build/
 config.json
 src/data/*
 !src/data/.gitkeep
-
+updatedata.sh
 # macOS
 .DS_Store
+allure

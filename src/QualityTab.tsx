@@ -16,6 +16,7 @@ import EditPanelsMenuItem from './components/ConfigMenu/EditPanelsMenuItem';
 import Notifications from './components/Notifications';
 import Panel from './components/Panel';
 import PanelsBar from './components/PanelsBar';
+import TeamList from './components/TeamList';
 import { useAppContext } from './contexts/AppContext';
 import {
   AllureReportPanel,
@@ -90,7 +91,10 @@ export default function MonitoringTab() {
             contentContainerStyle={[styles.filtersContainer, { maxWidth }]}
             horizontal
           >
-            <View style={styles.filtersInnerContainer} />
+            <View style={styles.filtersInnerContainer}>
+              <View style={{ flex: 1 }} />
+              <TeamList />
+            </View>
 
             <View style={styles.dashboardActions}>
               <Notifications />

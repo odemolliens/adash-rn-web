@@ -34,7 +34,8 @@ export default function EditPanelsMenuItem({
             </View>
           </Tooltip>
         </Chip>
-        <Text>Change panels</Text>
+
+        <Text>Manage panels</Text>
       </View>
     </Pressable>
   );

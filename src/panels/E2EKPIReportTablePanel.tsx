@@ -1,3 +1,4 @@
+import { last } from 'lodash';
 import { StyleSheet, Text } from 'react-native';
 import { Cell, Row, Table, TableWrapper } from 'react-native-table-component';
 import { useTheme } from 'react-native-themed-styles';
@@ -5,11 +6,8 @@ import Panel from '../components/Panel';
 import ScreenshotButton from '../components/ScreenshotButton';
 import ZoomButton from '../components/ZoomButton';
 import { useAppContext } from '../contexts/AppContext';
-import { styleSheetFactory } from '../themes';
 import kpie2e from '../data/kpie2e.json';
-import { last, meanBy, uniqBy } from 'lodash';
-import { COLORS, formatDate } from '../utils';
-import { Chart } from 'react-chartjs-2';
+import { styleSheetFactory } from '../themes';
 
 const PANEL_ID = 'E2EKPIReportTablePanel';
 
@@ -34,7 +32,7 @@ export default function E2EKPIReportTablePanel() {
       table: {
         tableHead: ['Team Name', 'Total Tests', 'Pass %'],
         tableData: latest.stats[platform].map((l: Record<string, any>) => [
-          l.teamName.toUpperCase(),
+          l.teamName,
           l.totalTests + '',
           l.passPercentage + '%',
         ]),
