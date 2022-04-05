@@ -65,19 +65,16 @@ Panel.Body = function ({ children }: { children?: ReactNode }) {
   const [styles] = useTheme(themedStyles, colorScheme);
 
   return (
-    <View style={styles.body}>
-      <ScrollView
-        style={{
-          width: '100%',
-          //aspectRatio: 16 / 9,
-          aspectRatio: 4 / 5,
-          paddingHorizontal: 10,
-        }}
-        contentContainerStyle={{ flex: 1 }}
-      >
-        {children}
-      </ScrollView>
-    </View>
+    <ScrollView
+      style={{
+        width: '100%',
+        aspectRatio: 3 / 2,
+        paddingHorizontal: 10,
+      }}
+      contentContainerStyle={styles.body}
+    >
+      {children}
+    </ScrollView>
   );
 };
 

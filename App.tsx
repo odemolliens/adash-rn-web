@@ -1,4 +1,3 @@
-import { last } from 'lodash';
 import { AppContextProvider } from './src/contexts/AppContext';
 import Dashboard from './src/Dashboard';
 

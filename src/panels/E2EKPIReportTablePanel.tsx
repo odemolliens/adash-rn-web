@@ -127,78 +127,51 @@ export default function E2EKPIReportTablePanel() {
           .
         </Text>
 
-        <Text style={[stylesTheme.text, { marginTop: 20 }]}>iOS Run</Text>
-        <Table
-          borderStyle={{
-            borderWidth: 2,
-            borderColor: '#c8e1ff',
-          }}
-        >
-          <Row
-            data={latestPlatformData.ios.table.tableHead}
-            style={styles.head}
-            textStyle={styles.text}
-          />
-
-          {latestPlatformData.ios.table.tableData.map((rowData, index) => (
-            <TableWrapper key={index} style={{ flexDirection: 'row' }}>
-              {rowData.map((cellData: string, cellIndex, { length }) => (
-                <Cell
-                  key={cellIndex}
+        {['iOS', 'Android'].map(platform => {
+          return (
+            <>
+              <Text style={[stylesTheme.text, { marginTop: 20 }]}>
+                {platform} Run
+              </Text>
+              <Table borderStyle={{ borderWidth: 2, borderColor: '#c8e1ff' }}>
+                <Row
                   data={
-                    cellIndex === 0 ? (
-                      <Button onPress={() => onTeamPress(cellData)}>
-                        {cellData}
-                      </Button>
-                    ) : (
-                      cellData
-                    )
+                    latestPlatformData[platform.toLowerCase()].table.tableHead
                   }
-                  textStyle={[
-                    styles.text2,
-                    cellIndex === length - 1 && {
-                      color: parseInt(cellData) >= 80 ? 'green' : 'red',
-                    },
-                  ]}
+                  style={styles.head}
+                  textStyle={styles.text}
                 />
-              ))}
-            </TableWrapper>
-          ))}
-        </Table>
 
-        <Text style={[stylesTheme.text, { marginTop: 20 }]}>Android Run</Text>
-        <Table borderStyle={{ borderWidth: 2, borderColor: '#c8e1ff' }}>
-          <Row
-            data={latestPlatformData.android.table.tableHead}
-            style={styles.head}
-            textStyle={styles.text}
-          />
-
-          {latestPlatformData.android.table.tableData.map((rowData, index) => (
-            <TableWrapper key={index} style={{ flexDirection: 'row' }}>
-              {rowData.map((cellData, cellIndex, { length }) => (
-                <Cell
-                  key={cellIndex}
-                  data={
-                    cellIndex === 0 ? (
-                      <Button onPress={() => onTeamPress(cellData)}>
-                        {cellData}
-                      </Button>
-                    ) : (
-                      cellData
-                    )
-                  }
-                  textStyle={[
-                    styles.text2,
-                    cellIndex === length - 1 && {
-                      color: parseInt(cellData) >= 80 ? 'green' : 'red',
-                    },
-                  ]}
-                />
-              ))}
-            </TableWrapper>
-          ))}
-        </Table>
+                {latestPlatformData[platform.toLowerCase()].table.tableData.map(
+                  (rowData, index) => (
+                    <TableWrapper key={index} style={{ flexDirection: 'row' }}>
+                      {rowData.map((cellData, cellIndex, { length }) => (
+                        <Cell
+                          key={cellIndex}
+                          data={
+                            cellIndex === 0 ? (
+                              <Button onPress={() => onTeamPress(cellData)}>
+                                {cellData}
+                              </Button>
+                            ) : (
+                              cellData
+                            )
+                          }
+                          textStyle={[
+                            styles.text2,
+                            cellIndex === length - 1 && {
+                              color: parseInt(cellData) >= 80 ? 'green' : 'red',
+                            },
+                          ]}
+                        />
+                      ))}
+                    </TableWrapper>
+                  )
+                )}
+              </Table>
+            </>
+          );
+        })}
       </Panel.Body>
     </Panel>
   );
