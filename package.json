@@ -26,6 +26,7 @@
     "chart.js": "^3.6.2",
     "date-fns": "^2.27.0",
     "expo": "~44.0.0",
+    "expo-asset": "~8.4.6",
     "expo-status-bar": "~1.2.0",
     "global": "^4.4.0",
     "html2canvas": "^1.4.0",

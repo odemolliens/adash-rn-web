@@ -1,4 +1,5 @@
 import { last } from 'lodash';
+import { Button } from 'native-base';
 import { StyleSheet, Text } from 'react-native';
 import { Cell, Row, Table, TableWrapper } from 'react-native-table-component';
 import { useTheme } from 'react-native-themed-styles';
@@ -8,6 +9,7 @@ import ZoomButton from '../components/ZoomButton';
 import { useAppContext } from '../contexts/AppContext';
 import kpie2e from '../data/kpie2e.json';
 import { styleSheetFactory } from '../themes';
+import { useAssets } from 'expo-asset';
 
 const PANEL_ID = 'E2EKPIReportTablePanel';
 
@@ -53,6 +55,18 @@ export default function E2EKPIReportTablePanel() {
         ).toFixed(2)
       ),
     };
+  }
+  const teams = latest.stats.ios.map((r: any) => r.teamName);
+  const [assets] = useAssets(
+    teams.map((team: string) =>
+      require(`../../src/data/kpi-${team.toLowerCase()}.html`)
+    )
+  );
+
+  function onTeamPress(teamName: string) {
+    let child = window.open('about:blank', 'myChild');
+    child!.document.write(assets?.[teams.indexOf(teamName)].localUri || '');
+    child!.document.close();
   }
 
   return (
@@ -131,7 +145,15 @@ export default function E2EKPIReportTablePanel() {
               {rowData.map((cellData: string, cellIndex, { length }) => (
                 <Cell
                   key={cellIndex}
-                  data={cellData}
+                  data={
+                    cellIndex === 0 ? (
+                      <Button onPress={() => onTeamPress(cellData)}>
+                        {cellData}
+                      </Button>
+                    ) : (
+                      cellData
+                    )
+                  }
                   textStyle={[
                     styles.text2,
                     cellIndex === length - 1 && {
@@ -157,7 +179,15 @@ export default function E2EKPIReportTablePanel() {
               {rowData.map((cellData, cellIndex, { length }) => (
                 <Cell
                   key={cellIndex}
-                  data={cellData}
+                  data={
+                    cellIndex === 0 ? (
+                      <Button onPress={() => onTeamPress(cellData)}>
+                        {cellData}
+                      </Button>
+                    ) : (
+                      cellData
+                    )
+                  }
                   textStyle={[
                     styles.text2,
                     cellIndex === length - 1 && {
