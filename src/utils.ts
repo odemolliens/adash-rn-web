@@ -3,6 +3,7 @@ import html2canvas from 'html2canvas';
 import fileDownload from 'js-file-download';
 import { get, uniq } from 'lodash';
 import Constants from 'expo-constants';
+import { createHash } from 'crypto';
 
 export const config = Constants.manifest?.extra!
 
@@ -17,6 +18,10 @@ export const COLORS = [
   '#8549ba',
   '#58595b',
 ];
+
+export function shorthash(txt: string) {
+  return createHash('sha256').update(txt).digest('hex').slice(0, 5);
+}
 
 export const TEAMS = [
   ...config.teams,
@@ -127,9 +132,15 @@ export function downloadPanelData(data: unknown, filename: string) {
 }
 
 export function downloadPanelScreenshot(element: HTMLElement) {
-  html2canvas(element, {
+  html2canvas(element as HTMLElement, {
     backgroundColor: null,
     imageTimeout: 0,
+    logging: false,
+    onclone: (_, element: Element) => {
+      const pBody = element.querySelector("[data-panel-body]")! as HTMLElement
+      pBody.style.aspectRatio = 'auto';
+      //element.parentElement!.style.height = element.parentElement!.offsetHeight + 1000 + 'px';
+    }
   }).then(function (canvas) {
     const link = document.createElement('a');
     link.download = `${element.getAttribute('data-panel-id')}.png`;

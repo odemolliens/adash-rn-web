@@ -15,14 +15,12 @@ type PanelProps = {
 };
 
 export default function Panel({ children, variant, id }: PanelProps) {
-  const breakpoint = useBreapoint();
   const { colorScheme } = useAppContext();
   const [styles] = useTheme(themedStyles, colorScheme);
 
   return (
     <View
-      style={styles.container}
-      // @ts-ignore-next-line
+      style={styles.container} // @ts-ignore-next-line
       dataSet={{ panelId: id }}
     >
       <View style={[variant && styles[variant], { flex: 1 }]}>
@@ -66,8 +64,8 @@ Panel.Body = function ({ children }: { children?: ReactNode }) {
 
   return (
     <ScrollView
+      dataSet={{ panelBody: 'pabelBody' }}
       style={{
-        width: '100%',
         aspectRatio: 3 / 2,
         paddingHorizontal: 10,
       }}

@@ -35,7 +35,7 @@ import {
 } from './panels';
 import { applyChartTheme } from './panels/chartjs';
 import { styleSheetFactory } from './themes';
-import { config } from './utils';
+import { config, shorthash } from './utils';
 import { ErrorBoundary } from 'react-error-boundary';
 import Panel from './components/Panel';
 
@@ -60,8 +60,10 @@ export default function MonitoringTab() {
   const { colorScheme, zoomedPanel } = useAppContext();
   const [styles, theme] = useTheme(themedStyles, colorScheme);
   const [editing, setEditing] = useState(false);
+  const configId = shorthash(JSON.stringify(config));
+
   const [gridSize, setGridSize] = useLocalStorage(
-    'config.tabs.monitoring.gridSize_' + config.id,
+    'config.tabs.monitoring.gridSize_' + configId,
     config.tabs.monitoring.gridSize + ''
   );
   const hasZoomedPanel = !!zoomedPanel;
@@ -69,7 +71,7 @@ export default function MonitoringTab() {
   applyChartTheme(theme);
 
   const [data, setData] = useLocalStorage(
-    'config.tabs.monitoring.panels_' + config.id,
+    'config.tabs.monitoring.panels_' + configId,
     config.tabs.monitoring.panels
   );
 

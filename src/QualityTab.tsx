@@ -26,7 +26,7 @@ import {
 } from './panels';
 import { applyChartTheme } from './panels/chartjs';
 import { styleSheetFactory } from './themes';
-import { config } from './utils';
+import { config, shorthash } from './utils';
 
 const PANELS: Record<string, () => JSX.Element> = {
   AllureReportPanel,
@@ -43,13 +43,15 @@ export default function MonitoringTab() {
 
   applyChartTheme(theme);
 
+  const configId = shorthash(JSON.stringify(config));
+
   const [gridSize, setGridSize] = useLocalStorage(
-    'config.tabs.quality.gridSize_' + config.id,
+    'config.tabs.quality.gridSize_' + configId,
     config.tabs.quality.gridSize + ''
   );
 
   const [data, setData] = useLocalStorage(
-    'config.tabs.quality.panels_' + config.id,
+    'config.tabs.quality.panels_' + configId,
     config.tabs.quality.panels
   );
 

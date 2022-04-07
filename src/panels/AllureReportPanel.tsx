@@ -85,8 +85,10 @@ export default function AllureReportPanel() {
           {Object.entries(status)
             .sort()
             .reverse()
-            .map(([key, value]) => (
-              <Chip variant={getVariantFromStatus(key)}>{value}</Chip>
+            .map(([key, value], index) => (
+              <Chip key={index} variant={getVariantFromStatus(key)}>
+                {value}
+              </Chip>
             ))}
         </Text>
       </View>
