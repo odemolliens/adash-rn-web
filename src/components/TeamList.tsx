@@ -1,4 +1,5 @@
-import { uniq } from 'lodash';
+import { last, uniq } from 'lodash';
+import { useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useAppContext } from '../contexts/AppContext';
 import { extractTeams, getTeamColor } from '../utils';
@@ -10,7 +11,11 @@ export default function TeamList() {
   const { filterByTeam, setFilterByTeam, data } = useAppContext();
 
   // add "All" button
-  const teams = uniq([ALL_TEAMS, ...extractTeams(data), 'UNK']);
+
+  const teams = useMemo(() => {
+    console.log('HERE TEAMS');
+    return uniq([ALL_TEAMS, ...extractTeams(data.gitlabData), 'UNK']);
+  }, [last(data.gitlabData)!.createdAt]);
 
   if (teams.length <= 2) {
     return null;

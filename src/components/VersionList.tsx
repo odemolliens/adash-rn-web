@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
+import { last } from 'lodash';
 import { Tooltip } from 'native-base';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { useTheme } from 'react-native-themed-styles';
 import { useInterval } from 'usehooks-ts';
@@ -29,7 +30,9 @@ export default function VersionList({
   const [styles, theme] = useTheme(themedStyles, colorScheme);
 
   // add "All" button
-  const versions = [ALL_VERSIONS, ...extractVersions(data)];
+  const versions = useMemo(() => {
+    return [ALL_VERSIONS, ...extractVersions(data.gitlabData)];
+  }, [last(data.gitlabData)!.createdAt]);
 
   if (versions.length <= 1) {
     return null;
