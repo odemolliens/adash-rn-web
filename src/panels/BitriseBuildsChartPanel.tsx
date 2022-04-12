@@ -1,5 +1,5 @@
 import { last, meanBy, uniqBy } from 'lodash';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Chart } from 'react-chartjs-2';
 import { Text } from 'react-native';
 import Download from '../components/Download';
@@ -26,7 +26,10 @@ export default function BitriseBuildsChartPanel() {
   const zoomed = zoomedPanel === PANEL_ID;
   const latest = last(bitriseData)!;
   const [domain, setDomain] = useState<Domain | undefined>();
-  const dataByDomain = getDataByDomain(bitriseData, domain);
+  const dataByDomain = useMemo(
+    () => getDataByDomain(bitriseData, domain),
+    [last(bitriseData)!.createdAt, domain]
+  );
 
   const data = dataByDomain.map(d => ({
     x: formatDate(d.createdAt),

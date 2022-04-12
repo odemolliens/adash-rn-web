@@ -1,9 +1,12 @@
 import { last, meanBy, uniqBy } from 'lodash';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Chart } from 'react-chartjs-2';
 import { StyleSheet, Text, View } from 'react-native';
 import Download from '../components/Download';
-import FilterDomain, { Domain } from '../components/FilterDomain';
+import FilterDomain, {
+  Domain,
+  getDataByDomain,
+} from '../components/FilterDomain';
 import Panel from '../components/Panel';
 import ScreenshotButton from '../components/ScreenshotButton';
 import ZoomButton from '../components/ZoomButton';
@@ -24,21 +27,6 @@ type Job = {
   ref: string;
 };
 
-function getDataByDomain(data: any[], domain: Domain = 'week') {
-  const today = new Date();
-  let date: Date;
-
-  if (domain === 'day') {
-    date = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-  } else if (domain === 'week') {
-    date = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
-  } else if (domain === 'month') {
-    date = new Date(today.getFullYear(), today.getMonth() - 1, today.getDate());
-  }
-
-  return data.filter(row => new Date(row.createdAt) >= date);
-}
-
 export default function GitlabJobsChartPanel() {
   const {
     filterByVersion,
@@ -52,7 +40,11 @@ export default function GitlabJobsChartPanel() {
   const zoomed = zoomedPanel === PANEL_ID;
   const latest = last(gitlabData)!;
   const [domain, setDomain] = useState<Domain | undefined>();
-  const dataByDomain = getDataByDomain(gitlabData, domain);
+
+  const dataByDomain = useMemo(
+    () => getDataByDomain(gitlabData, domain),
+    [last(gitlabData)!.createdAt, domain]
+  );
 
   const data = dataByDomain.map(d => ({
     x: formatDate(d.createdAt),

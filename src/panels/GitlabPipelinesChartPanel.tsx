@@ -1,5 +1,5 @@
 import { last, meanBy, uniqBy } from 'lodash';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Chart } from 'react-chartjs-2';
 import { StyleSheet, Text, View } from 'react-native';
 import Download from '../components/Download';
@@ -40,7 +40,11 @@ export default function GitlabPipelinesChartPanel() {
   const zoomed = zoomedPanel === PANEL_ID;
   const latest = last(gitlabData)!;
   const [domain, setDomain] = useState<Domain | undefined>();
-  const dataByDomain = getDataByDomain(gitlabData, domain);
+
+  const dataByDomain = useMemo(
+    () => getDataByDomain(gitlabData, domain),
+    [last(gitlabData)!.createdAt, domain]
+  );
 
   const data = dataByDomain.map(d => ({
     x: formatDate(d.createdAt),

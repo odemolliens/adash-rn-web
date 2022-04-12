@@ -1,5 +1,5 @@
-import { meanBy, uniqBy } from 'lodash';
-import { useState } from 'react';
+import { last, meanBy, uniqBy } from 'lodash';
+import { useMemo, useState } from 'react';
 import { Chart } from 'react-chartjs-2';
 import { StyleSheet, Text, View } from 'react-native';
 import { useTheme } from 'react-native-themed-styles';
@@ -30,7 +30,11 @@ export default function E2EKPIPanel() {
   const [stylesTheme] = useTheme(themedStyles, colorScheme);
 
   const [domain, setDomain] = useState<Domain | undefined>();
-  const dataByDomain = getDataByDomain(kpie2e, domain);
+
+  const dataByDomain = useMemo(
+    () => getDataByDomain(kpie2e, domain),
+    [last(kpie2e)!.createdAt, domain]
+  );
 
   const dataByTeam = dataByDomain.map(d => ({
     ...d,
