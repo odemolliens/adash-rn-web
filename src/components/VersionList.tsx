@@ -6,7 +6,7 @@ import { useTheme } from 'react-native-themed-styles';
 import { useInterval } from 'usehooks-ts';
 import { useAppContext } from '../contexts/AppContext';
 import { styleSheetFactory } from '../themes';
-import { extractVersions } from '../utils';
+import { extractVersions, config } from '../utils';
 import Chip from './Chip';
 
 type VersionListProps = {
@@ -23,7 +23,8 @@ export default function VersionList({
 }: VersionListProps) {
   const { filterByVersion, setFilterByVersion, data } = useAppContext();
   const [counter, setCounter] = useState(loopCountdown);
-  const [loop, setLoop] = useState(true);
+  const versionsRotationEnabled = config?.versionsBar?.rotationEnabled ?? true;
+  const [loop, setLoop] = useState(versionsRotationEnabled);
   const { colorScheme } = useAppContext();
   const [styles, theme] = useTheme(themedStyles, colorScheme);
 
@@ -60,7 +61,6 @@ export default function VersionList({
           {v ? v : 'All'}
         </Chip>
       ))}
-
       <Chip
         variant={loop ? 'highlight' : undefined}
         onPress={() => {
@@ -83,7 +83,6 @@ export default function VersionList({
           </Pressable>
         </Tooltip>
       </Chip>
-
       {loop && (
         <Text style={[styles.counter, { marginTop: 4, marginLeft: -4 }]}>
           {counter}

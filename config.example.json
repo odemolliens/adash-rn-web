@@ -1,4 +1,7 @@
 {
+  "versionsBar": {
+    "rotationEnabled": true
+  },
   "GitLab": {
     "projectId": "PROJECTID",
     "token": "TOKEN"
