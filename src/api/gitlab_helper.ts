@@ -1,4 +1,5 @@
 import { getLast48hDate } from '../utils';
+
 import NetworkHelper from './network_helper';
 
 export const BASE_URL = 'https://gitlab.com/api/v4';
@@ -40,15 +41,15 @@ export const runScheduledPipelineById = async (
 };
 
 export type Issue = {
-  id: number;
-  title: string;
-  web_url: string;
-  created_at: string;
-  updated_at: string;
-  labels: string[];
-  assignee: { name: string } | null;
-  closed_at: string;
-  state: 'opened' | 'closed'
+  readonly id: number;
+  readonly title: string;
+  readonly web_url: string;
+  readonly created_at: string;
+  readonly updated_at: string;
+  readonly labels: readonly string[];
+  readonly assignee: { readonly name: string } | null;
+  readonly closed_at: string;
+  readonly state: 'opened' | 'closed';
 };
 
 /**
@@ -63,7 +64,7 @@ export const getIssues = async (
   params?: Record<string, unknown>,
   headers?: Record<string, string>
 ) => {
-  const { data } = await NetworkHelper.get<Issue[]>(
+  const { data } = await NetworkHelper.get<readonly Issue[]>(
     `${BASE_URL}${PROJECT_ISSUES_ENDPOINT(projectId)}`,
     {
       headers: {
@@ -76,9 +77,12 @@ export const getIssues = async (
       },
     }
   );
-  const last48hours = getLast48hDate()
+  const last48hours = getLast48hDate();
 
-  return data.filter((issue) => {
-    return issue.state === "opened" || (issue.state === 'closed' && new Date(issue.closed_at) > last48hours)
+  return data.filter(issue => {
+    return (
+      issue.state === 'opened' ||
+      (issue.state === 'closed' && new Date(issue.closed_at) > last48hours)
+    );
   });
 };

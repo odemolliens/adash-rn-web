@@ -1,11 +1,12 @@
+import { createHash } from 'crypto';
+
 import { format } from 'date-fns';
+import Constants from 'expo-constants';
 import html2canvas from 'html2canvas';
 import fileDownload from 'js-file-download';
 import { get, uniq } from 'lodash';
-import Constants from 'expo-constants';
-import { createHash } from 'crypto';
 
-export const config = Constants.manifest?.extra!
+export const config = Constants.manifest?.extra!;
 
 export const COLORS = [
   '#4dc9f6',
@@ -23,10 +24,7 @@ export function shorthash(txt: string) {
   return createHash('sha256').update(txt).digest('hex').slice(0, 5);
 }
 
-export const TEAMS = [
-  ...config.teams,
-  'UNK',
-];
+export const TEAMS = [...config.teams, 'UNK'];
 
 /**
  * Checks if 2 strings are equals (ignore case)
@@ -137,10 +135,10 @@ export function downloadPanelScreenshot(element: HTMLElement) {
     imageTimeout: 0,
     logging: false,
     onclone: (_, element: Element) => {
-      const pBody = element.querySelector("[data-panel-body]")! as HTMLElement
+      const pBody = element.querySelector('[data-panel-body]')! as HTMLElement;
       pBody.style.aspectRatio = 'auto';
       //element.parentElement!.style.height = element.parentElement!.offsetHeight + 1000 + 'px';
-    }
+    },
   }).then(function (canvas) {
     const link = document.createElement('a');
     link.download = `${element.getAttribute('data-panel-id')}.png`;

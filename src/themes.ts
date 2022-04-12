@@ -1,9 +1,10 @@
 import { StyleSheet, useColorScheme } from 'react-native';
 import { registerThemes } from 'react-native-themed-styles';
+
 import { config } from './utils';
 
-const light = config.themes.light
-const dark = config.themes.dark
+const light = config.themes.light;
+const dark = config.themes.dark;
 
 export const baseCss = StyleSheet.create({
   textBold: { fontWeight: '700' },
