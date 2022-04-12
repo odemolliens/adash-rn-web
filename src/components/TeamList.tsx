@@ -13,7 +13,6 @@ export default function TeamList() {
   // add "All" button
 
   const teams = useMemo(() => {
-    console.log('HERE TEAMS');
     return uniq([ALL_TEAMS, ...extractTeams(data.gitlabData), 'UNK']);
   }, [last(data.gitlabData)!.createdAt]);
 

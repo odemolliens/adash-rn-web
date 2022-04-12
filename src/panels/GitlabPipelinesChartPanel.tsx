@@ -43,7 +43,7 @@ export default function GitlabPipelinesChartPanel() {
 
   const dataByDomain = useMemo(
     () => getDataByDomain(gitlabData, domain),
-    [last(gitlabData)!.createdAt, domain]
+    [latest.createdAt, domain]
   );
 
   const data = dataByDomain.map(d => ({

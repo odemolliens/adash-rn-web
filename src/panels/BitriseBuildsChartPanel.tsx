@@ -28,7 +28,7 @@ export default function BitriseBuildsChartPanel() {
   const [domain, setDomain] = useState<Domain | undefined>();
   const dataByDomain = useMemo(
     () => getDataByDomain(bitriseData, domain),
-    [last(bitriseData)!.createdAt, domain]
+    [latest.createdAt, domain]
   );
 
   const data = dataByDomain.map(d => ({

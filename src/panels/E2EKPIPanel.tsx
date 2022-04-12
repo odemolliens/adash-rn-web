@@ -30,10 +30,10 @@ export default function E2EKPIPanel() {
   const [stylesTheme] = useTheme(themedStyles, colorScheme);
 
   const [domain, setDomain] = useState<Domain | undefined>();
-
+  const latest = last(kpie2e)!;
   const dataByDomain = useMemo(
     () => getDataByDomain(kpie2e, domain),
-    [last(kpie2e)!.createdAt, domain]
+    [latest.createdAt, domain]
   );
 
   const dataByTeam = dataByDomain.map(d => ({

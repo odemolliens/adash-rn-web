@@ -48,7 +48,7 @@ export default function GitlabMergeRequestsChartPanel() {
   const [domain, setDomain] = useState<Domain | undefined>();
   const dataByDomain = useMemo(
     () => getDataByDomain(gitlabData, domain),
-    [last(gitlabData)!.createdAt, domain]
+    [latest.createdAt, domain]
   );
 
   const data = dataByDomain.map(d => ({
