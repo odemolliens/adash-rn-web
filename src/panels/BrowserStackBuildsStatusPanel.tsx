@@ -62,7 +62,7 @@ export default function BrowserStackBuildsStatusPanel() {
     latest.BrowserStackAppAutomateBuilds,
     filterByVersion,
     filterByTeam,
-    d => getBrowserStackBuildInfo(d).version
+    d => d.automation_build.name
   );
 
   const timeouts = !!filteredByVersion.find(

@@ -107,18 +107,12 @@ export function applyFilters(
 
 export function getBrowserStackBuildInfo(build: BrowserStackBuild) {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [_, platform, train, branch, team, datetime, _1, start_at] =
-    build.automation_build.name.split('-');
-
+  const [_, platform, branch, _1, team] = build.automation_build.name.split(' ').filter(c => !['-', ''].includes(c));
   return {
-    platform: platform.trim(),
-    train: train.trim(),
-    branch: branch.split(' ')[1],
-    version: branch.split(' ')[1].split('/')[1],
-    team: team.trim(),
-    datetime: datetime.replace('Automated Tests', '').trim(),
-    start_at,
-  };
+    platform, branch,
+    version: extractVersions(branch)[0],
+    team: team
+  }
 }
 
 export function createDownloadableBlobJSON(data: unknown) {
@@ -137,7 +131,6 @@ export function downloadPanelScreenshot(element: HTMLElement) {
     onclone: (_, element: Element) => {
       const pBody = element.querySelector('[data-panel-body]')! as HTMLElement;
       pBody.style.aspectRatio = 'auto';
-      //element.parentElement!.style.height = element.parentElement!.offsetHeight + 1000 + 'px';
     },
   }).then(function (canvas) {
     const link = document.createElement('a');

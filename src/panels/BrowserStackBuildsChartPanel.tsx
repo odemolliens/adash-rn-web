@@ -33,7 +33,7 @@ export default function BrowserStackBuildsChartPanel() {
     latest.BrowserStackAppAutomateBuilds,
     filterByVersion,
     filterByTeam,
-    d => getBrowserStackBuildInfo(d).version
+    d => d.automation_build.name
   );
 
   const data = filteredByVersion.map(d => ({
