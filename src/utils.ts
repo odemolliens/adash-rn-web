@@ -54,23 +54,19 @@ export function formatDate(
   return format(date, formatOutput);
 }
 
-function findMatches(regex: RegExp, str: string, matches: string[] = []) {
-  const res = regex.exec(str)?.[1];
-  res && matches.push(res) && findMatches(regex, str, matches);
-  return matches;
-}
-
 export function extractVersions(data: unknown) {
   const versionRegExp = /\/(?<version>\d+\.\d{2}\.\d)/g; // matches 5.25.0 from feat/5.25.0/SYST-000-title
   const strData = JSON.stringify(data);
-  const versions = uniq(findMatches(versionRegExp, strData).flat());
+  //const versions = uniq(findMatches(versionRegExp, strData).flat());
+  const versions = uniq(strData.match(versionRegExp)).map(v => v.replaceAll('/', '')).flat().sort()
   return versions.sort().reverse();
 }
 
 export function extractTeams(data: unknown) {
   const teamRegExp = new RegExp(`(?<team>${TEAMS.join('|')})`, 'g');
   const strData = JSON.stringify(data).toUpperCase();
-  const teams = uniq(findMatches(teamRegExp, strData).flat()).sort();
+  //const teams = uniq(findMatches(teamRegExp, strData).flat()).sort();
+  const teams = uniq(strData.match(teamRegExp)).flat().sort()
   return teams.length ? teams : ['UNK']; //Unknown team
 }
 
