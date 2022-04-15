@@ -68,6 +68,8 @@ export default function CodeMagicRecentBuilds() {
     [filterByVersion, filterByTeam, latest.createdAt]
   );
 
+  const noData = !filteredByVersionAndTeam.length;
+
   return (
     <Panel id={PANEL_ID}>
       <Panel.Title>
@@ -100,27 +102,30 @@ export default function CodeMagicRecentBuilds() {
       </Panel.Actions>
 
       <Panel.Body>
-        {filteredByVersionAndTeam.map((b: any) => {
-          return (
-            <View style={styles.row} key={b._id}>
-              <Tooltip label={b.status}>
-                <Text>
-                  <StatusIcon variant={getVariant(b)} />
-                </Text>
-              </Tooltip>
+        {!noData &&
+          filteredByVersionAndTeam.map((b: any) => {
+            return (
+              <View style={styles.row} key={b._id}>
+                <Tooltip label={b.status}>
+                  <Text>
+                    <StatusIcon variant={getVariant(b)} />
+                  </Text>
+                </Tooltip>
 
-              <Text style={styles.text}>
-                {`${b.fileWorkflowId.replaceAll('_', ' ').toUpperCase()} - ${
-                  extractTeams(b.branch)[0]
-                } - ${extractVersions(b.branch)[0]} - Created At: ${formatDate(
-                  b.createdAt
-                )} Finished At: ${
-                  b.finishedAt ? formatDate(b.finishedAt) : 'Not finished'
-                }`}
-              </Text>
-            </View>
-          );
-        })}
+                <Text style={styles.text}>
+                  {`${b.fileWorkflowId.replaceAll('_', ' ').toUpperCase()} - ${
+                    extractTeams(b.branch)[0]
+                  } - ${
+                    extractVersions(b.branch)[0]
+                  } - Created At: ${formatDate(b.createdAt)} Finished At: ${
+                    b.finishedAt ? formatDate(b.finishedAt) : 'Not finished'
+                  }`}
+                </Text>
+              </View>
+            );
+          })}
+
+        {noData && <Panel.Empty />}
       </Panel.Body>
 
       <Panel.Footer>Last update: {formatDate(latest!.createdAt)}</Panel.Footer>
