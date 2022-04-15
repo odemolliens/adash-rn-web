@@ -4,6 +4,7 @@ import gitlabData from '../data/gitlab.json';
 import notificationsData from '../data/notifications.json';
 import statusData from '../data/status.json';
 import thresholdsData from '../data/thresholds.json';
+import codeMagicData from '../data/codeMagic.json';
 
 export function useCollectedData() {
   return {
@@ -13,5 +14,6 @@ export function useCollectedData() {
     browserStackData,
     thresholdsData,
     notificationsData,
+    codeMagicData
   };
 }

@@ -23,6 +23,7 @@ type AppContextProps = {
     gitlabData: Record<string, any>[];
     browserStackData: Record<string, any>[];
     thresholdsData: Record<string, Threshold>;
+    codeMagicData: Record<string, any>[];
   };
   colorScheme: string;
   setColorScheme: (colorScheme: 'dark' | 'light') => void;

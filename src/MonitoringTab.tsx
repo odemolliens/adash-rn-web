@@ -32,6 +32,7 @@ import {
   GitlabPipelinesListPanel,
   IssueListPanel,
   StatusOperationalChartPanel,
+  CodeMagicRecentBuilds,
 } from './panels';
 import { applyChartTheme } from './panels/chartjs';
 import { styleSheetFactory } from './themes';
@@ -53,6 +54,7 @@ const PANELS: Record<string, () => JSX.Element> = {
   GitlabPipelinesChartPanel,
   GitlabPipelineSchedulesPanel,
   GitlabPipelinesListPanel,
+  CodeMagicRecentBuilds,
 };
 
 export default function MonitoringTab() {
