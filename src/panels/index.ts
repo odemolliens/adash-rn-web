@@ -15,7 +15,8 @@ import GitlabPipelinesListPanel from './GitlabPipelinesListPanel';
 import IssueListPanel from './IssueListPanel';
 import SonarPanel from './SonarPanel';
 import StatusOperationalChartPanel from './StatusOperationalChartPanel';
-import CodeMagicRecentBuilds from './CodeMagicRecentBuilds'
+import CodeMagicRecentBuildsPanel from './CodeMagicRecentBuildsPanel'
+import CodeMagicChartPanel from './CodeMagicChartPanel';
 
 export {
   IssueListPanel,
@@ -35,5 +36,6 @@ export {
   SonarPanel,
   E2EKPIPanel,
   E2EKPIReportTablePanel,
-  CodeMagicRecentBuilds
+  CodeMagicRecentBuildsPanel,
+  CodeMagicChartPanel
 };

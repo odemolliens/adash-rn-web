@@ -23,7 +23,7 @@ const SUCCESS = 'finished';
 const IN_PROGRESS = 'in-progress';
 const ABORTED = 'canceled';
 
-const PANEL_ID = 'CodeMagicRecentBuilds';
+const PANEL_ID = 'CodeMagicRecentBuildsPanel';
 
 function getVariant(build: { status: string }) {
   switch (build.status) {
@@ -42,7 +42,7 @@ function getVariant(build: { status: string }) {
   }
 }
 
-export default function CodeMagicRecentBuilds() {
+export default function CodeMagicRecentBuildsPanel() {
   const {
     data: { codeMagicData },
     filterByVersion,
@@ -94,7 +94,10 @@ export default function CodeMagicRecentBuilds() {
 
         <Download
           onPress={() =>
-            downloadPanelData(latest.workflows, 'codemagic_recet_builds.json')
+            downloadPanelData(
+              filteredByVersionAndTeam,
+              'codemagic_recet_builds.json'
+            )
           }
         />
 
