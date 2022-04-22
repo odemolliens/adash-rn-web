@@ -16,3 +16,4 @@ updatedata.sh
 # macOS
 .DS_Store
 allure
+src/data/
