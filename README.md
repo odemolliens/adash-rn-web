@@ -12,7 +12,7 @@ Rename the file config.example.json to config.json and apply the configuration
 
 Rename the file `config.example.json` to `config.json` and adjust the configuration as needed.
 
-check CONFIGURATION.md for the documentation
+check [CONFIGURATION.md](CONFIGURATION.md) for the documentation
 
 # Run the project
 
