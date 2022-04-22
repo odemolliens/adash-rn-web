@@ -74,6 +74,7 @@ export const getIssues = async (
       params: {
         ...params,
         issue_type: 'incident',
+        per_page: 100
       },
     }
   );
