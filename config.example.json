@@ -7,6 +7,23 @@
     "token": "TOKEN"
   },
   "teams": ["TEAM1", "TEAM2", "TEAM3", "TEAM4"],
+  "availablePanels": [
+    "StatusOperationalChartPanel",
+    "BitriseBuildsChartPanel",
+    "IssueListPanel",
+    "BitriseBuildsStatusPanel",
+    "BrowserStackBuildsChartPanel",
+    "BrowserStackBuildsStatusPanel",
+    "GitlabJobsChartPanel",
+    "GitlabMergeRequestsChartPanel",
+    "GitlabMergeRequestsClosedLast24hPanel",
+    "GitlabMergeRequestsListPanel",
+    "GitlabPipelinesChartPanel",
+    "GitlabPipelineSchedulesPanel",
+    "GitlabPipelinesListPanel",
+    "AllureReportPanel",
+    "SonarPanel"
+  ],
   "tabs": {
     "monitoring": {
       "panels": [

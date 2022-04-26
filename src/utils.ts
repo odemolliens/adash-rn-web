@@ -24,7 +24,7 @@ export function shorthash(txt: string) {
   return createHash('sha256').update(txt).digest('hex').slice(0, 5);
 }
 
-export const TEAMS = [...config.teams, 'UNK'];
+export const TEAMS = [...(config.teams || []), 'UNK'];
 
 /**
  * Checks if 2 strings are equals (ignore case)

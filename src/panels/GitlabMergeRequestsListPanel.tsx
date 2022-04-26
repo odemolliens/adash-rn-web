@@ -21,7 +21,7 @@ export default function GitlabMergeRequestsListPanel() {
     setZoomedPanel,
     closeZoomedPanel,
   } = useAppContext();
-  const zoomed = zoomedPanel === 'GitlabMergeRequestsListPanel';
+  const zoomed = zoomedPanel === PANEL_ID;
   const { colorScheme } = useAppContext();
   const [styles] = useTheme(themedStyles, colorScheme);
   const latest = last(gitlabData)!;

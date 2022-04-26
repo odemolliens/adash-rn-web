@@ -43,7 +43,7 @@ export default function GitlabMergeRequestsChartPanel() {
     setZoomedPanel,
     closeZoomedPanel,
   } = useAppContext();
-  const zoomed = zoomedPanel === 'GitlabMergeRequestsChartPanel';
+  const zoomed = zoomedPanel === PANEL_ID;
   const latest = last(gitlabData)!;
   const [domain, setDomain] = useState<Domain | undefined>();
   const dataByDomain = useMemo(

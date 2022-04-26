@@ -17,3 +17,4 @@ updatedata.sh
 .DS_Store
 allure
 src/data/
+example/adash-rn-web-example
