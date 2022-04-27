@@ -1,4 +1,4 @@
-import { last } from 'lodash';
+import { isEmpty, last } from 'lodash';
 import React from 'react';
 import { Linking, Text, View } from 'react-native';
 import { useTheme } from 'react-native-themed-styles';
@@ -7,32 +7,24 @@ import Panel from '../components/Panel';
 import ScreenshotButton from '../components/ScreenshotButton';
 import ZoomButton from '../components/ZoomButton';
 import { useAppContext } from '../contexts/AppContext';
+import { useFetchedData } from '../hooks/useCollectedData';
 import { baseCss, styleSheetFactory } from '../themes';
-import { applyFilters, downloadPanelData, formatDate } from '../utils';
+import { applyFilters, formatDate } from '../utils';
 
 const PANEL_ID = 'GitlabPipelinesListPanel';
 
 export default function GitlabPipelinesListPanel() {
-  const {
-    filterByVersion,
-    filterByTeam,
-    isFilteringActive,
-    data: { gitlabData },
-    setZoomedPanel,
-    zoomedPanel,
-    closeZoomedPanel,
-  } = useAppContext();
-  const zoomed = zoomedPanel === PANEL_ID;
+  const { data: gitlabData, loading } = useFetchedData('gitlab.json');
+  const { filterByVersion, filterByTeam, isFilteringActive } = useAppContext();
   const { colorScheme } = useAppContext();
   const [styles] = useTheme(themedStyles, colorScheme);
-  const latest = last(gitlabData)!;
-  const data = last(
+  const latest = last(gitlabData);
+  const filteredByVersionAndTeam = last(
     gitlabData.map(d =>
       applyFilters(d.GitlabPipelineQueue, filterByVersion, filterByTeam, 'ref')
     )
-  )!;
-
-  const noData = !data.length;
+  );
+  const hasData = !isEmpty(filteredByVersionAndTeam);
 
   return (
     <Panel id={PANEL_ID}>
@@ -51,46 +43,46 @@ export default function GitlabPipelinesListPanel() {
 
       <Panel.Subtitle>
         Current Gitlab pipelines:{' '}
-        <Text style={baseCss.textBold}>{data!.length}</Text>
+        <Text style={baseCss.textBold}>{filteredByVersionAndTeam?.length}</Text>
       </Panel.Subtitle>
 
       <Panel.Actions>
-        <ZoomButton
-          zoomed={zoomed}
-          onZoom={() => setZoomedPanel(PANEL_ID)}
-          onZoomOut={() => closeZoomedPanel()}
-        />
+        <ZoomButton panelId={PANEL_ID} />
 
-        <Download
-          onPress={() =>
-            downloadPanelData(
-              data,
-              `gitlab_pipelines${
-                filterByVersion ? `_${filterByVersion}` : ''
-              }.json`
-            )
-          }
-        />
+        {hasData && (
+          <Download
+            data={filteredByVersionAndTeam}
+            filename={`gitlab_pipelines${
+              filterByVersion ? `_${filterByVersion}` : ''
+            }.json`}
+          />
+        )}
 
         <ScreenshotButton panelId={PANEL_ID} />
       </Panel.Actions>
 
       <Panel.Body>
-        {data.map(p => (
-          <View key={p.id} style={{ marginBottom: 1 }}>
-            <Text
-              style={[styles.text, { padding: 3 }]}
-              onPress={() => Linking.openURL(p.web_url)}
-            >
-              Ref: {p.ref} - {p.status}
-            </Text>
-          </View>
-        ))}
+        {loading && !hasData && <Panel.Loading />}
+        {!loading && !hasData && <Panel.Empty />}
 
-        {noData && <Panel.Empty />}
+        {hasData &&
+          filteredByVersionAndTeam!.map(p => (
+            <View key={p.id} style={{ marginBottom: 1 }}>
+              <Text
+                style={[styles.text, { padding: 3 }]}
+                onPress={() => Linking.openURL(p.web_url)}
+              >
+                Ref: {p.ref} - {p.status}
+              </Text>
+            </View>
+          ))}
       </Panel.Body>
 
-      <Panel.Footer>Last update: {formatDate(latest.createdAt)}</Panel.Footer>
+      {hasData && (
+        <Panel.Footer>
+          Last update: {formatDate(latest!.createdAt)}
+        </Panel.Footer>
+      )}
     </Panel>
   );
 }

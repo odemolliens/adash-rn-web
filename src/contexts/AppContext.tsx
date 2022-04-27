@@ -33,6 +33,7 @@ type AppContextProps = {
   setFilterByTeam: (team: string) => void;
   isFilteringActive: boolean;
   zoomedPanel: string;
+  isZoomed: (panelName: string) => boolean;
   setZoomedPanel: (panelName: string) => void;
   closeZoomedPanel: () => void;
   auth: null | { projectId: string; token: string };
@@ -82,6 +83,7 @@ export function AppContextProvider({ children }: { children: ReactNode }) {
         isFilteringActive,
         zoomedPanel,
         setZoomedPanel,
+        isZoomed: panelName => zoomedPanel === panelName,
         closeZoomedPanel: () => setZoomedPanel(''),
         colorScheme,
         setColorScheme,

@@ -11,11 +11,11 @@ import Panel from '../components/Panel';
 import ScreenshotButton from '../components/ScreenshotButton';
 import ZoomButton from '../components/ZoomButton';
 import { useAppContext } from '../contexts/AppContext';
+import { useFetchedData } from '../hooks/useCollectedData';
 import { baseCss } from '../themes';
 import {
   applyFilters,
   COLORS,
-  downloadPanelData,
   extractTeams,
   formatDate,
   getTeamColor,
@@ -28,23 +28,16 @@ type Pipeline = {
 const PANEL_ID = 'GitlabPipelinesChartPanel';
 
 export default function GitlabPipelinesChartPanel() {
-  const {
-    filterByVersion,
-    filterByTeam,
-    isFilteringActive,
-    data: { gitlabData, thresholdsData },
-    zoomedPanel,
-    setZoomedPanel,
-    closeZoomedPanel,
-  } = useAppContext();
-  const zoomed = zoomedPanel === PANEL_ID;
-  const latest = last(gitlabData)!;
-  const [domain, setDomain] = useState<Domain | undefined>();
+  const { data: gitlabData, loading: loading1 } = useFetchedData('gitlab.json');
+  const { data: thresholdsData, loading: loading2 } =
+    useFetchedData<Record<string, any>>('thresholds.json');
 
-  const dataByDomain = useMemo(
-    () => getDataByDomain(gitlabData, domain),
-    [latest.createdAt, domain]
-  );
+  const { filterByVersion, filterByTeam, isFilteringActive } = useAppContext();
+  const latest = last(gitlabData);
+  const [domain, setDomain] = useState<Domain | undefined>();
+  const dataByDomain = getDataByDomain(gitlabData, domain);
+
+  const loading = loading1 || loading2;
 
   const data = dataByDomain.map(d => ({
     x: formatDate(d.createdAt),
@@ -60,13 +53,15 @@ export default function GitlabPipelinesChartPanel() {
     x => x.x
   );
 
-  const thresholdLineData = uniqBy(
-    data.map(d => ({
-      x: d.x,
-      y: thresholdsData['GitLab Pipelines'].max,
-    })),
-    x => x.x
-  );
+  const thresholdLineData = thresholdsData
+    ? uniqBy(
+        data.map(d => ({
+          x: d.x,
+          y: thresholdsData['GitLab Pipelines'].max,
+        })),
+        x => x.x
+      )
+    : [];
 
   const dataByTeam: {
     createdAt: number;
@@ -122,13 +117,13 @@ export default function GitlabPipelinesChartPanel() {
     datasetsPlot = datasetsPlot.filter(d => d.label === filterByTeam);
   }
 
-  const noData =
+  const hasData =
     datasetsPlot.reduce((previousValue, currentValue) => {
       return (
         previousValue +
         (currentValue.data as { y: number }[]).reduce((a, b) => a + b.y, 0)
       );
-    }, 0) === 0;
+    }, 0) !== 0;
 
   return (
     <Panel id={PANEL_ID}>
@@ -151,30 +146,29 @@ export default function GitlabPipelinesChartPanel() {
       </Panel.Subtitle>
 
       <Panel.Actions>
-        <ZoomButton
-          zoomed={zoomed}
-          onZoom={() => setZoomedPanel(PANEL_ID)}
-          onZoomOut={() => closeZoomedPanel()}
-        />
+        <ZoomButton panelId={PANEL_ID} />
 
-        <Download
-          onPress={() =>
-            downloadPanelData(
-              datasets,
-              `gitlab_pipelines${
-                filterByVersion ? `_${filterByVersion}` : ''
-              }.json`
-            )
-          }
-        />
+        {hasData && (
+          <Download
+            data={datasets}
+            filename={`gitlab_pipelines${
+              filterByVersion ? `_${filterByVersion}` : ''
+            }.json`}
+          />
+        )}
 
         <ScreenshotButton panelId={PANEL_ID} />
       </Panel.Actions>
 
       <Panel.Body>
-        <FilterDomain active={domain} onChange={d => setDomain(d)} />
+        {!loading && (
+          <FilterDomain active={domain} onChange={d => setDomain(d)} />
+        )}
 
-        {!noData && (
+        {loading && !hasData && <Panel.Loading />}
+        {!loading && !hasData && <Panel.Empty />}
+
+        {hasData && (
           <Chart
             type="bar"
             options={{
@@ -219,10 +213,13 @@ export default function GitlabPipelinesChartPanel() {
             }}
           />
         )}
-
-        {noData && <Panel.Empty />}
       </Panel.Body>
-      <Panel.Footer>Last update: {formatDate(latest.createdAt)}</Panel.Footer>
+
+      {hasData && (
+        <Panel.Footer>
+          Last update: {formatDate(latest!.createdAt)}
+        </Panel.Footer>
+      )}
     </Panel>
   );
 }

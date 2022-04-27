@@ -1,3 +1,5 @@
+import Constants from 'expo-constants';
+import { isEmpty } from 'lodash';
 import { HStack, Switch, Tooltip } from 'native-base';
 import { useEffect, useState } from 'react';
 import { Linking, Pressable, Text, View } from 'react-native';
@@ -11,8 +13,7 @@ import StatusIcon from '../components/StatusIcon';
 import ZoomButton from '../components/ZoomButton';
 import { useAppContext } from '../contexts/AppContext';
 import { baseCss, styleSheetFactory } from '../themes';
-import { downloadPanelData, formatDate } from '../utils';
-import Constants from 'expo-constants';
+import { formatDate } from '../utils';
 
 const config = Constants.manifest?.extra!;
 const PANEL_ID = 'IssueListPanel';
@@ -34,22 +35,16 @@ function getVariantByLabel(issue: GitlabHelper.Issue) {
 }
 
 export default function IssueListPanel() {
-  const {
-    colorScheme,
-    zoomedPanel,
-    setZoomedPanel,
-    closeZoomedPanel,
-    setFlashMessage,
-    clearFlashMessage,
-  } = useAppContext();
-  const zoomed = zoomedPanel === PANEL_ID;
+  const { colorScheme, setFlashMessage, clearFlashMessage } = useAppContext();
   const [styles] = useTheme(themedStyles, colorScheme);
   const [issues, setIssues] = useState<GitlabHelper.Issue[]>([]);
+  const [loading, setLoading] = useState(true);
   const [lastUpdate, setLastUpdate] = useState<Date | undefined>();
   const [showCritical, setShowCritical] = useState(true);
 
   const fetchIssues = async () => {
     try {
+      setLoading(true);
       setIssues(
         await GitlabHelper.getIssues(
           config.GitLab.projectId,
@@ -58,10 +53,11 @@ export default function IssueListPanel() {
       );
 
       setLastUpdate(new Date());
-
       clearFlashMessage();
     } catch (e) {
       setFlashMessage({ type: 'error', message: String(e), panelId: PANEL_ID });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -71,8 +67,8 @@ export default function IssueListPanel() {
     fetchIssues();
   }, []);
 
-  const noData = issues.length === 0;
-  const inError = !noData;
+  const hasData = !isEmpty(issues);
+  const inError = !hasData;
   const filtered = issues.filter((i: any) =>
     showCritical ? i.labels.includes('high') : true
   );
@@ -89,24 +85,19 @@ export default function IssueListPanel() {
           </HStack>
         </Pressable>
 
-        <ZoomButton
-          zoomed={zoomed}
-          onZoom={() => setZoomedPanel(PANEL_ID)}
-          onZoomOut={() => closeZoomedPanel()}
-        />
+        <ZoomButton panelId={PANEL_ID} />
 
         {lastUpdate && (
           <Download
-            onPress={() =>
-              downloadPanelData(issues, `issues_${formatDate(lastUpdate)}.json`)
-            }
+            data={issues}
+            filename={`issues_${formatDate(lastUpdate)}.json`}
           />
         )}
 
         <ScreenshotButton panelId={PANEL_ID} />
       </Panel.Actions>
 
-      {!noData && (
+      {hasData && (
         <Panel.Subtitle>
           Current active issues:{' '}
           <Text style={baseCss.textBold}>{issues.length}</Text>
@@ -114,6 +105,9 @@ export default function IssueListPanel() {
       )}
 
       <Panel.Body>
+        {loading && !hasData && <Panel.Loading />}
+        {!loading && !hasData && <Panel.Empty />}
+
         {filtered.map(issue => {
           const onPress = () => Linking.openURL(issue.web_url);
 
@@ -134,8 +128,6 @@ export default function IssueListPanel() {
             </View>
           );
         })}
-
-        {noData && <Panel.Empty />}
       </Panel.Body>
 
       <Panel.Footer>

@@ -1,4 +1,4 @@
-import { last } from 'lodash';
+import { isEmpty, last } from 'lodash';
 import { Tooltip } from 'native-base';
 import { Text, View } from 'react-native';
 import { useTheme } from 'react-native-themed-styles';
@@ -8,20 +8,14 @@ import ScreenshotButton from '../components/ScreenshotButton';
 import StatusIcon from '../components/StatusIcon';
 import ZoomButton from '../components/ZoomButton';
 import { useAppContext } from '../contexts/AppContext';
+import { useFetchedData } from '../hooks/useCollectedData';
 import { styleSheetFactory } from '../themes';
-import {
-  applyFilters,
-  BrowserStackBuild,
-  downloadPanelData,
-  formatDate,
-  getBrowserStackBuildInfo,
-} from '../utils';
+import { applyFilters, formatDate } from '../utils';
 
 const ERROR = 'error';
 const FAILED = 'failed';
 const DONE = 'done';
 const TIMEOUT = 'timeout';
-
 const PANEL_ID = 'BrowserStackBuildsStatusPanel';
 
 function getVariant(build: { status: string }) {
@@ -42,24 +36,14 @@ function getVariant(build: { status: string }) {
 }
 
 export default function BrowserStackBuildsStatusPanel() {
-  const {
-    filterByVersion,
-    filterByTeam,
-    isFilteringActive,
-    data: { browserStackData },
-    zoomedPanel,
-    setZoomedPanel,
-    closeZoomedPanel,
-  } = useAppContext();
-
+  const { data, loading } = useFetchedData('browserstack.json');
+  const { filterByVersion, filterByTeam, isFilteringActive } = useAppContext();
   const { colorScheme } = useAppContext();
   const [styles] = useTheme(themedStyles, colorScheme);
+  const latest = last(data);
 
-  const zoomed = zoomedPanel === PANEL_ID;
-  const latest = last(browserStackData)!;
-
-  const filteredByVersion: readonly BrowserStackBuild[] = applyFilters(
-    latest.BrowserStackAppAutomateBuilds,
+  const filteredByVersion = applyFilters(
+    latest?.BrowserStackAppAutomateBuilds,
     filterByVersion,
     filterByTeam,
     d => d.automation_build.name
@@ -72,8 +56,8 @@ export default function BrowserStackBuildsStatusPanel() {
     b => b.automation_build.status === ERROR
   );
 
+  const hasData = !isEmpty(filteredByVersion);
   const variant = errors ? 'error' : timeouts ? 'highlight' : undefined;
-  const noData = !filteredByVersion.length;
 
   return (
     <Panel variant={variant} id={PANEL_ID}>
@@ -91,27 +75,24 @@ export default function BrowserStackBuildsStatusPanel() {
       </Panel.Title>
 
       <Panel.Actions>
-        <ZoomButton
-          zoomed={zoomed}
-          onZoom={() => setZoomedPanel(PANEL_ID)}
-          onZoomOut={() => closeZoomedPanel()}
-        />
+        <ZoomButton panelId={PANEL_ID} />
 
-        <Download
-          onPress={() =>
-            downloadPanelData(
-              filteredByVersion,
-              `browserstack_builds${
-                filterByVersion ? `_${filterByVersion}` : ''
-              }.json`
-            )
-          }
-        />
+        {hasData && (
+          <Download
+            data={filteredByVersion}
+            filename={`browserstack_builds${
+              filterByVersion ? `_${filterByVersion}` : ''
+            }.json`}
+          />
+        )}
 
         <ScreenshotButton panelId={PANEL_ID} />
       </Panel.Actions>
 
       <Panel.Body>
+        {loading && !hasData && <Panel.Loading />}
+        {!loading && !hasData && <Panel.Empty />}
+
         {filteredByVersion.map(build => {
           const { automation_build } = build;
           const buildName = automation_build.name;
@@ -128,11 +109,13 @@ export default function BrowserStackBuildsStatusPanel() {
             </View>
           );
         })}
-
-        {noData && <Panel.Empty />}
       </Panel.Body>
 
-      <Panel.Footer>Last update: {formatDate(latest!.createdAt)}</Panel.Footer>
+      {hasData && (
+        <Panel.Footer>
+          Last update: {formatDate(latest!.createdAt)}
+        </Panel.Footer>
+      )}
     </Panel>
   );
 }

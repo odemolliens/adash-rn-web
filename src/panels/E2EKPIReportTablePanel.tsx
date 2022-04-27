@@ -7,16 +7,16 @@ import Panel from '../components/Panel';
 import ScreenshotButton from '../components/ScreenshotButton';
 import ZoomButton from '../components/ZoomButton';
 import { useAppContext } from '../contexts/AppContext';
-import kpie2e from '../data/kpie2e.json';
 import { styleSheetFactory } from '../themes';
 import { useAssets } from 'expo-asset';
+import { useFetchedData } from '../hooks/useCollectedData';
 
 const PANEL_ID = 'E2EKPIReportTablePanel';
 
 export default function E2EKPIReportTablePanel() {
-  const { colorScheme, setZoomedPanel, closeZoomedPanel, zoomedPanel } =
-    useAppContext();
-  const zoomed = zoomedPanel === PANEL_ID;
+  const { data: kpie2e, loading } = useFetchedData('kpie2e.json');
+
+  const { colorScheme } = useAppContext();
   const [stylesTheme] = useTheme(themedStyles, colorScheme);
 
   const latest: { stats: { [key: string]: any } } = last(kpie2e)!;
@@ -69,16 +69,16 @@ export default function E2EKPIReportTablePanel() {
     child!.document.close();
   }
 
+  if (loading) {
+    return <Text>Loading...</Text>;
+  }
+
   return (
     <Panel id={PANEL_ID}>
       <Panel.Title>E2E KPI Report Table</Panel.Title>
 
       <Panel.Actions>
-        <ZoomButton
-          zoomed={zoomed}
-          onZoom={() => setZoomedPanel(PANEL_ID)}
-          onZoomOut={closeZoomedPanel}
-        />
+        <ZoomButton panelId={PANEL_ID} />
         <ScreenshotButton panelId={PANEL_ID} />
       </Panel.Actions>
 

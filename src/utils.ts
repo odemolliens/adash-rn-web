@@ -73,11 +73,11 @@ export function getTeamColor(team: string) {
 }
 
 export function applyFilters(
-  data: readonly any[],
+  data: Record<string, any>[] = [],
   filterByVersion: string,
   team: string,
   filterKey: string | ((d: any) => string)
-) {
+): any[] {
   let filtered = data;
   if (filterByVersion) {
     filtered = data.filter(d =>

@@ -11,30 +11,27 @@ import Panel from '../components/Panel';
 import ScreenshotButton from '../components/ScreenshotButton';
 import ZoomButton from '../components/ZoomButton';
 import { useAppContext } from '../contexts/AppContext';
-import kpie2e from '../data/kpie2e.json';
+import { useFetchedData } from '../hooks/useCollectedData';
 import { styleSheetFactory } from '../themes';
 import { applyFilters, COLORS, formatDate } from '../utils';
 
 const PANEL_ID = 'E2EKPIPanel';
 
 export default function E2EKPIPanel() {
-  const {
-    colorScheme,
-    setZoomedPanel,
-    closeZoomedPanel,
-    zoomedPanel,
-    filterByTeam,
-    isFilteringActive,
-  } = useAppContext();
-  const zoomed = zoomedPanel === PANEL_ID;
+  const [domain, setDomain] = useState<Domain | undefined>();
+  const { data: kpie2e, loading } = useFetchedData('kpie2e.json');
+  const { colorScheme, filterByTeam, isFilteringActive } = useAppContext();
   const [stylesTheme] = useTheme(themedStyles, colorScheme);
 
-  const [domain, setDomain] = useState<Domain | undefined>();
   const latest = last(kpie2e)!;
   const dataByDomain = useMemo(
     () => getDataByDomain(kpie2e, domain),
-    [latest.createdAt, domain]
+    [latest?.createdAt, domain]
   );
+
+  if (loading) {
+    return <Text>Loading...</Text>;
+  }
 
   const dataByTeam = dataByDomain.map(d => ({
     ...d,
@@ -142,16 +139,14 @@ export default function E2EKPIPanel() {
       </Panel.Title>
 
       <Panel.Actions>
-        <ZoomButton
-          zoomed={zoomed}
-          onZoom={() => setZoomedPanel(PANEL_ID)}
-          onZoomOut={closeZoomedPanel}
-        />
+        <ZoomButton panelId={PANEL_ID} />
         <ScreenshotButton panelId={PANEL_ID} />
       </Panel.Actions>
 
       <Panel.Body>
-        <FilterDomain active={domain} onChange={d => setDomain(d)} />
+        {!loading && (
+          <FilterDomain active={domain} onChange={d => setDomain(d)} />
+        )}
 
         <Chart
           type="bar"

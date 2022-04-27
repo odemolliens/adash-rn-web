@@ -1,5 +1,5 @@
-import { last, meanBy, uniqBy } from 'lodash';
-import { useMemo, useState } from 'react';
+import { isEmpty, last, meanBy, uniqBy } from 'lodash';
+import { useState } from 'react';
 import { Chart } from 'react-chartjs-2';
 import { Text } from 'react-native';
 import Download from '../components/Download';
@@ -10,26 +10,22 @@ import FilterDomain, {
 import Panel from '../components/Panel';
 import ScreenshotButton from '../components/ScreenshotButton';
 import ZoomButton from '../components/ZoomButton';
-import { useAppContext } from '../contexts/AppContext';
+import { useFetchedData } from '../hooks/useCollectedData';
 import { baseCss } from '../themes';
-import { COLORS, downloadPanelData, formatDate } from '../utils';
+import { COLORS, formatDate } from '../utils';
 
 const PANEL_ID = 'BitriseBuildsChartPanel';
 
 export default function BitriseBuildsChartPanel() {
-  const {
-    data: { bitriseData, thresholdsData },
-    zoomedPanel,
-    setZoomedPanel,
-    closeZoomedPanel,
-  } = useAppContext();
-  const zoomed = zoomedPanel === PANEL_ID;
-  const latest = last(bitriseData)!;
+  const { data: bitriseData, loading: loading1 } =
+    useFetchedData('bitrise.json');
+  const { data: thresholdsData, loading: loading2 } =
+    useFetchedData<Record<string, any>>('thresholds.json');
+
+  const loading = loading1 || loading2;
+  const latest = last(bitriseData);
   const [domain, setDomain] = useState<Domain | undefined>();
-  const dataByDomain = useMemo(
-    () => getDataByDomain(bitriseData, domain),
-    [latest.createdAt, domain]
-  );
+  const dataByDomain = getDataByDomain(bitriseData, domain);
 
   const data = dataByDomain.map(d => ({
     x: formatDate(d.createdAt),
@@ -44,45 +40,44 @@ export default function BitriseBuildsChartPanel() {
     x => x.x
   );
 
-  const thresholdLineData = uniqBy(
-    data.map(d => ({
-      x: d.x,
-      y: thresholdsData['Bitrise Builds'].max,
-    })),
-    x => x.x
-  );
+  const thresholdLineData = !isEmpty(thresholdsData)
+    ? uniqBy(
+        data.map(d => ({
+          x: d.x,
+          y: thresholdsData['Bitrise Builds'].max,
+        })),
+        x => x.x
+      )
+    : [];
 
-  const noData = !data.length;
+  const hasData = !isEmpty(data);
 
   return (
     <Panel id={PANEL_ID}>
       <Panel.Title>Bitrise Builds</Panel.Title>
 
       <Panel.Actions>
-        <ZoomButton
-          zoomed={zoomed}
-          onZoom={() => setZoomedPanel(PANEL_ID)}
-          onZoomOut={() => closeZoomedPanel()}
-        />
-
-        <Download
-          onPress={() => downloadPanelData(data, 'bitrise_builds.json')}
-        />
-
+        <ZoomButton panelId={PANEL_ID} />
+        {hasData && <Download data={data} filename="bitrise_builds.json" />}
         <ScreenshotButton panelId={PANEL_ID} />
       </Panel.Actions>
 
-      {!noData && (
+      {hasData && (
         <Panel.Subtitle>
           Current Bitrise Builds:{' '}
-          <Text style={baseCss.textBold}>{latest.BitriseQueueSize}</Text>
+          <Text style={baseCss.textBold}>{latest!.BitriseQueueSize}</Text>
         </Panel.Subtitle>
       )}
 
       <Panel.Body>
-        <FilterDomain active={domain} onChange={d => setDomain(d)} />
+        {!loading && (
+          <FilterDomain active={domain} onChange={d => setDomain(d)} />
+        )}
 
-        {!noData && (
+        {loading && !hasData && <Panel.Loading />}
+        {!loading && !hasData && <Panel.Empty />}
+
+        {hasData && (
           <Chart
             type="bar"
             options={{
@@ -128,11 +123,13 @@ export default function BitriseBuildsChartPanel() {
             }}
           />
         )}
-
-        {noData && <Panel.Empty />}
       </Panel.Body>
 
-      <Panel.Footer>Last update: {formatDate(latest.createdAt)}</Panel.Footer>
+      {hasData && (
+        <Panel.Footer>
+          Last update: {formatDate(latest!.createdAt)}
+        </Panel.Footer>
+      )}
     </Panel>
   );
 }

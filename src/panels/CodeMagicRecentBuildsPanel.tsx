@@ -1,4 +1,4 @@
-import { last } from 'lodash';
+import { isEmpty, last } from 'lodash';
 import { Tooltip } from 'native-base';
 import { useMemo } from 'react';
 import { Text, View } from 'react-native';
@@ -9,6 +9,7 @@ import ScreenshotButton from '../components/ScreenshotButton';
 import StatusIcon from '../components/StatusIcon';
 import ZoomButton from '../components/ZoomButton';
 import { useAppContext } from '../contexts/AppContext';
+import { useFetchedData } from '../hooks/useCollectedData';
 import { styleSheetFactory } from '../themes';
 import {
   applyFilters,
@@ -43,32 +44,20 @@ function getVariant(build: { status: string }) {
 }
 
 export default function CodeMagicRecentBuildsPanel() {
-  const {
-    data: { codeMagicData },
-    filterByVersion,
-    filterByTeam,
-    isFilteringActive,
-    zoomedPanel,
-    setZoomedPanel,
-    closeZoomedPanel,
-  } = useAppContext();
+  const { data: codeMagicData, loading } = useFetchedData('codemagic.json');
+  const { filterByVersion, filterByTeam, isFilteringActive } = useAppContext();
   const { colorScheme } = useAppContext();
   const [styles] = useTheme(themedStyles, colorScheme);
-  const zoomed = zoomedPanel === PANEL_ID;
-  const latest = last(codeMagicData)!;
+  const latest = last(codeMagicData);
 
-  const filteredByVersionAndTeam = useMemo(
-    () =>
-      applyFilters(
-        latest.CodeMagicRecentBuilds,
-        filterByVersion,
-        filterByTeam,
-        d => d.branch
-      ),
-    [filterByVersion, filterByTeam, latest.createdAt]
+  const filteredByVersionAndTeam = applyFilters(
+    latest?.CodeMagicRecentBuilds,
+    filterByVersion,
+    filterByTeam,
+    d => d.branch
   );
 
-  const noData = !filteredByVersionAndTeam.length;
+  const hasData = !isEmpty(codeMagicData);
 
   return (
     <Panel id={PANEL_ID}>
@@ -86,26 +75,23 @@ export default function CodeMagicRecentBuildsPanel() {
       </Panel.Title>
 
       <Panel.Actions>
-        <ZoomButton
-          zoomed={zoomed}
-          onZoom={() => setZoomedPanel(PANEL_ID)}
-          onZoomOut={() => closeZoomedPanel()}
-        />
+        <ZoomButton panelId={PANEL_ID} />
 
-        <Download
-          onPress={() =>
-            downloadPanelData(
-              filteredByVersionAndTeam,
-              'codemagic_recet_builds.json'
-            )
-          }
-        />
+        {hasData && (
+          <Download
+            data={filteredByVersionAndTeam}
+            filename="codemagic_recet_builds.json"
+          />
+        )}
 
         <ScreenshotButton panelId={PANEL_ID} />
       </Panel.Actions>
 
       <Panel.Body>
-        {!noData &&
+        {loading && !hasData && <Panel.Loading />}
+        {!loading && !hasData && <Panel.Empty />}
+
+        {hasData &&
           filteredByVersionAndTeam.map((b: any) => {
             return (
               <View style={styles.row} key={b._id}>
@@ -127,11 +113,13 @@ export default function CodeMagicRecentBuildsPanel() {
               </View>
             );
           })}
-
-        {noData && <Panel.Empty />}
       </Panel.Body>
 
-      <Panel.Footer>Last update: {formatDate(latest!.createdAt)}</Panel.Footer>
+      {hasData && (
+        <Panel.Footer>
+          Last update: {formatDate(latest!.createdAt)}
+        </Panel.Footer>
+      )}
     </Panel>
   );
 }
