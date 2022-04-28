@@ -4,7 +4,6 @@ import { useColorScheme } from 'react-native';
 import { useLocalStorage } from 'usehooks-ts';
 import { ALL_TEAMS } from '../components/TeamList';
 import { ALL_VERSIONS } from '../components/VersionList';
-import { useCollectedData } from '../hooks/useCollectedData';
 
 type FlashMessage = {
   type: 'error' | 'success';
@@ -17,14 +16,6 @@ type Threshold = {
 };
 
 type AppContextProps = {
-  data: {
-    statusData: Record<string, any>[];
-    bitriseData: Record<string, any>[];
-    gitlabData: Record<string, any>[];
-    browserStackData: Record<string, any>[];
-    thresholdsData: Record<string, Threshold>;
-    codeMagicData: Record<string, any>[];
-  };
   colorScheme: string;
   setColorScheme: (colorScheme: 'dark' | 'light') => void;
   filterByVersion: string;
@@ -33,6 +24,7 @@ type AppContextProps = {
   setFilterByTeam: (team: string) => void;
   isFilteringActive: boolean;
   zoomedPanel: string;
+  isZoomed: (panelName: string) => boolean;
   setZoomedPanel: (panelName: string) => void;
   closeZoomedPanel: () => void;
   auth: null | { projectId: string; token: string };
@@ -53,7 +45,6 @@ export function AppContextProvider({ children }: { children: ReactNode }) {
   const [zoomedPanel, setZoomedPanel] = useState('');
   const [filterByTeam, setFilterByTeam] = useState(ALL_TEAMS);
   const isFilteringActive = !!filterByVersion || !!filterByTeam;
-  const collectedData = useCollectedData();
   const defaultColorScheme = useColorScheme() || 'light';
   const [colorScheme, setColorScheme] = useLocalStorage(
     'colorScheme',
@@ -74,7 +65,6 @@ export function AppContextProvider({ children }: { children: ReactNode }) {
   return (
     <AppContext.Provider
       value={{
-        data: collectedData,
         filterByVersion,
         setFilterByVersion,
         filterByTeam,
@@ -82,6 +72,7 @@ export function AppContextProvider({ children }: { children: ReactNode }) {
         isFilteringActive,
         zoomedPanel,
         setZoomedPanel,
+        isZoomed: panelName => zoomedPanel === panelName,
         closeZoomedPanel: () => setZoomedPanel(''),
         colorScheme,
         setColorScheme,

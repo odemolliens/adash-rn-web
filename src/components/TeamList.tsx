@@ -1,20 +1,26 @@
-import { last, uniq } from 'lodash';
+import { uniq } from 'lodash';
 import { useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useAppContext } from '../contexts/AppContext';
+import { useFetch } from '../hooks/useCollectedData';
 import { extractTeams, getTeamColor } from '../utils';
 import Chip from './Chip';
 
 export const ALL_TEAMS = '';
 
 export default function TeamList() {
-  const { filterByTeam, setFilterByTeam, data } = useAppContext();
+  const { filterByTeam, setFilterByTeam } = useAppContext();
+
+  const { data: gitlabData = [] } = useFetch(
+    'http://localhost:3000/data/gitlab.json'
+  );
 
   // add "All" button
 
-  const teams = useMemo(() => {
-    return uniq([ALL_TEAMS, ...extractTeams(data.gitlabData), 'UNK']);
-  }, [last(data.gitlabData)!.createdAt]);
+  const teams = useMemo(
+    () => uniq([ALL_TEAMS, ...extractTeams(gitlabData), 'UNK']),
+    [gitlabData]
+  );
 
   if (teams.length <= 2) {
     return null;

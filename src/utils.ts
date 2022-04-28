@@ -57,14 +57,17 @@ export function formatDate(
 export function extractVersions(data: unknown) {
   const versionRegExp = /\/(?<version>\d+\.\d{2}\.\d)/g; // matches 5.25.0 from feat/5.25.0/SYST-000-title
   const strData = JSON.stringify(data);
-  const versions = uniq(strData.match(versionRegExp)).map(v => v.replaceAll('/', '')).flat().sort()
+  const versions = uniq(strData.match(versionRegExp))
+    .map(v => v.replaceAll('/', ''))
+    .flat()
+    .sort();
   return versions.sort().reverse();
 }
 
 export function extractTeams(data: unknown) {
   const teamRegExp = new RegExp(`(?<team>${TEAMS.join('|')})`, 'g');
   const strData = JSON.stringify(data).toUpperCase();
-  const teams = uniq(strData.match(teamRegExp)).flat().sort()
+  const teams = uniq(strData.match(teamRegExp)).flat().sort();
   return teams.length ? teams : ['UNK']; //Unknown team
 }
 
@@ -72,12 +75,15 @@ export function getTeamColor(team: string) {
   return COLORS[TEAMS.indexOf(team.toUpperCase())];
 }
 
+export const fetcher = (...args: readonly any[]) =>
+  fetch(...args).then(res => res.json());
+
 export function applyFilters(
-  data: readonly any[],
+  data: readonly Record<string, any>[] = [],
   filterByVersion: string,
   team: string,
   filterKey: string | ((d: any) => string)
-) {
+): readonly any[] {
   let filtered = data;
   if (filterByVersion) {
     filtered = data.filter(d =>
@@ -101,12 +107,15 @@ export function applyFilters(
 
 export function getBrowserStackBuildInfo(build: BrowserStackBuild) {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [_, platform, branch, _1, team] = build.automation_build.name.split(' ').filter(c => !['-', ''].includes(c));
+  const [_, platform, branch, _1, team] = build.automation_build.name
+    .split(' ')
+    .filter(c => !['-', ''].includes(c));
   return {
-    platform, branch,
-    version: extractVersions(branch)[0],
-    team: team
-  }
+    platform,
+    branch,
+    version: extractVersions(build.automation_build.name)[0],
+    team: team,
+  };
 }
 
 export function createDownloadableBlobJSON(data: unknown) {

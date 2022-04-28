@@ -1,4 +1,4 @@
-import { last } from 'lodash';
+import { isEmpty, last } from 'lodash';
 import { Tooltip } from 'native-base';
 import { Linking, Text, View } from 'react-native';
 import { useTheme } from 'react-native-themed-styles';
@@ -8,14 +8,14 @@ import ScreenshotButton from '../components/ScreenshotButton';
 import StatusIcon from '../components/StatusIcon';
 import ZoomButton from '../components/ZoomButton';
 import { useAppContext } from '../contexts/AppContext';
+import { useFetch } from '../hooks/useCollectedData';
 import { styleSheetFactory } from '../themes';
-import { downloadPanelData, formatDate } from '../utils';
+import { formatDate } from '../utils';
 
 const ERROR = 'error';
 const SUCCESS = 'success';
 const IN_PROGRESS = 'in-progress';
 const ABORTED = 'aborted';
-
 const PANEL_ID = 'BitriseBuildsStatusPanel';
 
 function getVariant(build: {
@@ -39,66 +39,64 @@ function getVariant(build: {
 }
 
 export default function BitriseBuildsStatusPanel() {
-  const {
-    data: { bitriseData },
-    zoomedPanel,
-    setZoomedPanel,
-    closeZoomedPanel,
-  } = useAppContext();
+  const { loading, data = [] } = useFetch<Record<string, any>[]>(
+    'http://localhost:3000/data/bitrise.json'
+  );
+
   const { colorScheme } = useAppContext();
   const [styles] = useTheme(themedStyles, colorScheme);
-  const zoomed = zoomedPanel === PANEL_ID;
-  const latest = last(bitriseData)!;
+  const latest = last(data);
+  const hasData = !isEmpty(data);
 
   return (
     <Panel id={PANEL_ID}>
       <Panel.Title>Bitrise builds status</Panel.Title>
 
       <Panel.Actions>
-        <ZoomButton
-          zoomed={zoomed}
-          onZoom={() => setZoomedPanel(PANEL_ID)}
-          onZoomOut={() => closeZoomedPanel()}
-        />
-
-        <Download
-          onPress={() =>
-            downloadPanelData(latest.workflows, 'bitrise_status.json')
-          }
-        />
-
+        <ZoomButton panelId={PANEL_ID} />
+        {hasData && (
+          <Download data={latest!.workflows} filename="bitrise_status.json" />
+        )}
         <ScreenshotButton panelId={PANEL_ID} />
       </Panel.Actions>
 
       <Panel.Body>
-        {Object.entries(latest.workflows).map(obj => {
-          const [key, value] = obj as [string, any];
-          const onPress = () =>
-            Linking.openURL(`https://app.bitrise.io/build/${value.slug}`);
+        {loading && !hasData && <Panel.Loading />}
+        {!loading && !hasData && <Panel.Empty />}
 
-          return (
-            <View style={styles.row} key={key}>
-              <Tooltip label={value.status_text}>
-                <Text>
-                  <StatusIcon variant={getVariant(value)} onPress={onPress} />
+        {hasData &&
+          Object.entries(latest!.workflows).map(obj => {
+            const [key, value] = obj as [string, any];
+            const onPress = () =>
+              Linking.openURL(`https://app.bitrise.io/build/${value.slug}`);
+
+            return (
+              <View style={styles.row} key={key}>
+                <Tooltip label={value.status_text}>
+                  <Text>
+                    <StatusIcon variant={getVariant(value)} onPress={onPress} />
+                  </Text>
+                </Tooltip>
+
+                <Text style={styles.text} onPress={onPress}>
+                  {`${key.toUpperCase()} - #${
+                    value.build_number
+                  } Triggered: ${formatDate(value.triggered_at)} Finished: ${
+                    value.finished_at
+                      ? formatDate(value.finished_at)
+                      : 'Not finished'
+                  }`}
                 </Text>
-              </Tooltip>
-
-              <Text style={styles.text} onPress={onPress}>
-                {`${key.toUpperCase()} - #${
-                  value.build_number
-                } Triggered: ${formatDate(value.triggered_at)} Finished: ${
-                  value.finished_at
-                    ? formatDate(value.finished_at)
-                    : 'Not finished'
-                }`}
-              </Text>
-            </View>
-          );
-        })}
+              </View>
+            );
+          })}
       </Panel.Body>
 
-      <Panel.Footer>Last update: {formatDate(latest!.createdAt)}</Panel.Footer>
+      {hasData && (
+        <Panel.Footer>
+          Last update: {formatDate(latest!.createdAt)}
+        </Panel.Footer>
+      )}
     </Panel>
   );
 }

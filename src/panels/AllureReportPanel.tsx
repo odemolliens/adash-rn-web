@@ -1,5 +1,6 @@
-import { countBy, uniq } from 'lodash';
+import { countBy, isEmpty, uniq } from 'lodash';
 import { Tooltip } from 'native-base';
+import { useMemo } from 'react';
 import { Text, View } from 'react-native';
 import { Cell, Row, Table, TableWrapper } from 'react-native-table-component';
 import { useTheme } from 'react-native-themed-styles';
@@ -9,7 +10,7 @@ import Panel from '../components/Panel';
 import ScreenshotButton from '../components/ScreenshotButton';
 import ZoomButton from '../components/ZoomButton';
 import { useAppContext } from '../contexts/AppContext';
-import suites from '../allure/ios/suites.json';
+import { useFetch } from '../hooks/useCollectedData';
 import { styleSheetFactory } from '../themes';
 
 const PANEL_ID = 'AllureReportPanel';
@@ -41,18 +42,26 @@ function getVariantFromStatus(status: string) {
 }
 
 export default function AllureReportPanel() {
-  const { colorScheme, setZoomedPanel, closeZoomedPanel, zoomedPanel } =
-    useAppContext();
-  const zoomed = zoomedPanel === PANEL_ID;
+  const { colorScheme } = useAppContext();
+  const { data: suites = {}, loading } = useFetch<Record<string, any>>(
+    'http://localhost:3000/allure/ios/suites.json'
+  );
 
-  const devices = extractDevices(suites);
-  const tests = suites.children;
   const [styles] = useTheme(themedStyles, colorScheme);
+  const hasData = !isEmpty(suites);
 
-  const state = {
-    tableHead: ['Test Name', ...devices],
-    tableData: tests.map(t => [t.name, ...devices]),
-  };
+  const tests = suites?.children;
+
+  const state = useMemo(() => {
+    if (hasData) {
+      const devices = extractDevices(suites);
+
+      return {
+        tableHead: ['Test Name', ...devices],
+        tableData: tests.map((t: any) => [t.name, ...devices]),
+      };
+    }
+  }, [suites]);
 
   const element = (index: number, cellIndex: number) => {
     const t = tests[index];
@@ -70,7 +79,7 @@ export default function AllureReportPanel() {
             </Tooltip>
           }
         >
-          {t.children.map(t1 => (
+          {t.children.map((t1: any) => (
             <Text key={t1.uid} style={[styles.text, { marginLeft: 10 }]}>
               {t1.name} {t1.status}
             </Text>
@@ -100,36 +109,36 @@ export default function AllureReportPanel() {
       <Panel.Title>Allure Suites</Panel.Title>
 
       <Panel.Actions>
-        <ZoomButton
-          zoomed={zoomed}
-          onZoom={() => setZoomedPanel(PANEL_ID)}
-          onZoomOut={() => closeZoomedPanel()}
-        />
-
+        <ZoomButton panelId={PANEL_ID} />
         <ScreenshotButton panelId={PANEL_ID} />
       </Panel.Actions>
 
       <Panel.Body>
-        <Table borderStyle={{ borderColor: 'transparent' }}>
-          <Row
-            data={state.tableHead}
-            style={styles.head}
-            textStyle={styles.text}
-            flexArr={[2, 1]}
-          />
-          {state.tableData.map((rowData, index) => (
-            <TableWrapper key={index} style={styles.row}>
-              {rowData.map((cellData: any, cellIndex: any) => (
-                <Cell
-                  flex={cellIndex !== 1 ? 2 : 1}
-                  key={cellIndex}
-                  data={element(index, cellIndex)}
-                  textStyle={styles.text}
-                />
-              ))}
-            </TableWrapper>
-          ))}
-        </Table>
+        {loading && !hasData && <Panel.Loading />}
+        {!loading && !hasData && <Panel.Empty />}
+
+        {hasData && (
+          <Table borderStyle={{ borderColor: 'transparent' }}>
+            <Row
+              data={state!.tableHead}
+              style={styles.head}
+              textStyle={styles.text}
+              flexArr={[2, 1]}
+            />
+            {state!.tableData.map((rowData: any, index: number) => (
+              <TableWrapper key={index} style={styles.row}>
+                {rowData.map((cellData: any, cellIndex: any) => (
+                  <Cell
+                    flex={cellIndex !== 1 ? 2 : 1}
+                    key={cellIndex}
+                    data={element(index, cellIndex)}
+                    textStyle={styles.text}
+                  />
+                ))}
+              </TableWrapper>
+            ))}
+          </Table>
+        )}
       </Panel.Body>
     </Panel>
   );

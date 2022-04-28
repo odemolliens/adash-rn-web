@@ -5,5 +5,5 @@ DEBUG=1 npx ts-node adash-data-collector notificator --config example/config.jso
 
 cd ..
 
-mkdir adash-rn-web-example/src/data
-cp -Rf adash-data-collector-example/data/* adash-rn-web-example/src/data
+mkdir adash-rn-web-example/data
+cp -Rf adash-data-collector-example/data/* adash-rn-web-example/data

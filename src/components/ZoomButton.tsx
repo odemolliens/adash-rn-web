@@ -6,22 +6,24 @@ import { useAppContext } from '../contexts/AppContext';
 import { DEFAULT_THEME } from '../themes';
 
 type ZoomButtonProps = {
-  zoomed: boolean;
-  onZoom: () => void;
-  onZoomOut: () => void;
+  panelId: string;
+  zoomed?: boolean;
+  onZoom?: () => void;
+  onZoomOut?: () => void;
 };
 
-export default function ZoomButton({
-  zoomed,
-  onZoom,
-  onZoomOut,
-}: ZoomButtonProps) {
+export default function ZoomButton({ panelId }: ZoomButtonProps) {
+  const { isZoomed, setZoomedPanel, closeZoomedPanel } = useAppContext();
+
+  const zoomed = isZoomed(panelId);
   const { colorScheme } = useAppContext();
   const [_, theme] = useTheme(DEFAULT_THEME, colorScheme);
 
   return (
     <Tooltip label="Zoom In/Out">
-      <Pressable onPress={zoomed ? onZoomOut : onZoom}>
+      <Pressable
+        onPress={() => (zoomed ? closeZoomedPanel() : setZoomedPanel(panelId))}
+      >
         <Ionicons
           name={zoomed ? 'contract' : 'expand'}
           size={18}

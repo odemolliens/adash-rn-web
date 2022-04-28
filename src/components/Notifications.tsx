@@ -3,7 +3,7 @@ import { Menu, Pressable, Tooltip } from 'native-base';
 import { Text, useWindowDimensions, View } from 'react-native';
 import { useTheme } from 'react-native-themed-styles';
 import { useAppContext } from '../contexts/AppContext';
-import { useCollectedData } from '../hooks/useCollectedData';
+import { useFetch } from '../hooks/useCollectedData';
 import { baseCss, styleSheetFactory } from '../themes';
 import { formatDate } from '../utils';
 import Chip from './Chip';
@@ -18,11 +18,14 @@ type Notification = {
 
 export default function Notifications() {
   const { height } = useWindowDimensions();
-  const { notificationsData } = useCollectedData();
+  const { data: notificationsData = [] } = useFetch(
+    'http://localhost:3000/data/notifications.json'
+  );
+
   const { colorScheme } = useAppContext();
   const [styles, theme] = useTheme(themedStyles, colorScheme);
 
-  const notificationsMarked: Notification[] = notificationsData.map(n => ({
+  const notificationsMarked = notificationsData.map(n => ({
     ...n,
     unread: new Date(n.createdAt).getDate() === new Date().getDate(),
   }));

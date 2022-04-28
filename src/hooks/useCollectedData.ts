@@ -1,19 +1,19 @@
-import bitriseData from '../data/bitrise.json';
-import browserStackData from '../data/browserstack.json';
-import gitlabData from '../data/gitlab.json';
-import notificationsData from '../data/notifications.json';
-import statusData from '../data/status.json';
-import thresholdsData from '../data/thresholds.json';
-import codeMagicData from '../data/codeMagic.json';
+import { isEmpty } from 'lodash';
+import useSWRImmutable from 'swr/immutable';
 
-export function useCollectedData() {
+import { fetcher } from '../utils';
+
+export function useFetch<T = readonly Record<string, any>[]>(
+  url: string
+): { readonly data: T; readonly loading: boolean; readonly error: any } {
+  const options = {
+    refreshInterval: 60 * 1000,
+  };
+  const { data, error } = useSWRImmutable(url, fetcher, options);
+
   return {
-    statusData,
-    bitriseData,
-    gitlabData,
-    browserStackData,
-    thresholdsData,
-    notificationsData,
-    codeMagicData
+    data: data as T,
+    loading: !error && isEmpty(data),
+    error,
   };
 }

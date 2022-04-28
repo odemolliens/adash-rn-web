@@ -1,4 +1,4 @@
-import { last } from 'lodash';
+import { isEmpty, last } from 'lodash';
 import { HStack, Switch, Tooltip } from 'native-base';
 import { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
@@ -11,8 +11,9 @@ import ScreenshotButton from '../components/ScreenshotButton';
 import StatusIcon from '../components/StatusIcon';
 import ZoomButton from '../components/ZoomButton';
 import { useAppContext } from '../contexts/AppContext';
+import { useFetch } from '../hooks/useCollectedData';
 import { styleSheetFactory } from '../themes';
-import { downloadPanelData, formatDate } from '../utils';
+import { formatDate } from '../utils';
 
 type PipelineSchedule = {
   id: string;
@@ -37,11 +38,14 @@ function getVariant(active: boolean) {
 const PANEL_ID = 'GitlabPipelineSchedulesPanel';
 
 export default function GitlabPipelineSchedulesPanel() {
+  const [showInactive, setShowInactive] = useState(false);
+  const [runList, setRunList] = useState<string[]>([]);
+
+  const { loading, data: gitlabData = [] } = useFetch(
+    'http://localhost:3000/data/gitlab.json'
+  );
+
   const {
-    data: { gitlabData },
-    setZoomedPanel,
-    zoomedPanel,
-    closeZoomedPanel,
     isAuthenticated,
     clearFlashMessage,
     colorScheme,
@@ -49,13 +53,13 @@ export default function GitlabPipelineSchedulesPanel() {
     auth,
   } = useAppContext();
   const [styles] = useTheme(themedStyles, colorScheme);
-  const zoomed = zoomedPanel === PANEL_ID;
-  const latest = last(gitlabData)!;
-  const [showInactive, setShowInactive] = useState(false);
-  const [runList, setRunList] = useState<string[]>([]);
-  const filtered = latest.GitlabPipelineSchedules.filter((p: any) =>
+  const latest = last(gitlabData);
+
+  const filtered = latest?.GitlabPipelineSchedules.filter((p: any) =>
     showInactive ? true : p.active
   );
+
+  const hasData = !isEmpty(filtered);
 
   const runPipeline = async ({ id }: { id: string }) => {
     try {
@@ -95,52 +99,55 @@ export default function GitlabPipelineSchedulesPanel() {
           </HStack>
         </Pressable>
 
-        <ZoomButton
-          zoomed={zoomed}
-          onZoom={() => setZoomedPanel(PANEL_ID)}
-          onZoomOut={() => closeZoomedPanel()}
-        />
+        <ZoomButton panelId={PANEL_ID} />
 
-        <Download
-          onPress={() =>
-            downloadPanelData(filtered, 'gitlab_pipeline_schedules.json')
-          }
-        />
+        {hasData && (
+          <Download data={filtered} filename="gitlab_pipeline_schedules.json" />
+        )}
 
         <ScreenshotButton panelId={PANEL_ID} />
       </Panel.Actions>
 
       <Panel.Body>
-        {filtered.map((ps: PipelineSchedule) => {
-          return (
-            <View style={styles.row} key={ps.id}>
-              <View style={[{ flex: 1 }, styles.row]}>
-                <Tooltip label={ps.active ? 'active' : 'inactive'}>
-                  <Text>
-                    <StatusIcon variant={getVariant(ps.active)} />
+        {loading && !hasData && <Panel.Loading />}
+        {!loading && !hasData && <Panel.Empty />}
+
+        {hasData &&
+          filtered.map((ps: PipelineSchedule) => {
+            return (
+              <View style={styles.row} key={ps.id}>
+                <View style={[{ flex: 1 }, styles.row]}>
+                  <Tooltip label={ps.active ? 'active' : 'inactive'}>
+                    <Text>
+                      <StatusIcon variant={getVariant(ps.active)} />
+                    </Text>
+                  </Tooltip>
+
+                  <Text style={styles.text}>
+                    {ps.description} - Next run at: {formatDate(ps.next_run_at)}
                   </Text>
-                </Tooltip>
+                </View>
 
-                <Text style={styles.text}>
-                  {ps.description} - Next run at: {formatDate(ps.next_run_at)}
-                </Text>
+                {isAuthenticated && (
+                  <PlayButton
+                    running={runList.includes(ps.id)}
+                    onPress={() => {
+                      confirm(
+                        `Are you sure you want to run ${ps.description}`
+                      ) && runPipeline(ps);
+                    }}
+                  />
+                )}
               </View>
-
-              {isAuthenticated && (
-                <PlayButton
-                  running={runList.includes(ps.id)}
-                  onPress={() => {
-                    confirm(`Are you sure you want to run ${ps.description}`) &&
-                      runPipeline(ps);
-                  }}
-                />
-              )}
-            </View>
-          );
-        })}
+            );
+          })}
       </Panel.Body>
 
-      <Panel.Footer>Last update: {formatDate(latest!.createdAt)}</Panel.Footer>
+      {hasData && (
+        <Panel.Footer>
+          Last update: {formatDate(latest!.createdAt)}
+        </Panel.Footer>
+      )}
     </Panel>
   );
 }

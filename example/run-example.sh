@@ -12,4 +12,4 @@ git clone -b develop https://github.com/odemolliens/adash-rn-web.git adash-rn-we
 sh update-data.sh
 cp config.json adash-rn-web-example/
 cd adash-rn-web-example
-yarn && yarn web
+yarn && yarn dev

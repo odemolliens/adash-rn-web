@@ -1,4 +1,4 @@
-import { last, meanBy, uniqBy } from 'lodash';
+import { isEmpty, last, meanBy, uniqBy } from 'lodash';
 import { useMemo, useState } from 'react';
 import { Chart } from 'react-chartjs-2';
 import { StyleSheet, Text, View } from 'react-native';
@@ -11,11 +11,11 @@ import Panel from '../components/Panel';
 import ScreenshotButton from '../components/ScreenshotButton';
 import ZoomButton from '../components/ZoomButton';
 import { useAppContext } from '../contexts/AppContext';
+import { useFetch } from '../hooks/useCollectedData';
 import { baseCss } from '../themes';
 import {
   applyFilters,
   COLORS,
-  downloadPanelData,
   extractTeams,
   formatDate,
   getTeamColor,
@@ -28,22 +28,19 @@ type Pipeline = {
 const PANEL_ID = 'GitlabPipelinesChartPanel';
 
 export default function GitlabPipelinesChartPanel() {
-  const {
-    filterByVersion,
-    filterByTeam,
-    isFilteringActive,
-    data: { gitlabData, thresholdsData },
-    zoomedPanel,
-    setZoomedPanel,
-    closeZoomedPanel,
-  } = useAppContext();
-  const zoomed = zoomedPanel === PANEL_ID;
-  const latest = last(gitlabData)!;
+  const { loading: loading1, data: gitlabData = [] } = useFetch(
+    'http://localhost:3000/data/gitlab.json'
+  );
+  const { loading: loading2, data: thresholdsData = {} } = useFetch<
+    Record<string, any>
+  >('http://localhost:3000/data/thresholds.json');
+  const loading = loading1 || loading2;
+  const { filterByVersion, filterByTeam, isFilteringActive } = useAppContext();
+  const latest = last(gitlabData);
   const [domain, setDomain] = useState<Domain | undefined>();
-
   const dataByDomain = useMemo(
     () => getDataByDomain(gitlabData, domain),
-    [latest.createdAt, domain]
+    [gitlabData, domain]
   );
 
   const data = dataByDomain.map(d => ({
@@ -60,13 +57,15 @@ export default function GitlabPipelinesChartPanel() {
     x => x.x
   );
 
-  const thresholdLineData = uniqBy(
-    data.map(d => ({
-      x: d.x,
-      y: thresholdsData['GitLab Pipelines'].max,
-    })),
-    x => x.x
-  );
+  const thresholdLineData = !isEmpty(thresholdsData)
+    ? uniqBy(
+        data.map(d => ({
+          x: d.x,
+          y: thresholdsData['GitLab Pipelines'].max,
+        })),
+        x => x.x
+      )
+    : [];
 
   const dataByTeam: {
     createdAt: number;
@@ -122,13 +121,7 @@ export default function GitlabPipelinesChartPanel() {
     datasetsPlot = datasetsPlot.filter(d => d.label === filterByTeam);
   }
 
-  const noData =
-    datasetsPlot.reduce((previousValue, currentValue) => {
-      return (
-        previousValue +
-        (currentValue.data as { y: number }[]).reduce((a, b) => a + b.y, 0)
-      );
-    }, 0) === 0;
+  const hasData = !isEmpty(gitlabData);
 
   return (
     <Panel id={PANEL_ID}>
@@ -151,30 +144,29 @@ export default function GitlabPipelinesChartPanel() {
       </Panel.Subtitle>
 
       <Panel.Actions>
-        <ZoomButton
-          zoomed={zoomed}
-          onZoom={() => setZoomedPanel(PANEL_ID)}
-          onZoomOut={() => closeZoomedPanel()}
-        />
+        <ZoomButton panelId={PANEL_ID} />
 
-        <Download
-          onPress={() =>
-            downloadPanelData(
-              datasets,
-              `gitlab_pipelines${
-                filterByVersion ? `_${filterByVersion}` : ''
-              }.json`
-            )
-          }
-        />
+        {hasData && (
+          <Download
+            data={datasets}
+            filename={`gitlab_pipelines${
+              filterByVersion ? `_${filterByVersion}` : ''
+            }.json`}
+          />
+        )}
 
         <ScreenshotButton panelId={PANEL_ID} />
       </Panel.Actions>
 
       <Panel.Body>
-        <FilterDomain active={domain} onChange={d => setDomain(d)} />
+        {!loading && (
+          <FilterDomain active={domain} onChange={d => setDomain(d)} />
+        )}
 
-        {!noData && (
+        {loading && !hasData && <Panel.Loading />}
+        {!loading && !hasData && <Panel.Empty />}
+
+        {hasData && (
           <Chart
             type="bar"
             options={{
@@ -219,10 +211,13 @@ export default function GitlabPipelinesChartPanel() {
             }}
           />
         )}
-
-        {noData && <Panel.Empty />}
       </Panel.Body>
-      <Panel.Footer>Last update: {formatDate(latest.createdAt)}</Panel.Footer>
+
+      {hasData && (
+        <Panel.Footer>
+          Last update: {formatDate(latest!.createdAt)}
+        </Panel.Footer>
+      )}
     </Panel>
   );
 }

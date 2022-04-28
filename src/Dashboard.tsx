@@ -25,6 +25,7 @@ export default function Dashboard() {
           <Tab.Navigator screenOptions={{ headerShown: false }}>
             {Object.entries(config.tabs).map(([key]) => (
               <Tab.Screen
+                key={key}
                 name={key.toUpperCase()}
                 options={{ tabBarIcon: () => null }}
               >

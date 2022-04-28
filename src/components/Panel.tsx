@@ -2,7 +2,6 @@ import { ReactNode } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 import { useTheme } from 'react-native-themed-styles';
 import { useAppContext } from '../contexts/AppContext';
-import useBreapoint from '../hooks/useBreakpoint';
 import { baseCss, styleSheetFactory } from '../themes';
 import AlertBox from './AlertBox';
 
@@ -95,6 +94,8 @@ Panel.Empty = function ({ children }: { children?: ReactNode }) {
     </View>
   );
 };
+
+Panel.Loading = () => <Panel.Empty>Loading...</Panel.Empty>;
 
 Panel.Error = Panel.Empty;
 
