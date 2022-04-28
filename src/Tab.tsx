@@ -44,6 +44,9 @@ export default function Tab({ configKey }: { configKey: string }) {
     config.tabs[configKey].panels
   );
 
+  const isVersionsBarVisible = !(config.versionsBar?.hidden || false);
+  const isTeamsBarVisible = !(config.teamsBar?.hidden || false);
+
   const renderGridItem = (item: string) => {
     const panel = useMemo(() => lazy(() => import(`./panels/${item}`)), [item]);
 
@@ -88,8 +91,10 @@ export default function Tab({ configKey }: { configKey: string }) {
             horizontal
           >
             <View style={styles.filtersInnerContainer}>
-              <VersionList loopCountdown={60} active={!hasZoomedPanel} />
-              <TeamList />
+              {isVersionsBarVisible && (
+                <VersionList loopCountdown={60} active={!hasZoomedPanel} />
+              )}
+              {isTeamsBarVisible && <TeamList />}
             </View>
 
             <View style={styles.dashboardActions}>
