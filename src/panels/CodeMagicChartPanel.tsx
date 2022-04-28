@@ -1,5 +1,5 @@
 import { isEmpty, last, meanBy, uniqBy } from 'lodash';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Chart } from 'react-chartjs-2';
 import { Text } from 'react-native';
 import Download from '../components/Download';
@@ -10,27 +10,31 @@ import FilterDomain, {
 import Panel from '../components/Panel';
 import ScreenshotButton from '../components/ScreenshotButton';
 import ZoomButton from '../components/ZoomButton';
-import { useFetchedData } from '../hooks/useCollectedData';
+import { useFetch } from '../hooks/useCollectedData';
 import { baseCss } from '../themes';
 import { COLORS, formatDate } from '../utils';
 
 const PANEL_ID = 'CodeMagicChartPanel';
 
 export default function CodeMagicChartPanel() {
-  const { data: codeMagicData, loading: loading1 } =
-    useFetchedData('codemagic.json');
-  const { data: thresholdsData, loading: loading2 } =
-    useFetchedData<Record<string, any>>('thresholds.json');
+  const { data: codeMagicData = [], loading: loading1 } = useFetch(
+    'http://localhost:3000/data/codemagic.json'
+  );
+  const { data: thresholdsData = {}, loading: loading2 } = useFetch<
+    Record<string, any>
+  >('http://localhost:3000/data/thresholds.json');
 
   const loading = loading1 || loading2;
   const latest = last(codeMagicData);
   const [domain, setDomain] = useState<Domain | undefined>();
-  const dataByDomain = getDataByDomain(codeMagicData, domain);
-
-  const data = dataByDomain.map(d => ({
-    x: formatDate(d.createdAt),
-    y: d.CodeMagicBuildQueueSize,
-  }));
+  const data = useMemo(
+    () =>
+      getDataByDomain(codeMagicData, domain).map(d => ({
+        x: formatDate(d.createdAt),
+        y: d.CodeMagicBuildQueueSize,
+      })),
+    [codeMagicData, domain]
+  );
 
   const averageData = uniqBy(
     data.map(d => ({
@@ -40,8 +44,7 @@ export default function CodeMagicChartPanel() {
     x => x.x
   );
 
-  console.log(thresholdsData);
-  const thresholdLineData = thresholdsData
+  const thresholdLineData = !isEmpty(thresholdsData)
     ? uniqBy(
         data.map(d => ({
           x: d.x,
@@ -51,7 +54,7 @@ export default function CodeMagicChartPanel() {
       )
     : [];
 
-  const hasData = !isEmpty(codeMagicData);
+  const hasData = !isEmpty(data);
 
   return (
     <Panel id={PANEL_ID}>

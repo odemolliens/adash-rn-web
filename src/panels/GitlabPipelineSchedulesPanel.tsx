@@ -11,7 +11,7 @@ import ScreenshotButton from '../components/ScreenshotButton';
 import StatusIcon from '../components/StatusIcon';
 import ZoomButton from '../components/ZoomButton';
 import { useAppContext } from '../contexts/AppContext';
-import { useFetchedData } from '../hooks/useCollectedData';
+import { useFetch } from '../hooks/useCollectedData';
 import { styleSheetFactory } from '../themes';
 import { formatDate } from '../utils';
 
@@ -40,7 +40,10 @@ const PANEL_ID = 'GitlabPipelineSchedulesPanel';
 export default function GitlabPipelineSchedulesPanel() {
   const [showInactive, setShowInactive] = useState(false);
   const [runList, setRunList] = useState<string[]>([]);
-  const { data: gitlabData, loading } = useFetchedData('gitlab.json');
+
+  const { loading, data: gitlabData = [] } = useFetch(
+    'http://localhost:3000/data/gitlab.json'
+  );
 
   const {
     isAuthenticated,

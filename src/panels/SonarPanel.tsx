@@ -1,4 +1,3 @@
-import { Text } from 'react-native';
 import Panel from '../components/Panel';
 import ScreenshotButton from '../components/ScreenshotButton';
 import ZoomButton from '../components/ZoomButton';
@@ -16,7 +15,7 @@ export default function SonarPanel() {
       </Panel.Actions>
 
       <Panel.Body>
-        <Text>TO BE IMPLEMENTED</Text>
+        <Panel.Empty>TO BE IMPLEMENTED</Panel.Empty>
       </Panel.Body>
     </Panel>
   );

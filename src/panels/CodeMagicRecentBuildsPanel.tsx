@@ -9,11 +9,10 @@ import ScreenshotButton from '../components/ScreenshotButton';
 import StatusIcon from '../components/StatusIcon';
 import ZoomButton from '../components/ZoomButton';
 import { useAppContext } from '../contexts/AppContext';
-import { useFetchedData } from '../hooks/useCollectedData';
+import { useFetch } from '../hooks/useCollectedData';
 import { styleSheetFactory } from '../themes';
 import {
   applyFilters,
-  downloadPanelData,
   extractTeams,
   extractVersions,
   formatDate,
@@ -44,20 +43,27 @@ function getVariant(build: { status: string }) {
 }
 
 export default function CodeMagicRecentBuildsPanel() {
-  const { data: codeMagicData, loading } = useFetchedData('codemagic.json');
+  const { loading, data: codeMagicData = [] } = useFetch(
+    'http://localhost:3000/data/codemagic.json'
+  );
+
   const { filterByVersion, filterByTeam, isFilteringActive } = useAppContext();
   const { colorScheme } = useAppContext();
   const [styles] = useTheme(themedStyles, colorScheme);
   const latest = last(codeMagicData);
 
-  const filteredByVersionAndTeam = applyFilters(
-    latest?.CodeMagicRecentBuilds,
-    filterByVersion,
-    filterByTeam,
-    d => d.branch
+  const filteredByVersionAndTeam = useMemo(
+    () =>
+      applyFilters(
+        latest?.CodeMagicRecentBuilds,
+        filterByVersion,
+        filterByTeam,
+        d => d.branch
+      ),
+    [latest?.CodeMagicRecentBuilds, filterByVersion, filterByTeam]
   );
 
-  const hasData = !isEmpty(codeMagicData);
+  const hasData = !isEmpty(filteredByVersionAndTeam);
 
   return (
     <Panel id={PANEL_ID}>

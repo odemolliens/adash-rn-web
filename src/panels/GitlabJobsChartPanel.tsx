@@ -1,5 +1,5 @@
-import { last, meanBy, uniqBy } from 'lodash';
-import { useState } from 'react';
+import { isEmpty, last, meanBy, uniqBy } from 'lodash';
+import { useMemo, useState } from 'react';
 import { Chart } from 'react-chartjs-2';
 import { StyleSheet, Text, View } from 'react-native';
 import Download from '../components/Download';
@@ -11,7 +11,7 @@ import Panel from '../components/Panel';
 import ScreenshotButton from '../components/ScreenshotButton';
 import ZoomButton from '../components/ZoomButton';
 import { useAppContext } from '../contexts/AppContext';
-import { useFetchedData } from '../hooks/useCollectedData';
+import { useFetch } from '../hooks/useCollectedData';
 import { baseCss } from '../themes';
 import {
   applyFilters,
@@ -29,25 +29,31 @@ type Job = {
 
 export default function GitlabJobsChartPanel() {
   const [domain, setDomain] = useState<Domain | undefined>();
+  const { loading: loading1, data: gitlabData } = useFetch(
+    'http://localhost:3000/data/gitlab.json'
+  );
+  const { loading: loading2, data: thresholdsData = {} } = useFetch<
+    Record<string, any>
+  >('http://localhost:3000/data/thresholds.json');
 
-  const { data: gitlabData, loading: loading1 } = useFetchedData('gitlab.json');
-  const { data: thresholdsData, loading: loading2 } =
-    useFetchedData<Record<string, any>>('thresholds.json');
   const loading = loading1 || loading2;
   const { filterByVersion, filterByTeam, isFilteringActive } = useAppContext();
   const latest = last(gitlabData);
 
-  const dataByDomain = getDataByDomain(gitlabData, domain);
+  const dataByDomain = useMemo(
+    () => getDataByDomain(gitlabData, domain),
+    [gitlabData, domain]
+  );
 
-  if (loading1 || loading2) {
-    return <Text>Loading...</Text>;
-  }
-
-  const data = dataByDomain.map(d => ({
-    x: formatDate(d.createdAt),
-    y: applyFilters(d.GitlabJobQueue, filterByVersion, filterByTeam, 'ref')
-      .length,
-  }));
+  const data = useMemo(
+    () =>
+      dataByDomain.map(d => ({
+        x: formatDate(d.createdAt),
+        y: applyFilters(d.GitlabJobQueue, filterByVersion, filterByTeam, 'ref')
+          .length,
+      })),
+    [dataByDomain]
+  );
 
   const averageData = uniqBy(
     data.map(d => ({
@@ -57,7 +63,7 @@ export default function GitlabJobsChartPanel() {
     x => x.x
   );
 
-  const thresholdLineData = thresholdsData
+  const thresholdLineData = !isEmpty(thresholdsData)
     ? uniqBy(
         data.map(d => ({
           x: d.x,
@@ -121,13 +127,7 @@ export default function GitlabJobsChartPanel() {
     datasetsPlot = datasetsPlot.filter(d => d.label === filterByTeam);
   }
 
-  const hasData =
-    datasetsPlot.reduce((previousValue, currentValue) => {
-      return (
-        previousValue +
-        (currentValue.data as { y: number }[]).reduce((a, b) => a + b.y, 0)
-      );
-    }, 0) != 0;
+  const hasData = !isEmpty(gitlabData);
 
   return (
     <Panel id={PANEL_ID}>

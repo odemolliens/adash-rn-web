@@ -1,5 +1,5 @@
 import { isEmpty, last, meanBy, uniqBy } from 'lodash';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Chart } from 'react-chartjs-2';
 import { Text } from 'react-native';
 import Download from '../components/Download';
@@ -10,27 +10,31 @@ import FilterDomain, {
 import Panel from '../components/Panel';
 import ScreenshotButton from '../components/ScreenshotButton';
 import ZoomButton from '../components/ZoomButton';
-import { useFetchedData } from '../hooks/useCollectedData';
+import { useFetch } from '../hooks/useCollectedData';
 import { baseCss } from '../themes';
 import { COLORS, formatDate } from '../utils';
 
 const PANEL_ID = 'BitriseBuildsChartPanel';
 
 export default function BitriseBuildsChartPanel() {
-  const { data: bitriseData, loading: loading1 } =
-    useFetchedData('bitrise.json');
-  const { data: thresholdsData, loading: loading2 } =
-    useFetchedData<Record<string, any>>('thresholds.json');
+  const { loading: loading1, data: bitriseData = [] } = useFetch(
+    'http://localhost:3000/data/bitrise.json'
+  );
+  const { loading: loading2, data: thresholdsData = {} } = useFetch<
+    Record<string, any>
+  >('http://localhost:3000/data/thresholds.json');
 
   const loading = loading1 || loading2;
   const latest = last(bitriseData);
   const [domain, setDomain] = useState<Domain | undefined>();
-  const dataByDomain = getDataByDomain(bitriseData, domain);
-
-  const data = dataByDomain.map(d => ({
-    x: formatDate(d.createdAt),
-    y: d.BitriseQueueSize,
-  }));
+  const data = useMemo(
+    () =>
+      getDataByDomain(bitriseData, domain).map(d => ({
+        x: formatDate(d.createdAt),
+        y: d.BitriseQueueSize,
+      })),
+    [bitriseData, domain]
+  );
 
   const averageData = uniqBy(
     data.map(d => ({

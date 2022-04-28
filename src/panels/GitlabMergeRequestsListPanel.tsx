@@ -6,14 +6,17 @@ import Panel from '../components/Panel';
 import ScreenshotButton from '../components/ScreenshotButton';
 import ZoomButton from '../components/ZoomButton';
 import { useAppContext } from '../contexts/AppContext';
-import { useFetchedData } from '../hooks/useCollectedData';
+import { useFetch } from '../hooks/useCollectedData';
 import { baseCss, styleSheetFactory } from '../themes';
 import { applyFilters, formatDate } from '../utils';
 
 const PANEL_ID = 'GitlabMergeRequestsListPanel';
 
 export default function GitlabMergeRequestsListPanel() {
-  const { data: gitlabData, loading } = useFetchedData('gitlab.json');
+  const { loading, data: gitlabData = [] } = useFetch(
+    'http://localhost:3000/data/gitlab.json'
+  );
+
   const { filterByVersion, filterByTeam, isFilteringActive } = useAppContext();
   const { colorScheme } = useAppContext();
   const [styles] = useTheme(themedStyles, colorScheme);

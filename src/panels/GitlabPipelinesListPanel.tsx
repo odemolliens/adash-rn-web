@@ -1,5 +1,5 @@
 import { isEmpty, last } from 'lodash';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Linking, Text, View } from 'react-native';
 import { useTheme } from 'react-native-themed-styles';
 import Download from '../components/Download';
@@ -7,24 +7,36 @@ import Panel from '../components/Panel';
 import ScreenshotButton from '../components/ScreenshotButton';
 import ZoomButton from '../components/ZoomButton';
 import { useAppContext } from '../contexts/AppContext';
-import { useFetchedData } from '../hooks/useCollectedData';
+import { useFetch } from '../hooks/useCollectedData';
 import { baseCss, styleSheetFactory } from '../themes';
 import { applyFilters, formatDate } from '../utils';
 
 const PANEL_ID = 'GitlabPipelinesListPanel';
 
 export default function GitlabPipelinesListPanel() {
-  const { data: gitlabData, loading } = useFetchedData('gitlab.json');
+  const { loading, data: gitlabData = [] } = useFetch(
+    'http://localhost:3000/data/gitlab.json'
+  );
+
   const { filterByVersion, filterByTeam, isFilteringActive } = useAppContext();
   const { colorScheme } = useAppContext();
   const [styles] = useTheme(themedStyles, colorScheme);
+  const hasData = !isEmpty(gitlabData);
   const latest = last(gitlabData);
-  const filteredByVersionAndTeam = last(
-    gitlabData.map(d =>
-      applyFilters(d.GitlabPipelineQueue, filterByVersion, filterByTeam, 'ref')
-    )
+  const filteredByVersionAndTeam = useMemo(
+    () =>
+      last(
+        gitlabData.map(d =>
+          applyFilters(
+            d.GitlabPipelineQueue,
+            filterByVersion,
+            filterByTeam,
+            'ref'
+          )
+        )
+      ),
+    [latest, filterByVersion, filterByTeam]
   );
-  const hasData = !isEmpty(filteredByVersionAndTeam);
 
   return (
     <Panel id={PANEL_ID}>

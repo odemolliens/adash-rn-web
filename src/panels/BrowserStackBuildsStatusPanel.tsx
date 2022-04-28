@@ -1,5 +1,6 @@
 import { isEmpty, last } from 'lodash';
 import { Tooltip } from 'native-base';
+import { useMemo } from 'react';
 import { Text, View } from 'react-native';
 import { useTheme } from 'react-native-themed-styles';
 import Download from '../components/Download';
@@ -8,7 +9,7 @@ import ScreenshotButton from '../components/ScreenshotButton';
 import StatusIcon from '../components/StatusIcon';
 import ZoomButton from '../components/ZoomButton';
 import { useAppContext } from '../contexts/AppContext';
-import { useFetchedData } from '../hooks/useCollectedData';
+import { useFetch } from '../hooks/useCollectedData';
 import { styleSheetFactory } from '../themes';
 import { applyFilters, formatDate } from '../utils';
 
@@ -36,17 +37,24 @@ function getVariant(build: { status: string }) {
 }
 
 export default function BrowserStackBuildsStatusPanel() {
-  const { data, loading } = useFetchedData('browserstack.json');
+  const { loading, data = [] } = useFetch(
+    'http://localhost:3000/data/browserstack.json'
+  );
+
   const { filterByVersion, filterByTeam, isFilteringActive } = useAppContext();
   const { colorScheme } = useAppContext();
   const [styles] = useTheme(themedStyles, colorScheme);
   const latest = last(data);
 
-  const filteredByVersion = applyFilters(
-    latest?.BrowserStackAppAutomateBuilds,
-    filterByVersion,
-    filterByTeam,
-    d => d.automation_build.name
+  const filteredByVersion = useMemo(
+    () =>
+      applyFilters(
+        latest?.BrowserStackAppAutomateBuilds,
+        filterByVersion,
+        filterByTeam,
+        d => d.automation_build.name
+      ),
+    [latest?.BrowserStackAppAutomateBuilds, filterByVersion, filterByTeam]
   );
 
   const timeouts = !!filteredByVersion.find(

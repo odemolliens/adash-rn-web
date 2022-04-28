@@ -8,7 +8,7 @@ import ScreenshotButton from '../components/ScreenshotButton';
 import StatusIcon from '../components/StatusIcon';
 import ZoomButton from '../components/ZoomButton';
 import { useAppContext } from '../contexts/AppContext';
-import { useFetchedData } from '../hooks/useCollectedData';
+import { useFetch } from '../hooks/useCollectedData';
 import { styleSheetFactory } from '../themes';
 import { formatDate } from '../utils';
 
@@ -39,7 +39,10 @@ function getVariant(build: {
 }
 
 export default function BitriseBuildsStatusPanel() {
-  const { data, loading } = useFetchedData('bitrise.json');
+  const { loading, data = [] } = useFetch<Record<string, any>[]>(
+    'http://localhost:3000/data/bitrise.json'
+  );
+
   const { colorScheme } = useAppContext();
   const [styles] = useTheme(themedStyles, colorScheme);
   const latest = last(data);

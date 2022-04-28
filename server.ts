@@ -3,20 +3,20 @@ const path = require('path')
 
 fastify.register(require('fastify-cors'), {
   origin: (origin: any, cb: any) => {
-    const hostname = new URL(origin).hostname
-    if (hostname === "localhost") {
-      //  Request from localhost will pass
-      cb(null, true)
-      return
-    }
-    // Generate an error on other origins, disabling access
-    cb(new Error("Not allowed"))
+    cb(null, true)
+    return
   }
 })
 
 fastify.register(require('fastify-static'), {
   root: path.join(__dirname, 'data'),
   prefix: '/data/',
+})
+
+fastify.register(require('fastify-static'), {
+  root: path.join(__dirname, 'allure'),
+  prefix: '/allure/',
+  decorateReply: false
 })
 
 // Run the server!

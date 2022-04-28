@@ -60,7 +60,10 @@ const themedStyles = styleSheetFactory(theme => ({
   },
 }));
 
-export function getDataByDomain(data: any[], domain: Domain = DEFAULT_DOMAIN) {
+export function getDataByDomain(
+  data: readonly any[],
+  domain: Domain = DEFAULT_DOMAIN
+) {
   const today = new Date();
   let date: Date;
 
