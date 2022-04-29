@@ -29,7 +29,7 @@ type Job = {
 
 export default function GitlabJobsChartPanel() {
   const [domain, setDomain] = useState<Domain | undefined>();
-  const { loading: loading1, data: gitlabData } = useFetch(
+  const { loading: loading1, data: gitlabData = [] } = useFetch(
     'http://localhost:3000/data/gitlab.json'
   );
   const { loading: loading2, data: thresholdsData = {} } = useFetch<

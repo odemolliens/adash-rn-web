@@ -18,7 +18,7 @@ import PanelsBar from './components/PanelsBar';
 import TeamList from './components/TeamList';
 import VersionList from './components/VersionList';
 import { useAppContext } from './contexts/AppContext';
-import { applyChartTheme } from './panels/chartjs';
+import { applyChartTheme } from './chartjs';
 import { styleSheetFactory } from './themes';
 import { config, shorthash } from './utils';
 import { ErrorBoundary } from 'react-error-boundary';

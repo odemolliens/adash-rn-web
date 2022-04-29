@@ -5,10 +5,10 @@ cd adash-data-collector-example
 yarn
 
 sed -i '' "s/REDACTED/$gitlabToken/g" example/config.json
-
 cd ..
 git clone -b develop https://github.com/odemolliens/adash-rn-web.git adash-rn-web-example
 
+mkdir adash-rn-web-example/data
 sh update-data.sh
 cp config.json adash-rn-web-example/
 cd adash-rn-web-example
