@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { isEmpty } from 'lodash';
 import { Tooltip } from 'native-base';
 import { useMemo, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
@@ -51,47 +52,49 @@ export default function VersionList({
     loop && active ? SECOND : null
   );
 
-  if (versions.length <= 1) {
-    return null;
-  }
+  const hasData = !isEmpty(gitlabData);
 
   return (
     <View style={styles.versionsContainer}>
-      {versions.map(v => (
-        <Chip
-          key={v}
-          onPress={() => {
-            setLoop(false);
-            setFilterByVersion(v);
-          }}
-          variant={filterByVersion === v ? 'highlight' : undefined}
-        >
-          {v ? v : 'All'}
-        </Chip>
-      ))}
-      <Chip
-        variant={loop ? 'highlight' : undefined}
-        onPress={() => {
-          setLoop(!loop);
-          setCounter(loopCountdown);
-        }}
-      >
-        <Tooltip label="Auto-switch between versions">
-          <Pressable
+      {hasData &&
+        versions.map(v => (
+          <Chip
+            key={v}
             onPress={() => {
-              setLoop(!loop);
-              setCounter(loopCountdown);
+              setLoop(false);
+              setFilterByVersion(v);
             }}
+            variant={filterByVersion === v ? 'highlight' : undefined}
           >
-            <Ionicons
-              name="ios-repeat"
-              size={15}
-              color={loop ? theme.textColor2 : theme.textColor}
-            />
-          </Pressable>
-        </Tooltip>
-      </Chip>
-      {loop && (
+            {v ? v : 'All'}
+          </Chip>
+        ))}
+      {hasData && (
+        <Chip
+          variant={loop ? 'highlight' : undefined}
+          onPress={() => {
+            setLoop(!loop);
+            setCounter(loopCountdown);
+          }}
+        >
+          <Tooltip label="Auto-switch between versions">
+            <Pressable
+              onPress={() => {
+                setLoop(!loop);
+                setCounter(loopCountdown);
+              }}
+            >
+              <Ionicons
+                name="ios-repeat"
+                size={15}
+                color={loop ? theme.textColor2 : theme.textColor}
+              />
+            </Pressable>
+          </Tooltip>
+        </Chip>
+      )}
+
+      {hasData && loop && (
         <Text style={[styles.counter, { marginTop: 4, marginLeft: -4 }]}>
           {counter}
         </Text>

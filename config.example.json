@@ -1,6 +1,10 @@
 {
   "versionsBar": {
-    "rotationEnabled": true
+    "rotationEnabled": true,
+    "hidden": false
+  },
+  "teamsBar": {
+    "hidden": false
   },
   "GitLab": {
     "projectId": "PROJECTID",

@@ -3,8 +3,8 @@
     "GitLab": {
       "status": true,
       "metrics": true,
-      "projectId": "278964",
-      "token": "REDACTED"
+      "projectId": "PROJECTIDREDACTED",
+      "token": "TOKENREDACTED"
     },
     "BrowserStack": {
       "status": true
@@ -16,7 +16,7 @@
       "status": true
     },
     "NPM": {
-      "status": false
+      "status": true
     },
     "Gradle": {
       "status": true

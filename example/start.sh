@@ -1,3 +1,5 @@
+read -p 'Insert GitLab project Id (default 8984880): ' gitlabProjectId
+gitlabProjectId=${gitlabProjectId:-8984880}
 read -p 'Insert your GitLab Token: ' gitlabToken
 
 git clone -b develop https://github.com/odemolliens/adash-data-collector.git adash-data-collector-example
@@ -6,7 +8,8 @@ cd adash-data-collector-example
 git pull
 yarn
 
-sed -i '' "s/REDACTED/$gitlabToken/g" config.json
+sed -i '' "s/PROJECTIDREDACTED/$gitlabProjectId/g" config.json
+sed -i '' "s/TOKENREDACTED/$gitlabToken/g" config.json
 cd ..
 git clone -b develop https://github.com/odemolliens/adash-rn-web.git adash-rn-web-example
 
