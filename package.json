@@ -37,7 +37,7 @@
     "react-native-safe-area-context": "3.3.2",
     "react-native-screens": "~3.10.1",
     "react-native-table-component": "^1.2.2",
-    "react-native-web": "0.17.1",
+    "react-native-web": "0.17.7",
     "usehooks-ts": "^2.1.1"
   },
   "devDependencies": {
