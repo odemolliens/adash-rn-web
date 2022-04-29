@@ -27,7 +27,7 @@
     "js-file-download": "^0.4.12",
     "lodash": "^4.17.21",
     "modal-react-native-web": "^0.2.0",
-    "native-base": "^3.2.2",
+    "native-base": "^3.3.11",
     "react": "17.0.1",
     "react-chartjs-2": "^4.1.0",
     "react-dom": "17.0.1",
