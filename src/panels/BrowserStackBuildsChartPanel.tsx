@@ -26,7 +26,7 @@ export default function BrowserStackBuildsChartPanel() {
   const data: any[] = useMemo(
     () =>
       latest?.BrowserStackAppAutomateBuilds.filter(
-        (d: any) => !!getBrowserStackBuildInfo(d).branch
+        (d: any) => !!getBrowserStackBuildInfo(d).version
       ).map((d: any) => ({
         x: getBrowserStackBuildInfo(d).team,
         y: Math.round(d.automation_build.duration / 60),

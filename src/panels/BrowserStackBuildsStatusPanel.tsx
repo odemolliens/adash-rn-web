@@ -11,7 +11,7 @@ import ZoomButton from '../components/ZoomButton';
 import { useAppContext } from '../contexts/AppContext';
 import { useFetch } from '../hooks/useCollectedData';
 import { styleSheetFactory } from '../themes';
-import { applyFilters, formatDate } from '../utils';
+import { applyFilters, formatDate, getBrowserStackBuildInfo } from '../utils';
 
 const ERROR = 'error';
 const FAILED = 'failed';
@@ -49,7 +49,9 @@ export default function BrowserStackBuildsStatusPanel() {
   const filteredByVersion = useMemo(
     () =>
       applyFilters(
-        latest?.BrowserStackAppAutomateBuilds,
+        latest?.BrowserStackAppAutomateBuilds.filter(
+          (d: any) => !isEmpty(getBrowserStackBuildInfo(d).version)
+        ),
         filterByVersion,
         filterByTeam,
         d => d.automation_build.name
