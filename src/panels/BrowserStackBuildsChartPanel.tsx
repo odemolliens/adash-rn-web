@@ -50,7 +50,7 @@ export default function BrowserStackBuildsChartPanel() {
     ? uniqBy(
         data.map(d => ({
           x: d.x,
-          y: thresholdsData['Bitrise Durations'].max / 60, //seconds to minutes
+          y: thresholdsData['BrowserStack Durations'].max / 60, //seconds to minutes
         })),
         x => x.x
       )
@@ -66,7 +66,10 @@ export default function BrowserStackBuildsChartPanel() {
         <ZoomButton panelId={PANEL_ID} />
 
         {hasData && (
-          <Download data={data} filename={`bitrise_builds_duration.json`} />
+          <Download
+            data={data}
+            filename={`browserstack_builds_duration.json`}
+          />
         )}
 
         <ScreenshotButton panelId={PANEL_ID} />
