@@ -19,7 +19,7 @@
     "axios": "^0.24.0",
     "chart.js": "^3.7.1",
     "date-fns": "^2.27.0",
-    "expo": "~44.0.0",
+    "expo": "~44.0.6",
     "expo-asset": "~8.4.6",
     "expo-status-bar": "~1.2.0",
     "global": "^4.4.0",
