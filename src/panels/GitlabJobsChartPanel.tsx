@@ -16,6 +16,7 @@ import { baseCss } from '../themes';
 import {
   applyFilters,
   COLORS,
+  config,
   extractTeams,
   formatDate,
   getTeamColor,
@@ -30,11 +31,11 @@ type Job = {
 export default function GitlabJobsChartPanel() {
   const [domain, setDomain] = useState<Domain | undefined>();
   const { loading: loading1, data: gitlabData = [] } = useFetch(
-    'http://localhost:3000/data/gitlab.json'
+    `${config.metricsEndpoint}/data/gitlab.json`
   );
   const { loading: loading2, data: thresholdsData = {} } = useFetch<
     Record<string, any>
-  >('http://localhost:3000/data/thresholds.json');
+  >(`${config.metricsEndpoint}/data/thresholds.json`);
 
   const loading = loading1 || loading2;
   const { filterByVersion, filterByTeam, isFilteringActive } = useAppContext();

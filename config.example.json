@@ -28,6 +28,7 @@
     "AllureReportPanel",
     "SonarPanel"
   ],
+  "metricsEndpoint": "http://localhost:3000",
   "tabs": {
     "monitoring": {
       "panels": [

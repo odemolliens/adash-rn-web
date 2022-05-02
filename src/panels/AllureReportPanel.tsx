@@ -12,6 +12,7 @@ import ZoomButton from '../components/ZoomButton';
 import { useAppContext } from '../contexts/AppContext';
 import { useFetch } from '../hooks/useCollectedData';
 import { styleSheetFactory } from '../themes';
+import { config } from '../utils';
 
 const PANEL_ID = 'AllureReportPanel';
 
@@ -44,7 +45,7 @@ function getVariantFromStatus(status: string) {
 export default function AllureReportPanel() {
   const { colorScheme } = useAppContext();
   const { data: suites = {}, loading } = useFetch<Record<string, any>>(
-    'http://localhost:3000/allure/ios/suites.json'
+    `${config.metricsEndpoint}/allure/ios/suites.json`
   );
 
   const [styles] = useTheme(themedStyles, colorScheme);

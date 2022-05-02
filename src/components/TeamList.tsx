@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useAppContext } from '../contexts/AppContext';
 import { useFetch } from '../hooks/useCollectedData';
-import { extractTeams, getTeamColor } from '../utils';
+import { config, extractTeams, getTeamColor } from '../utils';
 import Chip from './Chip';
 
 export const ALL_TEAMS = '';
@@ -12,7 +12,7 @@ export default function TeamList() {
   const { filterByTeam, setFilterByTeam } = useAppContext();
 
   const { data: gitlabData = [] } = useFetch(
-    'http://localhost:3000/data/gitlab.json'
+    `${config.metricsEndpoint}/data/gitlab.json`
   );
 
   // add "All" button

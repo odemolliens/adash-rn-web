@@ -31,7 +31,7 @@ export default function VersionList({
   const [styles, theme] = useTheme(themedStyles, colorScheme);
 
   const { data: gitlabData = [] } = useFetch(
-    'http://localhost:3000/data/gitlab.json'
+    `${config.metricsEndpoint}/data/gitlab.json`
   );
 
   // add "All" button

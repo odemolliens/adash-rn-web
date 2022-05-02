@@ -11,7 +11,12 @@ import ZoomButton from '../components/ZoomButton';
 import { useAppContext } from '../contexts/AppContext';
 import { useFetch } from '../hooks/useCollectedData';
 import { styleSheetFactory } from '../themes';
-import { applyFilters, formatDate, getBrowserStackBuildInfo } from '../utils';
+import {
+  applyFilters,
+  config,
+  formatDate,
+  getBrowserStackBuildInfo,
+} from '../utils';
 
 const ERROR = 'error';
 const FAILED = 'failed';
@@ -38,7 +43,7 @@ function getVariant(build: { status: string }) {
 
 export default function BrowserStackBuildsStatusPanel() {
   const { loading, data = [] } = useFetch(
-    'http://localhost:3000/data/browserstack.json'
+    `${config.metricsEndpoint}/data/browserstack.json`
   );
 
   const { filterByVersion, filterByTeam, isFilteringActive } = useAppContext();

@@ -13,7 +13,7 @@ import ZoomButton from '../components/ZoomButton';
 import { useAppContext } from '../contexts/AppContext';
 import { useFetch } from '../hooks/useCollectedData';
 import { styleSheetFactory } from '../themes';
-import { formatDate } from '../utils';
+import { config, formatDate } from '../utils';
 
 type PipelineSchedule = {
   id: string;
@@ -42,7 +42,7 @@ export default function GitlabPipelineSchedulesPanel() {
   const [runList, setRunList] = useState<string[]>([]);
 
   const { loading, data: gitlabData = [] } = useFetch(
-    'http://localhost:3000/data/gitlab.json'
+    `${config.metricsEndpoint}/data/gitlab.json`
   );
 
   const {

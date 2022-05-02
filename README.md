@@ -2,13 +2,27 @@ The project is based on the EXPO framework (https://docs.expo.dev)
 
 # Getting Started
 
+## Try it first!
+
+You can run the sample project located in the example folder.
+A Gitlab API token is required in order to download the metrics.
+By default the Project ID is configured to gitlab.org repository project Id.
+
+Run the script `start.sh` and insert your Gitlab Project ID\Token when requested and then open the dashboard at the http://localhost:19002
+
+Run the `update.sh` script to collect new metrics (then refresh the page or wait 1 min for the dashboard to detect the changes)
+
 ## Installation
 
 `yarn`
 
 # Run the project
 
-`yarn web`
+`yarn dev`
+
+# Build and deploy
+
+Run `yarn build` to generate a static and optimized version of the dashboard, then deploy the content of the `web-build` folder to your favourite hosting provider.
 
 # Configuration
 
@@ -35,7 +49,13 @@ Example of configuration can be found at config.example.json
 }
 ```
 
-Used in the Issues Panel and in the Scheduled Pipeline Panel
+Metrics endpoint URL
+
+```json
+"metricsEndpoint": "http://localhost:3000"
+```
+
+Parameters used by the Issues Panel and in the Scheduled Pipeline Panel
 
 ```json
 "GitLab": {

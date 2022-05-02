@@ -5,7 +5,7 @@ import { useTheme } from 'react-native-themed-styles';
 import { useAppContext } from '../contexts/AppContext';
 import { useFetch } from '../hooks/useCollectedData';
 import { baseCss, styleSheetFactory } from '../themes';
-import { formatDate } from '../utils';
+import { config, formatDate } from '../utils';
 import Chip from './Chip';
 import StatusIcon, { StatusIconVariant } from './StatusIcon';
 
@@ -19,7 +19,7 @@ type Notification = {
 export default function Notifications() {
   const { height } = useWindowDimensions();
   const { data: notificationsData = [] } = useFetch(
-    'http://localhost:3000/data/notifications.json'
+    `${config.metricsEndpoint}/data/notifications.json`
   );
 
   const { colorScheme } = useAppContext();

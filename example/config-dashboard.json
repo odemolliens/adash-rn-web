@@ -15,6 +15,7 @@
     "GitlabPipelineSchedulesPanel",
     "GitlabPipelinesListPanel"
   ],
+  "metricsEndpoint": "http://localhost:3000",
   "tabs": {
     "charts": {
       "panels": [

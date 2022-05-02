@@ -10,13 +10,13 @@ import ZoomButton from '../components/ZoomButton';
 import { useAppContext } from '../contexts/AppContext';
 import { useFetch } from '../hooks/useCollectedData';
 import { styleSheetFactory } from '../themes';
-import { formatDate } from '../utils';
+import { config, formatDate } from '../utils';
 
 const PANEL_ID = 'E2EKPIReportTablePanel';
 
 export default function E2EKPIReportTablePanel() {
   const { loading, data: kpie2e = [] } = useFetch(
-    'http://localhost:3000/data/kpie2e.json'
+    `${config.metricsEndpoint}/data/kpie2e.json`
   );
 
   const { colorScheme } = useAppContext();
@@ -63,7 +63,7 @@ export default function E2EKPIReportTablePanel() {
 
   function onTeamPress(teamName: string) {
     window.open(
-      `http://localhost:3000/data/kpi-${teamName.toLowerCase()}.html`
+      `${config.metricsEndpoint}/data/kpi-${teamName.toLowerCase()}.html`
     );
   }
 

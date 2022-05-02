@@ -8,13 +8,13 @@ import ZoomButton from '../components/ZoomButton';
 import { useAppContext } from '../contexts/AppContext';
 import { useFetch } from '../hooks/useCollectedData';
 import { baseCss, styleSheetFactory } from '../themes';
-import { applyFilters, formatDate } from '../utils';
+import { applyFilters, config, formatDate } from '../utils';
 
 const PANEL_ID = 'GitlabMergeRequestsClosedLast24hPanel';
 
 export default function GitlabMergeRequestsClosedLast24hPanel() {
   const { loading, data: gitlabData = [] } = useFetch(
-    'http://localhost:3000/data/gitlab.json'
+    `${config.metricsEndpoint}/data/gitlab.json`
   );
 
   const { filterByVersion, filterByTeam, isFilteringActive } = useAppContext();

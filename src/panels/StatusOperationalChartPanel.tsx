@@ -11,7 +11,7 @@ import ZoomButton from '../components/ZoomButton';
 import { useAppContext } from '../contexts/AppContext';
 import { useFetch } from '../hooks/useCollectedData';
 import { baseCss, styleSheetFactory } from '../themes';
-import { formatDate, iEquals } from '../utils';
+import { config, formatDate, iEquals } from '../utils';
 
 const ERROR = 'error';
 const OPERATIONAL = 'operational';
@@ -39,7 +39,7 @@ function getVariant(status: string) {
 
 export default function StatusOperationalChartPanel() {
   const { loading, data: statusData = [] } = useFetch(
-    'http://localhost:3000/data/status.json'
+    `${config.metricsEndpoint}/data/status.json`
   );
   const { colorScheme } = useAppContext();
   const [styles] = useTheme(themedStyles, colorScheme);

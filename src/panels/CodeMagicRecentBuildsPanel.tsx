@@ -13,6 +13,7 @@ import { useFetch } from '../hooks/useCollectedData';
 import { styleSheetFactory } from '../themes';
 import {
   applyFilters,
+  config,
   extractTeams,
   extractVersions,
   formatDate,
@@ -44,7 +45,7 @@ function getVariant(build: { status: string }) {
 
 export default function CodeMagicRecentBuildsPanel() {
   const { loading, data: codeMagicData = [] } = useFetch(
-    'http://localhost:3000/data/codemagic.json'
+    `${config.metricsEndpoint}/data/codemagic.json`
   );
 
   const { filterByVersion, filterByTeam, isFilteringActive } = useAppContext();

@@ -10,7 +10,7 @@ import ZoomButton from '../components/ZoomButton';
 import { useAppContext } from '../contexts/AppContext';
 import { useFetch } from '../hooks/useCollectedData';
 import { styleSheetFactory } from '../themes';
-import { formatDate } from '../utils';
+import { config, formatDate } from '../utils';
 
 const ERROR = 'error';
 const SUCCESS = 'success';
@@ -40,7 +40,7 @@ function getVariant(build: {
 
 export default function BitriseBuildsStatusPanel() {
   const { loading, data = [] } = useFetch<Record<string, any>[]>(
-    'http://localhost:3000/data/bitrise.json'
+    `${config.metricsEndpoint}/data/bitrise.json`
   );
 
   const { colorScheme } = useAppContext();
