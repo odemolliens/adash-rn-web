@@ -18,7 +18,7 @@ type Notification = {
 
 export default function Notifications() {
   const { height } = useWindowDimensions();
-  const { data: notificationsData = [] } = useFetch(
+  const { data: notificationsData = [] } = useFetch<Notification[]>(
     `${config.metricsEndpoint}/data/notifications.json`
   );
 
