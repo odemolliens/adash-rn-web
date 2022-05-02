@@ -26,6 +26,7 @@ export default {
   },
   web: {
     favicon: './assets/favicon.png',
+    build: { babel: { include: ['usehooks-ts'] } },
   },
   extra: config,
 };

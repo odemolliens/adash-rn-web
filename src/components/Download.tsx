@@ -4,13 +4,21 @@ import { View } from 'react-native';
 import { useTheme } from 'react-native-themed-styles';
 import { useAppContext } from '../contexts/AppContext';
 import { DEFAULT_THEME } from '../themes';
+import { downloadPanelData } from '../utils';
 
 type DownloadProps = {
-  onPress: () => void;
+  onPress?: () => void;
   size?: number;
+  data?: any;
+  filename: string;
 };
 
-export default function Download({ onPress, size = 18 }: DownloadProps) {
+export default function Download({
+  onPress,
+  data,
+  filename,
+  size = 18,
+}: DownloadProps) {
   const { colorScheme } = useAppContext();
   const [_, theme] = useTheme(DEFAULT_THEME, colorScheme);
 
@@ -21,7 +29,7 @@ export default function Download({ onPress, size = 18 }: DownloadProps) {
           name="ios-cloud-download-outline"
           size={size}
           color={theme.textColor}
-          onPress={onPress}
+          onPress={() => downloadPanelData(data, filename)}
         />
       </View>
     </Tooltip>

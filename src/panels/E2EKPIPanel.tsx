@@ -1,4 +1,4 @@
-import { last, meanBy, uniqBy } from 'lodash';
+import { isEmpty, last, meanBy, uniqBy } from 'lodash';
 import { useMemo, useState } from 'react';
 import { Chart } from 'react-chartjs-2';
 import { StyleSheet, Text, View } from 'react-native';
@@ -11,29 +11,25 @@ import Panel from '../components/Panel';
 import ScreenshotButton from '../components/ScreenshotButton';
 import ZoomButton from '../components/ZoomButton';
 import { useAppContext } from '../contexts/AppContext';
-import kpie2e from '../data/kpie2e.json';
+import { useFetch } from '../hooks/useCollectedData';
 import { styleSheetFactory } from '../themes';
 import { applyFilters, COLORS, formatDate } from '../utils';
 
 const PANEL_ID = 'E2EKPIPanel';
 
 export default function E2EKPIPanel() {
-  const {
-    colorScheme,
-    setZoomedPanel,
-    closeZoomedPanel,
-    zoomedPanel,
-    filterByTeam,
-    isFilteringActive,
-  } = useAppContext();
-  const zoomed = zoomedPanel === PANEL_ID;
-  const [stylesTheme] = useTheme(themedStyles, colorScheme);
-
   const [domain, setDomain] = useState<Domain | undefined>();
-  const latest = last(kpie2e)!;
+  const { loading, data: kpie2e = [] } = useFetch(
+    'http://localhost:3000/data/kpie2e.json'
+  );
+
+  const hasData = !isEmpty(kpie2e);
+  const { colorScheme, filterByTeam, isFilteringActive } = useAppContext();
+  const [stylesTheme] = useTheme(themedStyles, colorScheme);
+  const latest = last(kpie2e);
   const dataByDomain = useMemo(
     () => getDataByDomain(kpie2e, domain),
-    [latest.createdAt, domain]
+    [kpie2e, domain]
   );
 
   const dataByTeam = dataByDomain.map(d => ({
@@ -142,145 +138,156 @@ export default function E2EKPIPanel() {
       </Panel.Title>
 
       <Panel.Actions>
-        <ZoomButton
-          zoomed={zoomed}
-          onZoom={() => setZoomedPanel(PANEL_ID)}
-          onZoomOut={closeZoomedPanel}
-        />
+        <ZoomButton panelId={PANEL_ID} />
         <ScreenshotButton panelId={PANEL_ID} />
       </Panel.Actions>
 
       <Panel.Body>
-        <FilterDomain active={domain} onChange={d => setDomain(d)} />
+        {loading && !hasData && <Panel.Loading />}
+        {!loading && !hasData && <Panel.Empty />}
 
-        <Chart
-          type="bar"
-          options={{
-            plugins: {
-              legend: {
-                labels: {
-                  usePointStyle: true,
+        {!loading && (
+          <FilterDomain active={domain} onChange={d => setDomain(d)} />
+        )}
+
+        {hasData && (
+          <>
+            <Chart
+              type="bar"
+              options={{
+                plugins: {
+                  legend: {
+                    labels: {
+                      usePointStyle: true,
+                    },
+                  },
                 },
-              },
-            },
-            scales: { y: { beginAtZero: true } },
-            responsive: true,
-          }}
-          data={{
-            datasets: [
-              {
-                label: 'Threshold',
-                data: thresholdLinePassPercentage,
-                backgroundColor: 'red',
-                type: 'line',
-                borderColor: 'red',
-                borderDash: [3, 5],
-                borderWidth: 1,
-                stack: 'Threshold',
-                pointStyle: 'rect',
-              },
-              {
-                label: 'Average',
-                data: averagePassPercentage,
-                backgroundColor: COLORS[4],
-                type: 'line',
-                borderColor: COLORS[4],
-                borderDash: [3, 5],
-                borderWidth: 1,
-                stack: 'Average',
-              },
-              {
-                label: '% Avg. Android Pass percentage',
-                data: androidPassPercentage,
-                backgroundColor: COLORS[1],
-              },
-              {
-                label: '% Avg. iOS Pass percentage',
-                data: iOSPassPercentage,
-                backgroundColor: COLORS[0],
-              },
-            ],
-          }}
-        />
+                scales: { y: { beginAtZero: true } },
+                responsive: true,
+              }}
+              data={{
+                datasets: [
+                  {
+                    label: 'Threshold',
+                    data: thresholdLinePassPercentage,
+                    backgroundColor: 'red',
+                    type: 'line',
+                    borderColor: 'red',
+                    borderDash: [3, 5],
+                    borderWidth: 1,
+                    stack: 'Threshold',
+                    pointStyle: 'rect',
+                  },
+                  {
+                    label: 'Average',
+                    data: averagePassPercentage,
+                    backgroundColor: COLORS[4],
+                    type: 'line',
+                    borderColor: COLORS[4],
+                    borderDash: [3, 5],
+                    borderWidth: 1,
+                    stack: 'Average',
+                  },
+                  {
+                    label: '% Avg. Android Pass percentage',
+                    data: androidPassPercentage,
+                    backgroundColor: COLORS[1],
+                  },
+                  {
+                    label: '% Avg. iOS Pass percentage',
+                    data: iOSPassPercentage,
+                    backgroundColor: COLORS[0],
+                  },
+                ],
+              }}
+            />
 
-        <Text style={[stylesTheme.text, { marginTop: 20 }]}>iOS Run</Text>
+            <Text style={[stylesTheme.text, { marginTop: 20 }]}>iOS Run</Text>
 
-        <Chart
-          type="bar"
-          options={{
-            plugins: {
-              legend: {
-                labels: {
-                  usePointStyle: true,
+            <Chart
+              type="bar"
+              options={{
+                plugins: {
+                  legend: {
+                    labels: {
+                      usePointStyle: true,
+                    },
+                  },
                 },
-              },
-            },
-            scales: {
-              y: { beginAtZero: true },
-              x: {},
-            },
-            responsive: true,
-          }}
-          data={{
-            datasets: [
-              {
-                label: '# Tests',
-                data: iOSTotal,
-                backgroundColor: COLORS[1],
-              },
-              {
-                label: '# Pass',
-                data: iOSPass,
-                backgroundColor: 'green',
-              },
-              {
-                label: '# Fail',
-                data: iOSFail,
-                backgroundColor: 'red',
-              },
-            ],
-          }}
-        />
-
-        <Text style={[stylesTheme.text, { marginTop: 20 }]}>Android</Text>
-
-        <Chart
-          type="bar"
-          options={{
-            plugins: {
-              legend: {
-                labels: {
-                  usePointStyle: true,
+                scales: {
+                  y: { beginAtZero: true },
+                  x: {},
                 },
-              },
-            },
-            scales: {
-              y: { beginAtZero: true },
-              x: {},
-            },
-            responsive: true,
-          }}
-          data={{
-            datasets: [
-              {
-                label: '# Tests',
-                data: androidDataTotal,
-                backgroundColor: COLORS[1],
-              },
-              {
-                label: '# Pass',
-                data: androidDataPass,
-                backgroundColor: 'green',
-              },
-              {
-                label: '# Fail',
-                data: androidDataFail,
-                backgroundColor: 'red',
-              },
-            ],
-          }}
-        />
+                responsive: true,
+              }}
+              data={{
+                datasets: [
+                  {
+                    label: '# Tests',
+                    data: iOSTotal,
+                    backgroundColor: COLORS[1],
+                  },
+                  {
+                    label: '# Pass',
+                    data: iOSPass,
+                    backgroundColor: 'green',
+                  },
+                  {
+                    label: '# Fail',
+                    data: iOSFail,
+                    backgroundColor: 'red',
+                  },
+                ],
+              }}
+            />
+
+            <Text style={[stylesTheme.text, { marginTop: 20 }]}>Android</Text>
+
+            <Chart
+              type="bar"
+              options={{
+                plugins: {
+                  legend: {
+                    labels: {
+                      usePointStyle: true,
+                    },
+                  },
+                },
+                scales: {
+                  y: { beginAtZero: true },
+                  x: {},
+                },
+                responsive: true,
+              }}
+              data={{
+                datasets: [
+                  {
+                    label: '# Tests',
+                    data: androidDataTotal,
+                    backgroundColor: COLORS[1],
+                  },
+                  {
+                    label: '# Pass',
+                    data: androidDataPass,
+                    backgroundColor: 'green',
+                  },
+                  {
+                    label: '# Fail',
+                    data: androidDataFail,
+                    backgroundColor: 'red',
+                  },
+                ],
+              }}
+            />
+          </>
+        )}
       </Panel.Body>
+
+      {hasData && (
+        <Panel.Footer>
+          Last update: {formatDate(latest!.createdAt)}
+        </Panel.Footer>
+      )}
     </Panel>
   );
 }

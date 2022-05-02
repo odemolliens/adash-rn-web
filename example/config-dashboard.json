@@ -1,54 +1,37 @@
 {
   "versionsBar": {
-    "rotationEnabled": true,
-    "hidden": false
+    "hidden": true
   },
   "teamsBar": {
-    "hidden": false
+    "hidden": true
   },
-  "GitLab": {
-    "projectId": "PROJECTID",
-    "token": "TOKEN"
-  },
-  "teams": ["TEAM1", "TEAM2", "TEAM3", "TEAM4"],
   "availablePanels": [
     "StatusOperationalChartPanel",
-    "BitriseBuildsChartPanel",
-    "IssueListPanel",
-    "BitriseBuildsStatusPanel",
-    "BrowserStackBuildsChartPanel",
-    "BrowserStackBuildsStatusPanel",
     "GitlabJobsChartPanel",
     "GitlabMergeRequestsChartPanel",
     "GitlabMergeRequestsClosedLast24hPanel",
     "GitlabMergeRequestsListPanel",
     "GitlabPipelinesChartPanel",
     "GitlabPipelineSchedulesPanel",
-    "GitlabPipelinesListPanel",
-    "AllureReportPanel",
-    "SonarPanel"
+    "GitlabPipelinesListPanel"
   ],
   "tabs": {
-    "monitoring": {
+    "charts": {
       "panels": [
-        "StatusOperationalChartPanel",
-        "BitriseBuildsChartPanel",
-        "IssueListPanel",
-        "BitriseBuildsStatusPanel",
-        "BrowserStackBuildsChartPanel",
-        "BrowserStackBuildsStatusPanel",
         "GitlabJobsChartPanel",
         "GitlabMergeRequestsChartPanel",
-        "GitlabMergeRequestsClosedLast24hPanel",
-        "GitlabMergeRequestsListPanel",
-        "GitlabPipelinesChartPanel",
-        "GitlabPipelineSchedulesPanel",
-        "GitlabPipelinesListPanel"
+        "GitlabPipelinesChartPanel"
       ],
       "gridSize": 3
     },
-    "quality": {
-      "panels": ["AllureReportPanel", "SonarPanel"],
+    "lists": {
+      "panels": [
+        "StatusOperationalChartPanel",
+        "GitlabMergeRequestsClosedLast24hPanel",
+        "GitlabMergeRequestsListPanel",
+        "GitlabPipelineSchedulesPanel",
+        "GitlabPipelinesListPanel"
+      ],
       "gridSize": 3
     }
   },

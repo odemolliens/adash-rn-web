@@ -1,46 +1,39 @@
-import { last, meanBy, uniqBy } from 'lodash';
+import { isEmpty, last, meanBy, uniqBy } from 'lodash';
+import { useMemo } from 'react';
 import { Chart } from 'react-chartjs-2';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
 import Download from '../components/Download';
 import Panel from '../components/Panel';
 import ScreenshotButton from '../components/ScreenshotButton';
 import ZoomButton from '../components/ZoomButton';
-import { useAppContext } from '../contexts/AppContext';
+import { useFetch } from '../hooks/useCollectedData';
 import { baseCss } from '../themes';
-import {
-  applyFilters,
-  COLORS,
-  downloadPanelData,
-  formatDate,
-  getBrowserStackBuildInfo,
-} from '../utils';
+import { COLORS, formatDate, getBrowserStackBuildInfo } from '../utils';
 
 const PANEL_ID = 'BrowserStackBuildsChartPanel';
 
 export default function BrowserStackBuildsChartPanel() {
-  const {
-    filterByVersion,
-    filterByTeam,
-    isFilteringActive,
-    data: { browserStackData, thresholdsData },
-    setZoomedPanel,
-    closeZoomedPanel,
-    zoomedPanel,
-  } = useAppContext();
-  const zoomed = zoomedPanel === PANEL_ID;
-  const latest = last(browserStackData)!;
-  const filteredByVersion = applyFilters(
-    latest.BrowserStackAppAutomateBuilds,
-    filterByVersion,
-    filterByTeam,
-    d => d.automation_build.name
+  const { loading: loading1, data: browserStackData = [] } = useFetch(
+    'http://localhost:3000/data/browserstack.json'
   );
+  const { loading: loading2, data: thresholdsData = {} } = useFetch<
+    Record<string, any>
+  >('http://localhost:3000/data/thresholds.json');
 
-  const data = filteredByVersion.map(d => ({
-    x: getBrowserStackBuildInfo(d).team,
-    y: Math.round(d.automation_build.duration / 60),
-    name: d.automation_build.name,
-  }));
+  const loading = loading1 || loading2;
+  const latest = last(browserStackData);
+
+  const data: any[] = useMemo(
+    () =>
+      latest?.BrowserStackAppAutomateBuilds.filter(
+        (d: any) => !!getBrowserStackBuildInfo(d).version
+      ).map((d: any) => ({
+        x: getBrowserStackBuildInfo(d).team,
+        y: Math.round(d.automation_build.duration / 60),
+        name: d.automation_build.name,
+      })) || [],
+    [latest]
+  );
 
   const androidData = data.filter(d => d.name.includes('Android'));
   const iosData = data.filter(d => d.name.includes('iOS'));
@@ -53,48 +46,31 @@ export default function BrowserStackBuildsChartPanel() {
     x => x.x
   );
 
-  const thresholdLineData = uniqBy(
-    data.map(d => ({
-      x: d.x,
-      y: thresholdsData['Bitrise Durations'].max / 60, //seconds to minutes
-    })),
-    x => x.x
-  );
+  const thresholdLineData = !isEmpty(thresholdsData)
+    ? uniqBy(
+        data.map(d => ({
+          x: d.x,
+          y: thresholdsData['BrowserStack Durations'].max / 60, //seconds to minutes
+        })),
+        x => x.x
+      )
+    : [];
 
-  const noData = !androidData.length && !iosData.length;
+  const hasData = !isEmpty(data);
 
   return (
     <Panel id={PANEL_ID}>
-      <Panel.Title>
-        <View style={css.filteredContainer}>
-          <Text>BrowserStack Build durations</Text>
-
-          {isFilteringActive && (
-            <Text style={css.filtered}>
-              (filtered by:{' '}
-              {[filterByVersion, filterByTeam].filter(Boolean).join(', ')})
-            </Text>
-          )}
-        </View>
-      </Panel.Title>
+      <Panel.Title>BrowserStack Build durations</Panel.Title>
 
       <Panel.Actions>
-        <ZoomButton
-          zoomed={zoomed}
-          onZoom={() => setZoomedPanel(PANEL_ID)}
-          onZoomOut={() => closeZoomedPanel()}
-        />
+        <ZoomButton panelId={PANEL_ID} />
 
-        <Download
-          onPress={() =>
-            downloadPanelData(
-              filteredByVersion,
-              `bitrise_builds_duration${
-                filterByVersion ? `_${filterByVersion}` : ''
-              }.json`
-            )
-          }
-        />
+        {hasData && (
+          <Download
+            data={data}
+            filename={`browserstack_builds_duration.json`}
+          />
+        )}
 
         <ScreenshotButton panelId={PANEL_ID} />
       </Panel.Actions>
@@ -104,7 +80,10 @@ export default function BrowserStackBuildsChartPanel() {
       </Panel.Subtitle>
 
       <Panel.Body>
-        {!noData && (
+        {loading && !hasData && <Panel.Loading />}
+        {!loading && !hasData && <Panel.Empty />}
+
+        {hasData && (
           <Chart
             type="bar"
             options={{
@@ -155,10 +134,13 @@ export default function BrowserStackBuildsChartPanel() {
             }}
           />
         )}
-
-        {noData && <Panel.Empty />}
       </Panel.Body>
-      <Panel.Footer>Last update: {formatDate(latest.createdAt)}</Panel.Footer>
+
+      {hasData && (
+        <Panel.Footer>
+          Last update: {formatDate(latest!.createdAt)}
+        </Panel.Footer>
+      )}
     </Panel>
   );
 }

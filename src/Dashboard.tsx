@@ -1,43 +1,44 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
 import { extendTheme, NativeBaseProvider } from 'native-base';
+import React, { lazy, Suspense, useMemo } from 'react';
 import { View } from 'react-native';
 import ZoomPanel from './components/ZoomPanel';
 import { useAppContext } from './contexts/AppContext';
-import MonitoringTab from './MonitoringTab';
-import * as PANELS from './panels';
-import QualityTab from './QualityTab';
+import Screen from './Tab';
+import { config } from './utils';
 
 const Tab = createBottomTabNavigator();
 
 export default function Dashboard() {
   const { zoomedPanel, closeZoomedPanel } = useAppContext();
   const hasZoomedPanel = !!zoomedPanel;
-  const ZoomedPanelComponent = (PANELS as Record<string, () => JSX.Element>)[
-    zoomedPanel
-  ];
+  const ZoomedPanelComponent = useMemo(
+    () => lazy(() => import(`./panels/${zoomedPanel}`)),
+    [zoomedPanel]
+  );
 
   return (
     <View style={{ overflow: 'hidden', flex: 1 }}>
       <NativeBaseProvider theme={nativeBasetheme}>
         <NavigationContainer>
           <Tab.Navigator screenOptions={{ headerShown: false }}>
-            <Tab.Screen
-              name="Monitoring"
-              component={MonitoringTab}
-              options={{ tabBarIcon: () => null }}
-            />
-
-            <Tab.Screen
-              name="Quality"
-              component={QualityTab}
-              options={{ tabBarIcon: () => null }}
-            />
+            {Object.entries(config.tabs).map(([key]) => (
+              <Tab.Screen
+                key={key}
+                name={key.toUpperCase()}
+                options={{ tabBarIcon: () => null }}
+              >
+                {props => <Screen {...props} configKey={key} />}
+              </Tab.Screen>
+            ))}
           </Tab.Navigator>
         </NavigationContainer>
 
         <ZoomPanel isOpen={hasZoomedPanel} onClose={() => closeZoomedPanel()}>
-          {hasZoomedPanel && <ZoomedPanelComponent />}
+          <Suspense fallback={null}>
+            {hasZoomedPanel && <ZoomedPanelComponent />}
+          </Suspense>
         </ZoomPanel>
       </NativeBaseProvider>
     </View>

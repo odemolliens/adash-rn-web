@@ -1,4 +1,4 @@
-import { last, meanBy, uniqBy } from 'lodash';
+import { isEmpty, last, meanBy, uniqBy } from 'lodash';
 import { useMemo, useState } from 'react';
 import { Chart } from 'react-chartjs-2';
 import { StyleSheet, Text, View } from 'react-native';
@@ -11,11 +11,11 @@ import Panel from '../components/Panel';
 import ScreenshotButton from '../components/ScreenshotButton';
 import ZoomButton from '../components/ZoomButton';
 import { useAppContext } from '../contexts/AppContext';
+import { useFetch } from '../hooks/useCollectedData';
 import { baseCss } from '../themes';
 import {
   applyFilters,
   COLORS,
-  downloadPanelData,
   extractTeams,
   formatDate,
   getTeamColor,
@@ -34,21 +34,21 @@ type MergeRequest = {
 const PANEL_ID = 'GitlabMergeRequestsChartPanel';
 
 export default function GitlabMergeRequestsChartPanel() {
-  const {
-    filterByVersion,
-    filterByTeam,
-    isFilteringActive,
-    data: { gitlabData, thresholdsData },
-    zoomedPanel,
-    setZoomedPanel,
-    closeZoomedPanel,
-  } = useAppContext();
-  const zoomed = zoomedPanel === 'GitlabMergeRequestsChartPanel';
-  const latest = last(gitlabData)!;
   const [domain, setDomain] = useState<Domain | undefined>();
+
+  const { loading: loading1, data: gitlabData = [] } = useFetch(
+    'http://localhost:3000/data/gitlab.json'
+  );
+  const { loading: loading2, data: thresholdsData = {} } = useFetch<
+    Record<string, any>
+  >('http://localhost:3000/data/thresholds.json');
+
+  const loading = loading1 || loading2;
+  const { filterByVersion, filterByTeam, isFilteringActive } = useAppContext();
+  const latest = last(gitlabData);
   const dataByDomain = useMemo(
     () => getDataByDomain(gitlabData, domain),
-    [latest.createdAt, domain]
+    [gitlabData, domain]
   );
 
   const data = dataByDomain.map(d => ({
@@ -69,13 +69,15 @@ export default function GitlabMergeRequestsChartPanel() {
     x => x.x
   );
 
-  const thresholdLineData = uniqBy(
-    data.map(d => ({
-      x: d.x,
-      y: thresholdsData['GitLab Open MR'].max,
-    })),
-    x => x.x
-  );
+  const thresholdLineData = !isEmpty(thresholdsData)
+    ? uniqBy(
+        data.map(d => ({
+          x: d.x,
+          y: thresholdsData['GitLab Open MR'].max,
+        })),
+        x => x.x
+      )
+    : [];
 
   const dataByTeam: {
     createdAt: number;
@@ -135,13 +137,7 @@ export default function GitlabMergeRequestsChartPanel() {
     datasetsPlot = datasetsPlot.filter(d => d.label === filterByTeam);
   }
 
-  const noData =
-    datasetsPlot.reduce((previousValue, currentValue) => {
-      return (
-        previousValue +
-        (currentValue.data as { y: number }[]).reduce((a, b) => a + b.y, 0)
-      );
-    }, 0) === 0;
+  const hasData = !isEmpty(gitlabData);
 
   return (
     <Panel id={PANEL_ID}>
@@ -158,36 +154,37 @@ export default function GitlabMergeRequestsChartPanel() {
         </View>
       </Panel.Title>
 
-      <Panel.Subtitle>
-        Current Gitlab opened merge requests:{' '}
-        <Text style={baseCss.textBold}>{last(data)?.y}</Text>
-      </Panel.Subtitle>
+      {hasData && (
+        <Panel.Subtitle>
+          Current Gitlab opened merge requests:{' '}
+          <Text style={baseCss.textBold}>{last(data)?.y}</Text>
+        </Panel.Subtitle>
+      )}
 
       <Panel.Actions>
-        <ZoomButton
-          zoomed={zoomed}
-          onZoom={() => setZoomedPanel('GitlabMergeRequestsChartPanel')}
-          onZoomOut={() => closeZoomedPanel()}
-        />
+        <ZoomButton panelId={PANEL_ID} />
 
-        <Download
-          onPress={() =>
-            downloadPanelData(
-              datasets,
-              `gitlab_open_mr_chart${
-                filterByVersion ? `_${filterByVersion}` : ''
-              }.json`
-            )
-          }
-        />
+        {hasData && (
+          <Download
+            data={datasets}
+            filename={`gitlab_open_mr_chart${
+              filterByVersion ? `_${filterByVersion}` : ''
+            }.json`}
+          />
+        )}
 
         <ScreenshotButton panelId={PANEL_ID} />
       </Panel.Actions>
 
       <Panel.Body>
-        <FilterDomain active={domain} onChange={d => setDomain(d)} />
+        {!loading && (
+          <FilterDomain active={domain} onChange={d => setDomain(d)} />
+        )}
 
-        {!noData && (
+        {loading && !hasData && <Panel.Loading />}
+        {!loading && !hasData && <Panel.Empty />}
+
+        {hasData && (
           <Chart
             type="bar"
             options={{
@@ -232,10 +229,13 @@ export default function GitlabMergeRequestsChartPanel() {
             }}
           />
         )}
-
-        {noData && <Panel.Empty />}
       </Panel.Body>
-      <Panel.Footer>Last update: {formatDate(latest.createdAt)}</Panel.Footer>
+
+      {hasData && (
+        <Panel.Footer>
+          Last update: {formatDate(latest!.createdAt)}
+        </Panel.Footer>
+      )}
     </Panel>
   );
 }

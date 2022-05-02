@@ -1,5 +1,5 @@
 import { Button, Menu, VStack } from 'native-base';
-import React, { useState } from 'react';
+import React, { lazy, Suspense, useMemo, useState } from 'react';
 import {
   SafeAreaView,
   ScrollView,
@@ -18,48 +18,13 @@ import PanelsBar from './components/PanelsBar';
 import TeamList from './components/TeamList';
 import VersionList from './components/VersionList';
 import { useAppContext } from './contexts/AppContext';
-import {
-  BitriseBuildsChartPanel,
-  BitriseBuildsStatusPanel,
-  BrowserStackBuildsChartPanel,
-  BrowserStackBuildsStatusPanel,
-  GitlabJobsChartPanel,
-  GitlabMergeRequestsChartPanel,
-  GitlabMergeRequestsClosedLast24hPanel,
-  GitlabMergeRequestsListPanel,
-  GitlabPipelinesChartPanel,
-  GitlabPipelineSchedulesPanel,
-  GitlabPipelinesListPanel,
-  IssueListPanel,
-  StatusOperationalChartPanel,
-  CodeMagicRecentBuildsPanel,
-  CodeMagicChartPanel,
-} from './panels';
-import { applyChartTheme } from './panels/chartjs';
+import { applyChartTheme } from './chartjs';
 import { styleSheetFactory } from './themes';
 import { config, shorthash } from './utils';
 import { ErrorBoundary } from 'react-error-boundary';
 import Panel from './components/Panel';
 
-const PANELS: Record<string, () => JSX.Element> = {
-  IssueListPanel,
-  StatusOperationalChartPanel,
-  BitriseBuildsChartPanel,
-  BitriseBuildsStatusPanel,
-  BrowserStackBuildsChartPanel,
-  BrowserStackBuildsStatusPanel,
-  GitlabJobsChartPanel,
-  GitlabMergeRequestsChartPanel,
-  GitlabMergeRequestsClosedLast24hPanel,
-  GitlabMergeRequestsListPanel,
-  GitlabPipelinesChartPanel,
-  GitlabPipelineSchedulesPanel,
-  GitlabPipelinesListPanel,
-  CodeMagicRecentBuildsPanel,
-  CodeMagicChartPanel,
-};
-
-export default function MonitoringTab() {
+export default function Tab({ configKey }: { configKey: string }) {
   const { width: maxWidth } = useWindowDimensions();
   const { colorScheme, zoomedPanel } = useAppContext();
   const [styles, theme] = useTheme(themedStyles, colorScheme);
@@ -67,48 +32,55 @@ export default function MonitoringTab() {
   const configId = shorthash(JSON.stringify(config));
 
   const [gridSize, setGridSize] = useLocalStorage(
-    'config.tabs.monitoring.gridSize_' + configId,
-    config.tabs.monitoring.gridSize + ''
+    `config.tabs.${configKey}.gridSize_${configId}`,
+    config.tabs[configKey].gridSize + ''
   );
   const hasZoomedPanel = !!zoomedPanel;
 
   applyChartTheme(theme);
 
   const [data, setData] = useLocalStorage(
-    'config.tabs.monitoring.panels_' + configId,
-    config.tabs.monitoring.panels
+    `config.tabs.${configKey}.panels_${configId}`,
+    config.tabs[configKey].panels
   );
 
-  const renderGridItem = (item: string) => (
-    <View style={styles.gridItemContainer}>
-      <VStack space={2} h="full">
-        {editing && (
-          <Button
-            onPress={() =>
-              setData((data: any) => data.filter((d: any) => d != item))
-            }
-          >
-            Remove
-          </Button>
-        )}
+  const isVersionsBarVisible = !(config.versionsBar?.hidden || false);
+  const isTeamsBarVisible = !(config.teamsBar?.hidden || false);
 
-        <ErrorBoundary
-          FallbackComponent={({ error }) => (
-            <Panel id={item} variant="error">
-              <Panel.Title>{item}</Panel.Title>
-              <Panel.Error>
-                Something went wrong:
-                <br />
-                {error.message}
-              </Panel.Error>
-            </Panel>
+  const renderGridItem = (item: string) => {
+    const panel = useMemo(() => lazy(() => import(`./panels/${item}`)), [item]);
+
+    return (
+      <View style={styles.gridItemContainer}>
+        <VStack space={2} h="full">
+          {editing && (
+            <Button
+              onPress={() =>
+                setData((data: any) => data.filter((d: any) => d != item))
+              }
+            >
+              Remove
+            </Button>
           )}
-        >
-          {React.createElement(PANELS[item])}
-        </ErrorBoundary>
-      </VStack>
-    </View>
-  );
+
+          <ErrorBoundary
+            FallbackComponent={({ error }) => (
+              <Panel id={item} variant="error">
+                <Panel.Title>{item}</Panel.Title>
+                <Panel.Error>
+                  Something went wrong:
+                  <br />
+                  {error.message}
+                </Panel.Error>
+              </Panel>
+            )}
+          >
+            <Suspense fallback={null}>{React.createElement(panel)}</Suspense>
+          </ErrorBoundary>
+        </VStack>
+      </View>
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -119,8 +91,10 @@ export default function MonitoringTab() {
             horizontal
           >
             <View style={styles.filtersInnerContainer}>
-              <VersionList loopCountdown={60} active={!hasZoomedPanel} />
-              <TeamList />
+              {isVersionsBarVisible && (
+                <VersionList loopCountdown={60} active={!hasZoomedPanel} />
+              )}
+              {isTeamsBarVisible && <TeamList />}
             </View>
 
             <View style={styles.dashboardActions}>
@@ -149,7 +123,7 @@ export default function MonitoringTab() {
           </ScrollView>
 
           <PanelsBar
-            availablePanels={Object.keys(PANELS)}
+            availablePanels={config.availablePanels}
             currentPanels={data}
             editing={editing}
             onChange={setData}

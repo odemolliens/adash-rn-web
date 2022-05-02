@@ -1,4 +1,4 @@
-import { last } from 'lodash';
+import { isEmpty, last } from 'lodash';
 import { Linking, Text, View } from 'react-native';
 import { useTheme } from 'react-native-themed-styles';
 import Download from '../components/Download';
@@ -6,25 +6,21 @@ import Panel from '../components/Panel';
 import ScreenshotButton from '../components/ScreenshotButton';
 import ZoomButton from '../components/ZoomButton';
 import { useAppContext } from '../contexts/AppContext';
+import { useFetch } from '../hooks/useCollectedData';
 import { baseCss, styleSheetFactory } from '../themes';
-import { applyFilters, downloadPanelData, formatDate } from '../utils';
+import { applyFilters, formatDate } from '../utils';
 
 const PANEL_ID = 'GitlabMergeRequestsListPanel';
 
 export default function GitlabMergeRequestsListPanel() {
-  const {
-    filterByVersion,
-    filterByTeam,
-    isFilteringActive,
-    data: { gitlabData },
-    zoomedPanel,
-    setZoomedPanel,
-    closeZoomedPanel,
-  } = useAppContext();
-  const zoomed = zoomedPanel === 'GitlabMergeRequestsListPanel';
+  const { loading, data: gitlabData = [] } = useFetch(
+    'http://localhost:3000/data/gitlab.json'
+  );
+
+  const { filterByVersion, filterByTeam, isFilteringActive } = useAppContext();
   const { colorScheme } = useAppContext();
   const [styles] = useTheme(themedStyles, colorScheme);
-  const latest = last(gitlabData)!;
+  const latest = last(gitlabData);
   const data = last(
     gitlabData.map(d =>
       applyFilters(
@@ -34,9 +30,9 @@ export default function GitlabMergeRequestsListPanel() {
         'source_branch'
       )
     )
-  )!;
+  );
 
-  const noData = !data.length;
+  const hasData = !isEmpty(data);
 
   return (
     <Panel id={PANEL_ID}>
@@ -53,48 +49,50 @@ export default function GitlabMergeRequestsListPanel() {
         </View>
       </Panel.Title>
 
-      <Panel.Subtitle>
-        Current Gitlab opened merge requests:{' '}
-        <Text style={baseCss.textBold}>{data!.length}</Text>
-      </Panel.Subtitle>
+      {hasData && (
+        <Panel.Subtitle>
+          Current Gitlab opened merge requests:{' '}
+          <Text style={baseCss.textBold}>{data!.length}</Text>
+        </Panel.Subtitle>
+      )}
 
       <Panel.Actions>
-        <ZoomButton
-          zoomed={zoomed}
-          onZoom={() => setZoomedPanel('GitlabMergeRequestsListPanel')}
-          onZoomOut={() => closeZoomedPanel()}
-        />
+        <ZoomButton panelId={PANEL_ID} />
 
-        <Download
-          onPress={() =>
-            downloadPanelData(
-              data,
-              `gitlab_open_mr${
-                filterByVersion ? `_${filterByVersion}` : ''
-              }.json`
-            )
-          }
-        />
+        {hasData && (
+          <Download
+            data={data}
+            filename={`gitlab_open_mr${
+              filterByVersion ? `_${filterByVersion}` : ''
+            }.json`}
+          />
+        )}
 
         <ScreenshotButton panelId={PANEL_ID} />
       </Panel.Actions>
 
       <Panel.Body>
-        {data.map(mr => (
-          <View key={mr.id} style={{ marginBottom: 1 }}>
-            <Text
-              style={styles.text}
-              onPress={() => Linking.openURL(mr.web_url)}
-            >
-              {mr.title} - @{mr.author.name}
-            </Text>
-          </View>
-        ))}
+        {loading && !hasData && <Panel.Loading />}
+        {!loading && !hasData && <Panel.Empty />}
 
-        {noData && <Panel.Empty />}
+        {hasData &&
+          data!.map(mr => (
+            <View key={mr.id} style={{ marginBottom: 1 }}>
+              <Text
+                style={styles.text}
+                onPress={() => Linking.openURL(mr.web_url)}
+              >
+                {mr.title} - @{mr.author.name}
+              </Text>
+            </View>
+          ))}
       </Panel.Body>
 
-      <Panel.Footer>Last update: {formatDate(latest.createdAt)}</Panel.Footer>
+      {hasData && (
+        <Panel.Footer>
+          Last update: {formatDate(latest!.createdAt)}
+        </Panel.Footer>
+      )}
     </Panel>
   );
 }

@@ -1,4 +1,4 @@
-import { last, meanBy, uniqBy } from 'lodash';
+import { isEmpty, last, meanBy, uniqBy } from 'lodash';
 import { useMemo, useState } from 'react';
 import { Chart } from 'react-chartjs-2';
 import { Text } from 'react-native';
@@ -10,31 +10,31 @@ import FilterDomain, {
 import Panel from '../components/Panel';
 import ScreenshotButton from '../components/ScreenshotButton';
 import ZoomButton from '../components/ZoomButton';
-import { useAppContext } from '../contexts/AppContext';
+import { useFetch } from '../hooks/useCollectedData';
 import { baseCss } from '../themes';
-import { COLORS, downloadPanelData, formatDate } from '../utils';
+import { COLORS, formatDate } from '../utils';
 
 const PANEL_ID = 'CodeMagicChartPanel';
 
 export default function CodeMagicChartPanel() {
-  const {
-    data: { codeMagicData, thresholdsData },
-    zoomedPanel,
-    setZoomedPanel,
-    closeZoomedPanel,
-  } = useAppContext();
-  const zoomed = zoomedPanel === PANEL_ID;
-  const latest = last(codeMagicData)!;
-  const [domain, setDomain] = useState<Domain | undefined>();
-  const dataByDomain = useMemo(
-    () => getDataByDomain(codeMagicData, domain),
-    [latest.createdAt, domain]
+  const { data: codeMagicData = [], loading: loading1 } = useFetch(
+    'http://localhost:3000/data/codemagic.json'
   );
+  const { data: thresholdsData = {}, loading: loading2 } = useFetch<
+    Record<string, any>
+  >('http://localhost:3000/data/thresholds.json');
 
-  const data = dataByDomain.map(d => ({
-    x: formatDate(d.createdAt),
-    y: d.CodeMagicBuildQueueSize,
-  }));
+  const loading = loading1 || loading2;
+  const latest = last(codeMagicData);
+  const [domain, setDomain] = useState<Domain | undefined>();
+  const data = useMemo(
+    () =>
+      getDataByDomain(codeMagicData, domain).map(d => ({
+        x: formatDate(d.createdAt),
+        y: d.CodeMagicBuildQueueSize,
+      })),
+    [codeMagicData, domain]
+  );
 
   const averageData = uniqBy(
     data.map(d => ({
@@ -44,45 +44,46 @@ export default function CodeMagicChartPanel() {
     x => x.x
   );
 
-  const thresholdLineData = uniqBy(
-    data.map(d => ({
-      x: d.x,
-      y: thresholdsData['CodeMagic Build'].max,
-    })),
-    x => x.x
-  );
+  const thresholdLineData = !isEmpty(thresholdsData)
+    ? uniqBy(
+        data.map(d => ({
+          x: d.x,
+          y: thresholdsData['CodeMagic Build'].max,
+        })),
+        x => x.x
+      )
+    : [];
 
-  const noData = !data.length;
+  const hasData = !isEmpty(data);
 
   return (
     <Panel id={PANEL_ID}>
       <Panel.Title>CodeMagic Builds</Panel.Title>
 
       <Panel.Actions>
-        <ZoomButton
-          zoomed={zoomed}
-          onZoom={() => setZoomedPanel(PANEL_ID)}
-          onZoomOut={() => closeZoomedPanel()}
-        />
-
-        <Download
-          onPress={() => downloadPanelData(data, 'codemagic_builds.json')}
-        />
-
+        <ZoomButton panelId={PANEL_ID} />
+        {hasData && <Download data={data} filename="codemagic_builds.json" />}
         <ScreenshotButton panelId={PANEL_ID} />
       </Panel.Actions>
 
-      {!noData && (
+      {hasData && (
         <Panel.Subtitle>
           Current CodeMagic Builds:{' '}
-          <Text style={baseCss.textBold}>{latest.CodeMagicBuildQueueSize}</Text>
+          <Text style={baseCss.textBold}>
+            {latest!.CodeMagicBuildQueueSize}
+          </Text>
         </Panel.Subtitle>
       )}
 
       <Panel.Body>
-        <FilterDomain active={domain} onChange={d => setDomain(d)} />
+        {!loading && (
+          <FilterDomain active={domain} onChange={d => setDomain(d)} />
+        )}
 
-        {!noData && (
+        {loading && !hasData && <Panel.Loading />}
+        {!loading && !hasData && <Panel.Empty />}
+
+        {hasData && (
           <Chart
             type="bar"
             options={{
@@ -128,11 +129,13 @@ export default function CodeMagicChartPanel() {
             }}
           />
         )}
-
-        {noData && <Panel.Empty />}
       </Panel.Body>
 
-      <Panel.Footer>Last update: {formatDate(latest.createdAt)}</Panel.Footer>
+      {hasData && (
+        <Panel.Footer>
+          Last update: {formatDate(latest!.createdAt)}
+        </Panel.Footer>
+      )}
     </Panel>
   );
 }

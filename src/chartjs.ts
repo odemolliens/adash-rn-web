@@ -8,4 +8,6 @@ export function applyChartTheme(theme: any) {
 
   // eslint-disable-next-line functional/immutable-data
   defaults.borderColor = theme.textColor2;
+
+  defaults.animation = false;
 }
