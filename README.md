@@ -21,7 +21,17 @@ Example of configuration can be found at config.example.json
 ```json
 "versionsBar": {
   // activate/deactivate auto-rotation between versions
-  "rotationEnabled": true
+  "rotationEnabled": true,
+
+  // hide the versions bar
+  "hidden": false
+}
+```
+
+```json
+"teamsBar": {
+  // hide the teams bar
+  "hidden": false
 }
 ```
 
@@ -59,6 +69,7 @@ List of available panels
 
 ```json
 "tabs": {
+  // name of the tab
   "monitoring": {
     // list of panels for the monitoring tab
     "panels": [
@@ -70,6 +81,8 @@ List of available panels
     // column per row
     "gridSize": 3
   },
+
+  // name of the tab
   "quality": {
     // list of panels for the monitoring tab
     "panels": ["AllureReportPanel", "SonarPanel"],
@@ -100,3 +113,8 @@ Customize the light and dark themes
   }
 }
 ```
+
+# Add a new panel
+
+- Place the new panel file into the src/panels directory.
+- Make the panel available by adding the name of the file into the configuration availablePanels options.

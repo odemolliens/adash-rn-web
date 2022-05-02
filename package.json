@@ -3,10 +3,9 @@
   "version": "1.0.0",
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
-    "dev": "concurrently --kill-others \"yarn web\" \"npx ts-node server\"",
+    "dev": "concurrently --kill-others \"expo start --web\" \"npx ts-node server\"",
     "server": "npx ts-node server.ts",
     "start": "expo start",
-    "web": "expo start --web",
     "build": "expo build:web --no-pwa",
     "fix": "run-s fix:*",
     "fix:prettier": "prettier \"src/**/*.ts*\" --write",
