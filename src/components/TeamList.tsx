@@ -1,9 +1,6 @@
-import { uniq } from 'lodash';
-import { useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useAppContext } from '../contexts/AppContext';
-import { useFetch } from '../hooks/useCollectedData';
-import { config, extractTeams, getTeamColor } from '../utils';
+import { getTeamColor, TEAMS } from '../utils';
 import Chip from './Chip';
 
 export const ALL_TEAMS = '';
@@ -11,16 +8,8 @@ export const ALL_TEAMS = '';
 export default function TeamList() {
   const { filterByTeam, setFilterByTeam } = useAppContext();
 
-  const { data: gitlabData = [] } = useFetch(
-    `${config.metricsEndpoint}/data/gitlab.json`
-  );
-
   // add "All" button
-
-  const teams = useMemo(
-    () => uniq([ALL_TEAMS, ...extractTeams(gitlabData), 'UNK']),
-    [gitlabData]
-  );
+  const teams = [ALL_TEAMS, ...TEAMS];
 
   if (teams.length <= 2) {
     return null;

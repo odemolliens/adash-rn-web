@@ -19,7 +19,7 @@ type Notification = {
 export default function Notifications() {
   const { height } = useWindowDimensions();
   const { data: notificationsData = [] } = useFetch<Notification[]>(
-    `${config.metricsEndpoint}/data/notifications.json`
+    `${config.get('metricsEndpoint')}/data/notifications.json`
   );
 
   const { colorScheme } = useAppContext();

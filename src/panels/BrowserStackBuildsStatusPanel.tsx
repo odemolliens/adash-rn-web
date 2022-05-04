@@ -43,7 +43,7 @@ function getVariant(build: { status: string }) {
 
 export default function BrowserStackBuildsStatusPanel() {
   const { loading, data = [] } = useFetch(
-    `${config.metricsEndpoint}/data/browserstack.json`
+    `${config.get('metricsEndpoint')}/data/browserstack.json`
   );
 
   const { filterByVersion, filterByTeam, isFilteringActive } = useAppContext();

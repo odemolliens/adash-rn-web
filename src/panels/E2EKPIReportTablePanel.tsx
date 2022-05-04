@@ -16,7 +16,7 @@ const PANEL_ID = 'E2EKPIReportTablePanel';
 
 export default function E2EKPIReportTablePanel() {
   const { loading, data: kpie2e = [] } = useFetch(
-    `${config.metricsEndpoint}/data/kpie2e.json`
+    `${config.get('metricsEndpoint')}/data/kpie2e.json`
   );
 
   const { colorScheme } = useAppContext();
@@ -63,7 +63,7 @@ export default function E2EKPIReportTablePanel() {
 
   function onTeamPress(teamName: string) {
     window.open(
-      `${config.metricsEndpoint}/data/kpi-${teamName.toLowerCase()}.html`
+      `${config.get('metricsEndpoint')}/data/kpi-${teamName.toLowerCase()}.html`
     );
   }
 

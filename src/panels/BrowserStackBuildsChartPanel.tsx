@@ -14,11 +14,11 @@ const PANEL_ID = 'BrowserStackBuildsChartPanel';
 
 export default function BrowserStackBuildsChartPanel() {
   const { loading: loading1, data: browserStackData = [] } = useFetch(
-    `${config.metricsEndpoint}/data/browserstack.json`
+    `${config.get('metricsEndpoint')}/data/browserstack.json`
   );
   const { loading: loading2, data: thresholdsData = {} } = useFetch<
     Record<string, any>
-  >(`${config.metricsEndpoint}/data/thresholds.json`);
+  >(`${config.get('metricsEndpoint')}/data/thresholds.json`);
 
   const loading = loading1 || loading2;
   const latest = last(browserStackData);

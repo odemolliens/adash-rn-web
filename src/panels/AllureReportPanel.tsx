@@ -45,7 +45,7 @@ function getVariantFromStatus(status: string) {
 export default function AllureReportPanel() {
   const { colorScheme } = useAppContext();
   const { data: suites = {}, loading } = useFetch<Record<string, any>>(
-    `${config.metricsEndpoint}/allure/ios/suites.json`
+    `${config.get('metricsEndpoint')}/allure/ios/suites.json`
   );
 
   const [styles] = useTheme(themedStyles, colorScheme);

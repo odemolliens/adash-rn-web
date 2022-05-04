@@ -18,11 +18,11 @@ const PANEL_ID = 'CodeMagicChartPanel';
 
 export default function CodeMagicChartPanel() {
   const { data: codeMagicData = [], loading: loading1 } = useFetch(
-    `${config.metricsEndpoint}/data/codemagic.json`
+    `${config.get('metricsEndpoint')}/data/codemagic.json`
   );
   const { data: thresholdsData = {}, loading: loading2 } = useFetch<
     Record<string, any>
-  >(`${config.metricsEndpoint}/data/thresholds.json`);
+  >(`${config.get('metricsEndpoint')}/data/thresholds.json`);
 
   const loading = loading1 || loading2;
   const latest = last(codeMagicData);

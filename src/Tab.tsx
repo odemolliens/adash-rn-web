@@ -33,7 +33,7 @@ export default function Tab({ configKey }: { configKey: string }) {
 
   const [gridSize, setGridSize] = useLocalStorage(
     `config.tabs.${configKey}.gridSize_${configId}`,
-    config.tabs[configKey].gridSize + ''
+    config.get(`tabs.${configKey}`).gridSize + ''
   );
   const hasZoomedPanel = !!zoomedPanel;
 
@@ -41,11 +41,11 @@ export default function Tab({ configKey }: { configKey: string }) {
 
   const [data, setData] = useLocalStorage(
     `config.tabs.${configKey}.panels_${configId}`,
-    config.tabs[configKey].panels
+    config.get(`tabs.${configKey}`).panels
   );
 
-  const isVersionsBarVisible = !(config.versionsBar?.hidden || false);
-  const isTeamsBarVisible = !(config.teamsBar?.hidden || false);
+  const isVersionsBarVisible = !config.get('versionsBar.hidden', false);
+  const isTeamsBarVisible = !config.get('teamsBar.hidden', false);
 
   const renderGridItem = (item: string) => {
     const panel = useMemo(() => lazy(() => import(`./panels/${item}`)), [item]);
@@ -123,7 +123,7 @@ export default function Tab({ configKey }: { configKey: string }) {
           </ScrollView>
 
           <PanelsBar
-            availablePanels={config.availablePanels}
+            availablePanels={config.get('availablePanels')}
             currentPanels={data}
             editing={editing}
             onChange={setData}

@@ -25,13 +25,16 @@ export default function VersionList({
 }: VersionListProps) {
   const { filterByVersion, setFilterByVersion } = useAppContext();
   const [counter, setCounter] = useState(loopCountdown);
-  const versionsRotationEnabled = config?.versionsBar?.rotationEnabled ?? true;
+  const versionsRotationEnabled = config.get(
+    'versionsBar.rotationEnabled',
+    true
+  );
   const [loop, setLoop] = useState(versionsRotationEnabled);
   const { colorScheme } = useAppContext();
   const [styles, theme] = useTheme(themedStyles, colorScheme);
 
   const { data: gitlabData = [] } = useFetch(
-    `${config.metricsEndpoint}/data/gitlab.json`
+    `${config.get('metricsEndpoint')}/data/gitlab.json`
   );
 
   // add "All" button

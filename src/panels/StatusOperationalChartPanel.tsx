@@ -39,7 +39,7 @@ function getVariant(status: string) {
 
 export default function StatusOperationalChartPanel() {
   const { loading, data: statusData = [] } = useFetch(
-    `${config.metricsEndpoint}/data/status.json`
+    `${config.get('metricsEndpoint')}/data/status.json`
   );
   const { colorScheme } = useAppContext();
   const [styles] = useTheme(themedStyles, colorScheme);

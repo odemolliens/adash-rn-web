@@ -14,7 +14,7 @@ const PANEL_ID = 'GitlabMergeRequestsClosedLast24hPanel';
 
 export default function GitlabMergeRequestsClosedLast24hPanel() {
   const { loading, data: gitlabData = [] } = useFetch(
-    `${config.metricsEndpoint}/data/gitlab.json`
+    `${config.get('metricsEndpoint')}/data/gitlab.json`
   );
 
   const { filterByVersion, filterByTeam, isFilteringActive } = useAppContext();

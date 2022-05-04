@@ -15,7 +15,7 @@ const PANEL_ID = 'GitlabPipelinesListPanel';
 
 export default function GitlabPipelinesListPanel() {
   const { loading, data: gitlabData = [] } = useFetch(
-    `${config.metricsEndpoint}/data/gitlab.json`
+    `${config.get('metricsEndpoint')}/data/gitlab.json`
   );
 
   const { filterByVersion, filterByTeam, isFilteringActive } = useAppContext();

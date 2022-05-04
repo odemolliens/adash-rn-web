@@ -11,10 +11,6 @@ type FlashMessage = {
   panelId?: string;
 };
 
-type Threshold = {
-  max: number;
-};
-
 type AppContextProps = {
   colorScheme: string;
   setColorScheme: (colorScheme: 'dark' | 'light') => void;
@@ -34,6 +30,8 @@ type AppContextProps = {
   flashMessage?: FlashMessage;
   setFlashMessage: (flashMessage: FlashMessage) => void;
   clearFlashMessage: () => void;
+  configId: string;
+  setConfigId: (configId: string) => void;
 };
 
 const AppContext = React.createContext({} as AppContextProps);
@@ -41,6 +39,7 @@ const AppContext = React.createContext({} as AppContextProps);
 export const useAppContext = () => useContext(AppContext);
 
 export function AppContextProvider({ children }: { children: ReactNode }) {
+  const [configId, setConfigId] = useState('');
   const [filterByVersion, setFilterByVersion] = useState(ALL_VERSIONS);
   const [zoomedPanel, setZoomedPanel] = useState('');
   const [filterByTeam, setFilterByTeam] = useState(ALL_TEAMS);
@@ -83,6 +82,8 @@ export function AppContextProvider({ children }: { children: ReactNode }) {
         flashMessage,
         setFlashMessage,
         clearFlashMessage: () => setFlashMessage({} as FlashMessage),
+        configId,
+        setConfigId,
       }}
     >
       {children}

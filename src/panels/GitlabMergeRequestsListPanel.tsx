@@ -14,7 +14,7 @@ const PANEL_ID = 'GitlabMergeRequestsListPanel';
 
 export default function GitlabMergeRequestsListPanel() {
   const { loading, data: gitlabData = [] } = useFetch(
-    `${config.metricsEndpoint}/data/gitlab.json`
+    `${config.get('metricsEndpoint')}/data/gitlab.json`
   );
 
   const { filterByVersion, filterByTeam, isFilteringActive } = useAppContext();

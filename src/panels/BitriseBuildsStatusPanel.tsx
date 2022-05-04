@@ -40,7 +40,7 @@ function getVariant(build: {
 
 export default function BitriseBuildsStatusPanel() {
   const { loading, data = [] } = useFetch<Record<string, any>[]>(
-    `${config.metricsEndpoint}/data/bitrise.json`
+    `${config.get('metricsEndpoint')}/data/bitrise.json`
   );
 
   const { colorScheme } = useAppContext();

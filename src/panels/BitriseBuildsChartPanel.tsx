@@ -18,11 +18,11 @@ const PANEL_ID = 'BitriseBuildsChartPanel';
 
 export default function BitriseBuildsChartPanel() {
   const { loading: loading1, data: bitriseData = [] } = useFetch(
-    `${config.metricsEndpoint}/data/bitrise.json`
+    `${config.get('metricsEndpoint')}/data/bitrise.json`
   );
   const { loading: loading2, data: thresholdsData = {} } = useFetch<
     Record<string, any>
-  >(`${config.metricsEndpoint}/data/thresholds.json`);
+  >(`${config.get('metricsEndpoint')}/data/thresholds.json`);
 
   const loading = loading1 || loading2;
   const latest = last(bitriseData);

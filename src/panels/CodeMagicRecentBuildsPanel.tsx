@@ -45,7 +45,7 @@ function getVariant(build: { status: string }) {
 
 export default function CodeMagicRecentBuildsPanel() {
   const { loading, data: codeMagicData = [] } = useFetch(
-    `${config.metricsEndpoint}/data/codemagic.json`
+    `${config.get('metricsEndpoint')}/data/codemagic.json`
   );
 
   const { filterByVersion, filterByTeam, isFilteringActive } = useAppContext();
@@ -109,7 +109,7 @@ export default function CodeMagicRecentBuildsPanel() {
                 </Tooltip>
 
                 <Text style={styles.text}>
-                  {`${b.fileWorkflowId.replaceAll('_', ' ').toUpperCase()} - ${
+                  {`${b.fileWorkflowId.replace(/\_/g, '').toUpperCase()} - ${
                     extractTeams(b.branch)[0]
                   } - ${
                     extractVersions(b.branch)[0]

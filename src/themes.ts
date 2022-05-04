@@ -3,8 +3,8 @@ import { registerThemes } from 'react-native-themed-styles';
 
 import { config } from './utils';
 
-const light = config.themes.light;
-const dark = config.themes.dark;
+const light = config.get('themes').light;
+const dark = config.get('themes').dark;
 
 export const baseCss = StyleSheet.create({
   textBold: { fontWeight: '700' },

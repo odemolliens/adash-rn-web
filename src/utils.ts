@@ -1,12 +1,11 @@
 import { createHash } from 'crypto';
-
 import { format } from 'date-fns';
-import Constants from 'expo-constants';
 import html2canvas from 'html2canvas';
 import fileDownload from 'js-file-download';
 import { get, uniq } from 'lodash';
+import store from './store';
 
-export const config = Constants.manifest?.extra!;
+export const config = store;
 
 export const COLORS = [
   '#4dc9f6',
@@ -24,7 +23,7 @@ export function shorthash(txt: string) {
   return createHash('sha256').update(txt).digest('hex').slice(0, 5);
 }
 
-export const TEAMS = [...(config.teams || []), 'UNK'];
+export const TEAMS = [...config.get('teams', []), 'UNK'];
 
 /**
  * Checks if 2 strings are equals (ignore case)
@@ -58,7 +57,7 @@ export function extractVersions(data: unknown) {
   const versionRegExp = /\/(?<version>\d+\.\d{2}\.\d)/g; // matches 5.25.0 from feat/5.25.0/SYST-000-title
   const strData = JSON.stringify(data);
   const versions = uniq(strData.match(versionRegExp))
-    .map(v => v.replaceAll('/', ''))
+    .map(v => v.replace(/\//g, ''))
     .flat()
     .sort();
   return versions.sort().reverse();

@@ -38,11 +38,11 @@ export default function GitlabMergeRequestsChartPanel() {
   const [domain, setDomain] = useState<Domain | undefined>();
 
   const { loading: loading1, data: gitlabData = [] } = useFetch(
-    `${config.metricsEndpoint}/data/gitlab.json`
+    `${config.get('metricsEndpoint')}/data/gitlab.json`
   );
   const { loading: loading2, data: thresholdsData = {} } = useFetch<
     Record<string, any>
-  >(`${config.metricsEndpoint}/data/thresholds.json`);
+  >(`${config.get('metricsEndpoint')}/data/thresholds.json`);
 
   const loading = loading1 || loading2;
   const { filterByVersion, filterByTeam, isFilteringActive } = useAppContext();
