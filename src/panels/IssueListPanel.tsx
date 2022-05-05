@@ -13,9 +13,8 @@ import StatusIcon from '../components/StatusIcon';
 import ZoomButton from '../components/ZoomButton';
 import { useAppContext } from '../contexts/AppContext';
 import { baseCss, styleSheetFactory } from '../themes';
-import { formatDate } from '../utils';
+import { config, formatDate } from '../utils';
 
-const config = Constants.manifest?.extra!;
 const PANEL_ID = 'IssueListPanel';
 
 function getVariantByLabel(issue: GitlabHelper.Issue) {
@@ -47,8 +46,8 @@ export default function IssueListPanel() {
       setLoading(true);
       setIssues(
         await GitlabHelper.getIssues(
-          config.GitLab.projectId,
-          config.GitLab.token
+          config.get('GitLab.projectId'),
+          config.get('GitLab.token')
         )
       );
 
