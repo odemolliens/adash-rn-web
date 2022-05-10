@@ -1,9 +1,9 @@
 import { isEmpty } from 'lodash';
 import React, { ReactNode, useContext, useState } from 'react';
 import { useColorScheme } from 'react-native';
-import { useLocalStorage } from 'usehooks-ts';
 import { ALL_TEAMS } from '../components/TeamList';
 import { ALL_VERSIONS } from '../components/VersionList';
+import useStore from '../hooks/useStore';
 
 type FlashMessage = {
   type: 'error' | 'success';
@@ -32,6 +32,7 @@ type AppContextProps = {
   clearFlashMessage: () => void;
   configId: string;
   setConfigId: (configId: string) => void;
+  hasZoomedPanel: boolean;
 };
 
 const AppContext = React.createContext({} as AppContextProps);
@@ -45,11 +46,11 @@ export function AppContextProvider({ children }: { children: ReactNode }) {
   const [filterByTeam, setFilterByTeam] = useState(ALL_TEAMS);
   const isFilteringActive = !!filterByVersion || !!filterByTeam;
   const defaultColorScheme = useColorScheme() || 'light';
-  const [colorScheme, setColorScheme] = useLocalStorage(
-    'colorScheme',
+  const [colorScheme, setColorScheme] = useStore(
+    'themes.defaultTheme',
     defaultColorScheme
   );
-  const [auth, setAuth] = useLocalStorage('auth', '');
+  const [auth, setAuth] = useStore('auth', '');
   const [flashMessage, setFlashMessage] = useState({} as FlashMessage);
   const [projectId, token] = auth.split(':');
 
@@ -84,6 +85,7 @@ export function AppContextProvider({ children }: { children: ReactNode }) {
         clearFlashMessage: () => setFlashMessage({} as FlashMessage),
         configId,
         setConfigId,
+        hasZoomedPanel: !!zoomedPanel,
       }}
     >
       {children}

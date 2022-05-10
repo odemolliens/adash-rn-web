@@ -6,18 +6,20 @@ import { View } from 'react-native';
 import ZoomPanel from './components/ZoomPanel';
 import ConfigurationTab from './ConfigurationTab';
 import { useAppContext } from './contexts/AppContext';
+import useStore from './hooks/useStore';
 import Screen from './Tab';
-import { config } from './utils';
 
 const Tab = createBottomTabNavigator();
 
 export default function Dashboard() {
-  const { zoomedPanel, closeZoomedPanel, configId } = useAppContext();
-  const hasZoomedPanel = !!zoomedPanel;
+  const { zoomedPanel, closeZoomedPanel, configId, hasZoomedPanel } =
+    useAppContext();
   const ZoomedPanelComponent = useMemo(
     () => lazy(() => import(`./panels/${zoomedPanel}`)),
     [zoomedPanel]
   );
+
+  const [tabs] = useStore('tabs', []);
 
   return (
     <View style={{ overflow: 'hidden', flex: 1 }} key={configId}>
@@ -27,7 +29,7 @@ export default function Dashboard() {
             screenOptions={{ headerShown: false }}
             initialRouteName="CONFIGURATION"
           >
-            {Object.entries(config.get('tabs')).map(([key]) => (
+            {tabs.map((key: string) => (
               <Tab.Screen
                 key={key}
                 name={key.toUpperCase()}

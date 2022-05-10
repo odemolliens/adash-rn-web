@@ -1,11 +1,17 @@
 import { createHash } from 'crypto';
+
 import { format } from 'date-fns';
+import domtoimage from 'dom-to-image';
 import html2canvas from 'html2canvas';
 import fileDownload from 'js-file-download';
 import { get, uniq } from 'lodash';
+import { Platform } from 'react-native';
+
 import store from './store';
 
 export const config = store;
+console.log(Platform);
+export const isWeb = Platform.OS === 'web';
 
 export const COLORS = [
   '#4dc9f6',
@@ -23,7 +29,7 @@ export function shorthash(txt: string) {
   return createHash('sha256').update(txt).digest('hex').slice(0, 5);
 }
 
-export const TEAMS = [...config.get('teams', []), 'UNK'];
+export const TEAMS = [...config.get('teamsBar.teams', []), 'UNK'];
 
 /**
  * Checks if 2 strings are equals (ignore case)
@@ -51,6 +57,10 @@ export function formatDate(
 
   date = typeof date === 'string' ? new Date(date) : date;
   return format(date, formatOutput);
+}
+
+export function humanize(text: string) {
+  return text.split(/(?=[A-Z])/).join(' ');
 }
 
 export function extractVersions(data: unknown) {
@@ -126,10 +136,19 @@ export function downloadPanelData(data: unknown, filename: string) {
 }
 
 export function downloadPanelScreenshot(element: HTMLElement) {
-  html2canvas(element as HTMLElement, {
+  domtoimage.toPng(element).then(function (dataUrl: string) {
+    const link = document.createElement('a');
+    link.download = `${element.getAttribute('data-panel-id')}.png`;
+    link.href = dataUrl;
+    link.click();
+  });
+}
+
+export function downloadPanelScreenshotOld(element: HTMLElement) {
+  html2canvas(element, {
     backgroundColor: null,
     imageTimeout: 0,
-    logging: false,
+    logging: true,
     onclone: (_, element: Element) => {
       const pBody = element.querySelector('[data-panel-body]')! as HTMLElement;
       pBody.style.aspectRatio = 'auto';

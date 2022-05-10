@@ -1,11 +1,17 @@
 'use strict';
 
-import { app, BrowserWindow } from 'electron';
+import { shell, simpleLogger } from 'adash-ts-helper';
+import { app, BrowserWindow, Menu, protocol } from 'electron';
+import fs from 'fs';
 import * as path from 'path';
 import { format as formatUrl } from 'url';
 
 const Store = require('electron-store');
 Store.initRenderer();
+
+const config = new Store();
+
+const sh = shell({ logger: simpleLogger() });
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
@@ -14,8 +20,71 @@ let mainWindow;
 
 function createMainWindow() {
   const browserWindow = new BrowserWindow({
-    webPreferences: { nodeIntegration: true },
+    webPreferences: { nodeIntegration: true, webSecurity: false },
+    width: 1280,
+    height: 768,
   });
+
+  protocol.interceptFileProtocol(
+    'file',
+    function (request, callback) {
+      console.log(
+        request.url.substr(8),
+        path.join(process.resourcesPath, request.url.substr(8))
+      );
+
+      callback({
+        path: isDevelopment
+          ? request.url.substr(8)
+          : path.join(process.resourcesPath, request.url.substr(8)),
+      });
+    },
+    function (err) {
+      if (err) console.error('Failed to register protocol');
+    }
+  );
+
+  const mainMenuTemplate = [
+    {
+      label: 'Adash',
+      submenu: [
+        {
+          label: 'Exit',
+          click() {
+            app.quit();
+          },
+        },
+      ],
+    },
+    {
+      label: 'Tools',
+      submenu: [
+        { label: 'Toggle DevTools', role: 'toggleDevTools' },
+        { label: 'Force Reload', role: 'forceReload' },
+        {
+          label: 'Clear Config',
+          click() {
+            config.clear();
+          },
+        },
+        {
+          label: 'Log Config',
+          click() {
+            console.log(config.store);
+          },
+        },
+        {
+          label: 'Sync metrics',
+          click() {
+            syncMetrics();
+          },
+        },
+      ],
+    },
+  ];
+
+  const mainMenu = Menu.buildFromTemplate(mainMenuTemplate);
+  Menu.setApplicationMenu(mainMenu);
 
   if (isDevelopment) {
     browserWindow.webContents.openDevTools();
@@ -47,6 +116,26 @@ function createMainWindow() {
   });
 
   return browserWindow;
+}
+
+function syncMetrics() {
+  console.log('SYNCING METRICS');
+
+  setImmediate(() => {
+    const dataPath = isDevelopment
+      ? 'data'
+      : path.join(process.resourcesPath, 'data');
+
+    if (!fs.existsSync(dataPath)) {
+      console.log(
+        sh`git clone -b ${config.get('metricsRepositoryBranch')} ${config.get(
+          'metricsRepository'
+        )} ${dataPath};`
+      );
+    } else {
+      console.log(sh`cd ${dataPath} && git pull`);
+    }
+  });
 }
 
 // quit application when all windows are closed

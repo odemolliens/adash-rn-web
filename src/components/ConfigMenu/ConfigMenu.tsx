@@ -37,10 +37,6 @@ export default function ConfigMenu({ children }: ConfigMenuProps) {
           );
         }}
       >
-        <Menu.Item>
-          <DarkLightSwitchMenuItem />
-        </Menu.Item>
-
         {children}
       </Menu>
     </View>

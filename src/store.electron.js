@@ -6,9 +6,9 @@ const store = new Store({
 });
 
 export default {
-  get: (key, defaultValue) => store.get(key, defaultValue),
-  set: (key, value) => store.set(key, value),
+  get: (key, defaultValue) => store.get(key.replace(/\./g, '_'), defaultValue),
+  set: (key, value) => store.set(key.replace(/\./g, '_'), value),
   clear: () => store.clear(),
   allConfigs: () => store.store,
-  defaultConfigs: Constants.manifest.extra,
+  defaultConfigs: () => Constants.manifest.extra,
 };

@@ -1,4 +1,5 @@
 import { Button, HStack, ScrollView } from 'native-base';
+import { humanize } from '../utils';
 
 type PanelsBarProps = {
   availablePanels: string[];
@@ -39,10 +40,7 @@ export default function PanelsBar({
                   onChange((prevData: string[]) => [key, ...prevData])
                 }
               >
-                {key
-                  .replace('Panel', '')
-                  .split(/(?=[A-Z])/)
-                  .join(' ')}
+                {humanize(key.replace('Panel', ''))}
               </Button>
             );
           })}

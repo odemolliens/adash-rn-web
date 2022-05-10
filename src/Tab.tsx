@@ -1,5 +1,13 @@
 import { Button, Menu, VStack } from 'native-base';
-import React, { lazy, Suspense, useMemo, useState } from 'react';
+import React, {
+  Fragment,
+  lazy,
+  Suspense,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
+import { ErrorBoundary } from 'react-error-boundary';
 import {
   SafeAreaView,
   ScrollView,
@@ -8,46 +16,32 @@ import {
 } from 'react-native';
 import GridView from 'react-native-draggable-gridview';
 import { useTheme } from 'react-native-themed-styles';
-import { useLocalStorage } from 'usehooks-ts';
+import { useDebounce } from 'usehooks-ts';
+import { applyChartTheme } from './chartjs';
 import AuthenticateMenuItem from './components/ConfigMenu/AuthenticateMenuItem';
 import ConfigMenu from './components/ConfigMenu/ConfigMenu';
 import EditGridSizeMenuItem from './components/ConfigMenu/EditGridSizeMenuItem';
 import EditPanelsMenuItem from './components/ConfigMenu/EditPanelsMenuItem';
 import Notifications from './components/Notifications';
+import Panel from './components/Panel';
 import PanelsBar from './components/PanelsBar';
 import TeamList from './components/TeamList';
 import VersionList from './components/VersionList';
 import { useAppContext } from './contexts/AppContext';
-import { applyChartTheme } from './chartjs';
+import useStore from './hooks/useStore';
 import { styleSheetFactory } from './themes';
-import { config, shorthash } from './utils';
-import { ErrorBoundary } from 'react-error-boundary';
-import Panel from './components/Panel';
+import { config, humanize } from './utils';
 
-export default function Tab({ configKey }: { configKey: string }) {
-  const { width: maxWidth } = useWindowDimensions();
-  const { colorScheme, zoomedPanel } = useAppContext();
-  const [styles, theme] = useTheme(themedStyles, colorScheme);
-  const [editing, setEditing] = useState(false);
-  const configId = shorthash(JSON.stringify(config));
+type RenderGridItemProps = {
+  item: string;
+  editing: boolean;
+  onRemove: (fn: any) => void;
+};
 
-  const [gridSize, setGridSize] = useLocalStorage(
-    `config.tabs.${configKey}.gridSize_${configId}`,
-    config.get(`tabs.${configKey}`).gridSize + ''
-  );
-  const hasZoomedPanel = !!zoomedPanel;
-
-  applyChartTheme(theme);
-
-  const [data, setData] = useLocalStorage(
-    `config.tabs.${configKey}.panels_${configId}`,
-    config.get(`tabs.${configKey}`).panels
-  );
-
-  const isVersionsBarVisible = !config.get('versionsBar.hidden', false);
-  const isTeamsBarVisible = !config.get('teamsBar.hidden', false);
-
-  const renderGridItem = (item: string) => {
+const RenderGridItem = React.memo(
+  ({ item, editing, onRemove }: RenderGridItemProps) => {
+    const { colorScheme } = useAppContext();
+    const [styles] = useTheme(themedStyles, colorScheme);
     const panel = useMemo(() => lazy(() => import(`./panels/${item}`)), [item]);
 
     return (
@@ -56,7 +50,7 @@ export default function Tab({ configKey }: { configKey: string }) {
           {editing && (
             <Button
               onPress={() =>
-                setData((data: any) => data.filter((d: any) => d != item))
+                onRemove((data: any) => data.filter((d: any) => d != item))
               }
             >
               Remove
@@ -66,7 +60,7 @@ export default function Tab({ configKey }: { configKey: string }) {
           <ErrorBoundary
             FallbackComponent={({ error }) => (
               <Panel id={item} variant="error">
-                <Panel.Title>{item}</Panel.Title>
+                <Panel.Title>{humanize(item)}</Panel.Title>
                 <Panel.Error>
                   Something went wrong:
                   <br />
@@ -80,7 +74,27 @@ export default function Tab({ configKey }: { configKey: string }) {
         </VStack>
       </View>
     );
-  };
+  }
+);
+
+export default function Tab({ configKey }: { configKey: string }) {
+  const { colorScheme, hasZoomedPanel } = useAppContext();
+  const [styles, theme] = useTheme(themedStyles, colorScheme);
+  const [editing, setEditing] = useState(false);
+  const { width: maxWidth } = useWindowDimensions();
+  const [gridSize, setGridSize] = useStore(`tabs.${configKey}.gridSize`);
+  const [data, setData] = useStore(`tabs.${configKey}.panels`);
+  const [isVersionsBarHidden] = useStore('versionsBar.hidden', false);
+  const [isTeamsBarHidden] = useStore('teamsBar.hidden', false);
+  const throttledWidth = useDebounce<number>(maxWidth, 3000);
+
+  useEffect(() => {
+    applyChartTheme(theme);
+  }, []);
+
+  function renderItem(item: string) {
+    return <RenderGridItem item={item} editing={editing} onRemove={setData} />;
+  }
 
   return (
     <View style={styles.container}>
@@ -91,10 +105,10 @@ export default function Tab({ configKey }: { configKey: string }) {
             horizontal
           >
             <View style={styles.filtersInnerContainer}>
-              {isVersionsBarVisible && (
+              {!isVersionsBarHidden && (
                 <VersionList loopCountdown={60} active={!hasZoomedPanel} />
               )}
-              {isTeamsBarVisible && <TeamList />}
+              {!isTeamsBarHidden && <TeamList />}
             </View>
 
             <View style={styles.dashboardActions}>
@@ -129,16 +143,18 @@ export default function Tab({ configKey }: { configKey: string }) {
             onChange={setData}
           />
 
-          <GridView
-            selectedStyle={{}}
-            key={data.length + gridSize}
-            data={data}
-            locked={() => !editing}
-            numColumns={parseInt(gridSize)}
-            renderLockedItem={renderGridItem}
-            renderItem={renderGridItem}
-            onReleaseCell={items => setData(items)}
-          />
+          <Fragment key={throttledWidth}>
+            <GridView
+              selectedStyle={{}}
+              key={data.length + gridSize}
+              data={data}
+              locked={() => !editing}
+              numColumns={parseInt(gridSize)}
+              renderLockedItem={renderItem}
+              renderItem={renderItem}
+              onReleaseCell={items => setData(items)}
+            />
+          </Fragment>
         </ScrollView>
       </SafeAreaView>
     </View>
