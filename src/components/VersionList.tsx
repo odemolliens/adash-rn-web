@@ -6,7 +6,7 @@ import { Pressable, Text, View } from 'react-native';
 import { useTheme } from 'react-native-themed-styles';
 import { useInterval } from 'usehooks-ts';
 import { useAppContext } from '../contexts/AppContext';
-import { useFetch } from '../hooks/useCollectedData';
+import useFetch from '../hooks/useFetch';
 import { styleSheetFactory } from '../themes';
 import { config, extractVersions } from '../utils';
 import Chip from './Chip';
@@ -26,16 +26,14 @@ export default function VersionList({
   const { filterByVersion, setFilterByVersion } = useAppContext();
   const [counter, setCounter] = useState(loopCountdown);
   const versionsRotationEnabled = config.get(
-    'versionsBar.rotationEnabled',
+    'versionsBar_rotationEnabled',
     true
   );
   const [loop, setLoop] = useState(versionsRotationEnabled);
   const { colorScheme } = useAppContext();
   const [styles, theme] = useTheme(themedStyles, colorScheme);
 
-  const { data: gitlabData = [] } = useFetch(
-    `${config.get('metricsEndpoint')}/data/gitlab.json`
-  );
+  const { data: gitlabData = [] } = useFetch(`/data/gitlab.json`);
 
   // add "All" button
   const versions = useMemo(

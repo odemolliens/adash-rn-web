@@ -7,16 +7,14 @@ import Panel from '../components/Panel';
 import ScreenshotButton from '../components/ScreenshotButton';
 import ZoomButton from '../components/ZoomButton';
 import { useAppContext } from '../contexts/AppContext';
-import { useFetch } from '../hooks/useCollectedData';
+import useFetch from '../hooks/useFetch';
 import { baseCss, styleSheetFactory } from '../themes';
 import { applyFilters, config, formatDate } from '../utils';
 
 const PANEL_ID = 'GitlabPipelinesListPanel';
 
 export default function GitlabPipelinesListPanel() {
-  const { loading, data: gitlabData = [] } = useFetch(
-    `${config.get('metricsEndpoint')}/data/gitlab.json`
-  );
+  const { loading, data: gitlabData = [] } = useFetch(`/data/gitlab.json`);
 
   const { filterByVersion, filterByTeam, isFilteringActive } = useAppContext();
   const { colorScheme } = useAppContext();

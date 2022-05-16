@@ -46,8 +46,8 @@ export default function IssueListPanel() {
       setLoading(true);
       setIssues(
         await GitlabHelper.getIssues(
-          config.get('GitLab.projectId'),
-          config.get('GitLab.token')
+          config.get('GitLab_projectId'),
+          config.get('GitLab_token')
         )
       );
 

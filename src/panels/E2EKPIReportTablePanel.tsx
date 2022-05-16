@@ -8,16 +8,14 @@ import Panel from '../components/Panel';
 import ScreenshotButton from '../components/ScreenshotButton';
 import ZoomButton from '../components/ZoomButton';
 import { useAppContext } from '../contexts/AppContext';
-import { useFetch } from '../hooks/useCollectedData';
+import useFetch from '../hooks/useFetch';
 import { styleSheetFactory } from '../themes';
 import { config, formatDate } from '../utils';
 
 const PANEL_ID = 'E2EKPIReportTablePanel';
 
 export default function E2EKPIReportTablePanel() {
-  const { loading, data: kpie2e = [] } = useFetch(
-    `${config.get('metricsEndpoint')}/data/kpie2e.json`
-  );
+  const { loading, data: kpie2e = [] } = useFetch(`/data/kpie2e.json`);
 
   const { colorScheme } = useAppContext();
   const [stylesTheme] = useTheme(themedStyles, colorScheme);
@@ -63,7 +61,9 @@ export default function E2EKPIReportTablePanel() {
 
   function onTeamPress(teamName: string) {
     window.open(
-      `${config.get('metricsEndpoint')}/data/kpi-${teamName.toLowerCase()}.html`
+      `${config.get(
+        'web_metricsEndpoint'
+      )}/data/kpi-${teamName.toLowerCase()}.html`
     );
   }
 

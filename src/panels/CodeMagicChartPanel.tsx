@@ -10,19 +10,18 @@ import FilterDomain, {
 import Panel from '../components/Panel';
 import ScreenshotButton from '../components/ScreenshotButton';
 import ZoomButton from '../components/ZoomButton';
-import { useFetch } from '../hooks/useCollectedData';
+import useFetch from '../hooks/useFetch';
 import { baseCss } from '../themes';
 import { COLORS, config, formatDate } from '../utils';
 
 const PANEL_ID = 'CodeMagicChartPanel';
 
 export default function CodeMagicChartPanel() {
-  const { data: codeMagicData = [], loading: loading1 } = useFetch(
-    `${config.get('metricsEndpoint')}/data/codemagic.json`
-  );
+  const { data: codeMagicData = [], loading: loading1 } =
+    useFetch(`/data/codemagic.json`);
   const { data: thresholdsData = {}, loading: loading2 } = useFetch<
     Record<string, any>
-  >(`${config.get('metricsEndpoint')}/data/thresholds.json`);
+  >(`/data/thresholds.json`);
 
   const loading = loading1 || loading2;
   const latest = last(codeMagicData);

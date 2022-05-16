@@ -25,10 +25,7 @@ export default function Dashboard() {
     <View style={{ overflow: 'hidden', flex: 1 }} key={configId}>
       <NativeBaseProvider theme={nativeBasetheme}>
         <NavigationContainer>
-          <Tab.Navigator
-            screenOptions={{ headerShown: false }}
-            initialRouteName="CONFIGURATION"
-          >
+          <Tab.Navigator screenOptions={{ headerShown: false }}>
             {tabs.map((key: string) => (
               <Tab.Screen
                 key={key}

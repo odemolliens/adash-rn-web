@@ -6,7 +6,7 @@ import Download from '../components/Download';
 import Panel from '../components/Panel';
 import ScreenshotButton from '../components/ScreenshotButton';
 import ZoomButton from '../components/ZoomButton';
-import { useFetch } from '../hooks/useCollectedData';
+import useFetch from '../hooks/useFetch';
 import { baseCss } from '../themes';
 import { COLORS, config, formatDate, getBrowserStackBuildInfo } from '../utils';
 
@@ -14,11 +14,11 @@ const PANEL_ID = 'BrowserStackBuildsChartPanel';
 
 export default function BrowserStackBuildsChartPanel() {
   const { loading: loading1, data: browserStackData = [] } = useFetch(
-    `${config.get('metricsEndpoint')}/data/browserstack.json`
+    `/data/browserstack.json`
   );
   const { loading: loading2, data: thresholdsData = {} } = useFetch<
     Record<string, any>
-  >(`${config.get('metricsEndpoint')}/data/thresholds.json`);
+  >(`/data/thresholds.json`);
 
   const loading = loading1 || loading2;
   const latest = last(browserStackData);

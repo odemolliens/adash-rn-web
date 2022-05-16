@@ -1,19 +1,18 @@
 import { isEmpty } from 'lodash';
 import useSWRImmutable from 'swr/immutable';
-
+import { isElectron } from '../platform';
 import { config, fetcher } from '../utils';
 
-export function useFetch<T = readonly Record<string, any>[]>(
-  url: string
+export default function useFetch<T = readonly Record<string, any>[]>(
+  metricsPath: string
 ): { readonly data: T; readonly loading: boolean; readonly error: any } {
   const options = {
     refreshInterval: 60 * 1000,
   };
-  const { data, error } = useSWRImmutable(
-    url.replace(config.get('metricsEndpoint'), 'file://'),
-    fetcher,
-    options
-  );
+
+  const url = isElectron ? 'file:///' : config.get('web_metricsEndpoint')
+
+  const { data, error } = useSWRImmutable(new URL(metricsPath, url).href, fetcher, options);
 
   return {
     data: data as T,

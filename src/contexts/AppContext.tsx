@@ -47,7 +47,7 @@ export function AppContextProvider({ children }: { children: ReactNode }) {
   const isFilteringActive = !!filterByVersion || !!filterByTeam;
   const defaultColorScheme = useColorScheme() || 'light';
   const [colorScheme, setColorScheme] = useStore(
-    'themes.defaultTheme',
+    'themes_defaultTheme',
     defaultColorScheme
   );
   const [auth, setAuth] = useStore('auth', '');

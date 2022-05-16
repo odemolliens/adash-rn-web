@@ -1,12 +1,10 @@
 import { createHash } from 'crypto';
-
 import { format } from 'date-fns';
 import domtoimage from 'dom-to-image';
 import html2canvas from 'html2canvas';
 import fileDownload from 'js-file-download';
 import { get, uniq } from 'lodash';
 import { Platform } from 'react-native';
-
 import store from './store';
 
 export const config = store;
@@ -29,7 +27,7 @@ export function shorthash(txt: string) {
   return createHash('sha256').update(txt).digest('hex').slice(0, 5);
 }
 
-export const TEAMS = [...config.get('teamsBar.teams', []), 'UNK'];
+export const TEAMS = [...config.get('teamsBar_teams', []), 'UNK'];
 
 /**
  * Checks if 2 strings are equals (ignore case)

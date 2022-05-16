@@ -1,7 +1,7 @@
 'use strict';
 
 import { shell, simpleLogger } from 'adash-ts-helper';
-import { app, BrowserWindow, Menu, protocol } from 'electron';
+import { app, BrowserWindow, dialog, Menu, protocol } from 'electron';
 import fs from 'fs';
 import * as path from 'path';
 import { format as formatUrl } from 'url';
@@ -12,6 +12,16 @@ Store.initRenderer();
 const config = new Store();
 
 const sh = shell({ logger: simpleLogger() });
+
+const console = {
+  log(data) {
+    mainWindow.webContents.send('consolelog', data);
+
+    dialog.showMessageBox(null, {
+      message: 'From Electron:' + JSON.stringify(data),
+    });
+  },
+};
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
@@ -28,16 +38,17 @@ function createMainWindow() {
   protocol.interceptFileProtocol(
     'file',
     function (request, callback) {
-      console.log(
-        request.url.substr(8),
-        path.join(process.resourcesPath, request.url.substr(8))
-      );
-
-      callback({
-        path: isDevelopment
-          ? request.url.substr(8)
-          : path.join(process.resourcesPath, request.url.substr(8)),
-      });
+      if (request.url.includes('data/')) {
+        callback({
+          path: isDevelopment
+            ? request.url.substr(8)
+            : path.normalize(
+                `${process.resourcesPath}/${request.url.substr(7)}`
+              ),
+        });
+      } else {
+        callback({ path: request.url.substr(8) });
+      }
     },
     function (err) {
       if (err) console.error('Failed to register protocol');
@@ -119,18 +130,16 @@ function createMainWindow() {
 }
 
 function syncMetrics() {
-  console.log('SYNCING METRICS');
+  const dataPath = isDevelopment
+    ? 'data'
+    : path.join(process.resourcesPath, 'data');
 
   setImmediate(() => {
-    const dataPath = isDevelopment
-      ? 'data'
-      : path.join(process.resourcesPath, 'data');
-
     if (!fs.existsSync(dataPath)) {
       console.log(
-        sh`git clone -b ${config.get('metricsRepositoryBranch')} ${config.get(
-          'metricsRepository'
-        )} ${dataPath};`
+        sh`git clone -b ${config.get(
+          'app_metricsRepositoryBranch'
+        )} ${config.get('app_metricsRepository')} ${dataPath};`
       );
     } else {
       console.log(sh`cd ${dataPath} && git pull`);

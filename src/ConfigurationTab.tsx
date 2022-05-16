@@ -45,13 +45,13 @@ export default function ConfigurationTab() {
                   size="sm"
                   isChecked={get(
                     newConfig,
-                    'versionsBar.rotationEnabled',
-                    config.get('versionsBar.rotationEnabled', false)
+                    'versionsBar_rotationEnabled',
+                    config.get('versionsBar_rotationEnabled', false)
                   )}
                   onValueChange={value => {
                     setNewConfig(prev => ({
                       ...prev,
-                      'versionsBar.rotationEnabled': value,
+                      versionsBar_rotationEnabled: value,
                     }));
                   }}
                 />
@@ -63,13 +63,13 @@ export default function ConfigurationTab() {
                   size="sm"
                   isChecked={get(
                     newConfig,
-                    'versionsBar.hidden',
-                    config.get('versionsBar.hidden', false)
+                    'versionsBar_hidden',
+                    config.get('versionsBar_hidden', false)
                   )}
                   onValueChange={value => {
                     setNewConfig(prev => ({
                       ...prev,
-                      'versionsBar.hidden': value,
+                      versionsBar_hidden: value,
                     }));
                   }}
                 />
@@ -84,13 +84,13 @@ export default function ConfigurationTab() {
                   size="sm"
                   isChecked={get(
                     newConfig,
-                    'teamsBar.hidden',
-                    config.get('teamsBar.hidden', false)
+                    'teamsBar_hidden',
+                    config.get('teamsBar_hidden', false)
                   )}
                   onValueChange={value => {
                     setNewConfig(prev => ({
                       ...prev,
-                      'teamsBar.hidden': value,
+                      teamsBar_hidden: value,
                     }));
                   }}
                 />
@@ -105,13 +105,13 @@ export default function ConfigurationTab() {
                   maxWidth="300px"
                   value={get(
                     newConfig,
-                    'teamsBar.teams',
-                    config.get('teamsBar.teams', [])
+                    'teamsBar_teams',
+                    config.get('teamsBar_teams', [])
                   ).join(',')}
                   onChangeText={text => {
                     setNewConfig(prev => ({
                       ...prev,
-                      'teamsBar.teams': text.split(','),
+                      teamsBar_teams: text.split(','),
                     }));
                   }}
                 />
@@ -130,13 +130,13 @@ export default function ConfigurationTab() {
                     maxWidth="300px"
                     value={get(
                       newConfig,
-                      'GitLab.projectId',
-                      config.get('GitLab.projectId')
+                      'GitLab_projectId',
+                      config.get('GitLab_projectId')
                     )}
                     onChangeText={text => {
                       setNewConfig(prev => ({
                         ...prev,
-                        'GitLab.projectId': text,
+                        GitLab_projectId: text,
                       }));
                     }}
                   />
@@ -153,11 +153,11 @@ export default function ConfigurationTab() {
                     maxWidth="300px"
                     value={get(
                       newConfig,
-                      'GitLab.token',
-                      config.get('GitLab.token')
+                      'GitLab_token',
+                      config.get('GitLab_token')
                     )}
                     onChangeText={text => {
-                      setNewConfig(prev => ({ ...prev, 'GitLab.token': text }));
+                      setNewConfig(prev => ({ ...prev, GitLab_token: text }));
                     }}
                   />
                 </Box>
@@ -259,8 +259,8 @@ export default function ConfigurationTab() {
                 <Text style={[baseCss.textBold]}>
                   {get(
                     newConfig,
-                    'themes.defaultTheme',
-                    config.get('themes.defaultTheme', 'dark')
+                    'themes_defaultTheme',
+                    config.get('themes_defaultTheme', 'dark')
                   )}
                 </Text>
               </Text>
@@ -269,20 +269,20 @@ export default function ConfigurationTab() {
                 isChecked={
                   get(
                     newConfig,
-                    'themes.defaultTheme',
-                    config.get('themes.defaultTheme', 'dark')
+                    'themes_defaultTheme',
+                    config.get('themes_defaultTheme', 'dark')
                   ) === 'dark'
                 }
                 onValueChange={value => {
                   setNewConfig(prev => ({
                     ...prev,
-                    'themes.defaultTheme': value ? 'dark' : 'light',
+                    themes_defaultTheme: value ? 'dark' : 'light',
                   }));
                 }}
               />
             </HStack>
 
-            {['light', 'dark'].map(theme => {
+            {['dark', 'light'].map(theme => {
               return (
                 <VStack space={2} key={theme}>
                   <Text style={[baseCss.textBold]}>{capitalize(theme)}</Text>
@@ -306,13 +306,13 @@ export default function ConfigurationTab() {
                             w="100px"
                             value={get(
                               newConfig,
-                              `themes.${theme}.${property}`,
-                              config.get(`themes.${theme}.${property}`)
+                              `themes_${theme}_${property}`,
+                              config.get(`themes_${theme}_${property}`)
                             )}
                             onChangeText={text => {
                               setNewConfig(prev => ({
                                 ...prev,
-                                [`themes.${theme}.${property}`]: text,
+                                [`themes_${theme}_${property}`]: text,
                               }));
                             }}
                           />
@@ -321,13 +321,13 @@ export default function ConfigurationTab() {
                             type="color"
                             value={get(
                               newConfig,
-                              `themes.${theme}.${property}`,
-                              config.get(`themes.${theme}.${property}`)
+                              `themes_${theme}_${property}`,
+                              config.get(`themes_${theme}_${property}`)
                             )}
                             onChange={e => {
                               setNewConfig(prev => ({
                                 ...prev,
-                                [`themes.${theme}.${property}`]: e.target.value,
+                                [`themes_${theme}_${property}`]: e.target.value,
                               }));
                             }}
                           />

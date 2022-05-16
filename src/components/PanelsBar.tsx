@@ -3,6 +3,7 @@ import { humanize } from '../utils';
 
 type PanelsBarProps = {
   availablePanels: string[];
+  defaultPanels: string[];
   currentPanels: string[];
   editing: boolean;
   onChange: Function;
@@ -10,6 +11,7 @@ type PanelsBarProps = {
 
 export default function PanelsBar({
   availablePanels,
+  defaultPanels,
   currentPanels,
   editing,
   onChange,
@@ -25,7 +27,7 @@ export default function PanelsBar({
         alignItems="center"
         justifyContent="center"
       >
-        <Button variant="outline" onPress={() => onChange(availablePanels)}>
+        <Button variant="outline" onPress={() => onChange(defaultPanels)}>
           Reset
         </Button>
 

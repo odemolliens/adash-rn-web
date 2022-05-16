@@ -1,12 +1,6 @@
+import { get } from 'lodash';
 import { Button, Menu, VStack } from 'native-base';
-import React, {
-  Fragment,
-  lazy,
-  Suspense,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import React, { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import {
   SafeAreaView,
@@ -82,11 +76,17 @@ export default function Tab({ configKey }: { configKey: string }) {
   const [styles, theme] = useTheme(themedStyles, colorScheme);
   const [editing, setEditing] = useState(false);
   const { width: maxWidth } = useWindowDimensions();
-  const [gridSize, setGridSize] = useStore(`tabs.${configKey}.gridSize`);
-  const [data, setData] = useStore(`tabs.${configKey}.panels`);
-  const [isVersionsBarHidden] = useStore('versionsBar.hidden', false);
-  const [isTeamsBarHidden] = useStore('teamsBar.hidden', false);
+  const [gridSize, setGridSize] = useStore<string>(
+    `tabs_${configKey}_gridSize`
+  );
+  const [data, setData] = useStore<string[]>(`tabs_${configKey}_panels`);
+  const [isVersionsBarHidden] = useStore('versionsBar_hidden', false);
+  const [isTeamsBarHidden] = useStore('teamsBar_hidden', false);
   const throttledWidth = useDebounce<number>(maxWidth, 3000);
+  const defaultPanelsForTab = useMemo(
+    () => get(config.defaultConfigs(), `tabs_${configKey}_panels`),
+    [configKey]
+  );
 
   useEffect(() => {
     applyChartTheme(theme);
@@ -138,23 +138,23 @@ export default function Tab({ configKey }: { configKey: string }) {
 
           <PanelsBar
             availablePanels={config.get('availablePanels')}
+            defaultPanels={defaultPanelsForTab}
             currentPanels={data}
             editing={editing}
             onChange={setData}
           />
 
-          <Fragment key={throttledWidth}>
-            <GridView
-              selectedStyle={{}}
-              key={data.length + gridSize}
-              data={data}
-              locked={() => !editing}
-              numColumns={parseInt(gridSize)}
-              renderLockedItem={renderItem}
-              renderItem={renderItem}
-              onReleaseCell={items => setData(items)}
-            />
-          </Fragment>
+          <GridView
+            width={throttledWidth}
+            selectedStyle={{}}
+            key={data.length + gridSize}
+            data={data}
+            locked={() => !editing}
+            numColumns={parseInt(gridSize)}
+            renderLockedItem={renderItem}
+            renderItem={renderItem}
+            onReleaseCell={items => setData(items)}
+          />
         </ScrollView>
       </SafeAreaView>
     </View>
