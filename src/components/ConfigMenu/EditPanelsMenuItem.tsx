@@ -1,4 +1,4 @@
-import { AntDesign } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import { Tooltip } from 'native-base';
 import { Pressable, Text, View } from 'react-native';
 import { useTheme } from 'react-native-themed-styles';
@@ -26,8 +26,8 @@ export default function EditPanelsMenuItem({
         <Chip variant={editing ? 'highlight' : undefined}>
           <Tooltip label="Re-order panels">
             <View>
-              <AntDesign
-                name="edit"
+              <Ionicons
+                name="build"
                 size={15}
                 color={editing ? theme.textColor2 : theme.textColor}
               />

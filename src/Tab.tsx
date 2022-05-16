@@ -82,7 +82,7 @@ export default function Tab({ configKey }: { configKey: string }) {
   const [data, setData] = useStore<string[]>(`tabs_${configKey}_panels`);
   const [isVersionsBarHidden] = useStore('versionsBar_hidden', false);
   const [isTeamsBarHidden] = useStore('teamsBar_hidden', false);
-  const throttledWidth = useDebounce<number>(maxWidth, 3000);
+  const debouncedWidth = useDebounce<number>(maxWidth, 2000);
   const defaultPanelsForTab = useMemo(
     () => get(config.defaultConfigs(), `tabs_${configKey}_panels`),
     [configKey]
@@ -116,10 +116,6 @@ export default function Tab({ configKey }: { configKey: string }) {
 
               <ConfigMenu>
                 <Menu.Item>
-                  <AuthenticateMenuItem />
-                </Menu.Item>
-
-                <Menu.Item>
                   <EditPanelsMenuItem
                     editing={editing}
                     onEditPress={() => setEditing(!editing)}
@@ -145,9 +141,9 @@ export default function Tab({ configKey }: { configKey: string }) {
           />
 
           <GridView
-            width={throttledWidth}
+            width={debouncedWidth}
             selectedStyle={{}}
-            key={data.length + gridSize}
+            key={`${data.length}${gridSize}${debouncedWidth}`}
             data={data}
             locked={() => !editing}
             numColumns={parseInt(gridSize)}

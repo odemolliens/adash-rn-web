@@ -1,7 +1,11 @@
 import { useState } from 'react';
+
 import { config } from '../utils';
 
-export default function useStore<T>(key: string, defaultValue?: T): [T, (newVal: T) => void] {
+export default function useStore<T>(
+  key: string,
+  defaultValue?: T
+): readonly [T, (newVal: T) => void] {
   const [data, setData] = useState(config.get(key, defaultValue));
 
   function updateDate(newData: T) {
