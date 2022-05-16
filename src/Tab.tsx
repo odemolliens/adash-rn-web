@@ -1,7 +1,6 @@
 import { get } from 'lodash';
-import { Button, Menu, VStack } from 'native-base';
-import React, { lazy, Suspense, useEffect, useMemo, useState } from 'react';
-import { ErrorBoundary } from 'react-error-boundary';
+import { Menu } from 'native-base';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   SafeAreaView,
   ScrollView,
@@ -12,64 +11,18 @@ import GridView from 'react-native-draggable-gridview';
 import { useTheme } from 'react-native-themed-styles';
 import { useDebounce } from 'usehooks-ts';
 import { applyChartTheme } from './chartjs';
-import AuthenticateMenuItem from './components/ConfigMenu/AuthenticateMenuItem';
 import ConfigMenu from './components/ConfigMenu/ConfigMenu';
 import EditGridSizeMenuItem from './components/ConfigMenu/EditGridSizeMenuItem';
 import EditPanelsMenuItem from './components/ConfigMenu/EditPanelsMenuItem';
+import GridItem from './components/GridItem';
 import Notifications from './components/Notifications';
-import Panel from './components/Panel';
 import PanelsBar from './components/PanelsBar';
 import TeamList from './components/TeamList';
 import VersionList from './components/VersionList';
 import { useAppContext } from './contexts/AppContext';
 import useStore from './hooks/useStore';
 import { styleSheetFactory } from './themes';
-import { config, humanize } from './utils';
-
-type RenderGridItemProps = {
-  item: string;
-  editing: boolean;
-  onRemove: (fn: any) => void;
-};
-
-const RenderGridItem = React.memo(
-  ({ item, editing, onRemove }: RenderGridItemProps) => {
-    const { colorScheme } = useAppContext();
-    const [styles] = useTheme(themedStyles, colorScheme);
-    const panel = useMemo(() => lazy(() => import(`./panels/${item}`)), [item]);
-
-    return (
-      <View style={styles.gridItemContainer}>
-        <VStack space={2} h="full">
-          {editing && (
-            <Button
-              onPress={() =>
-                onRemove((data: any) => data.filter((d: any) => d != item))
-              }
-            >
-              Remove
-            </Button>
-          )}
-
-          <ErrorBoundary
-            FallbackComponent={({ error }) => (
-              <Panel id={item} variant="error">
-                <Panel.Title>{humanize(item)}</Panel.Title>
-                <Panel.Error>
-                  Something went wrong:
-                  <br />
-                  {error.message}
-                </Panel.Error>
-              </Panel>
-            )}
-          >
-            <Suspense fallback={null}>{React.createElement(panel)}</Suspense>
-          </ErrorBoundary>
-        </VStack>
-      </View>
-    );
-  }
-);
+import { config } from './utils';
 
 export default function Tab({ configKey }: { configKey: string }) {
   const { colorScheme, hasZoomedPanel } = useAppContext();
@@ -93,7 +46,7 @@ export default function Tab({ configKey }: { configKey: string }) {
   }, []);
 
   function renderItem(item: string) {
-    return <RenderGridItem item={item} editing={editing} onRemove={setData} />;
+    return <GridItem item={item} editing={editing} onRemove={setData} />;
   }
 
   return (
@@ -182,9 +135,4 @@ const themedStyles = styleSheetFactory(theme => ({
     flex: 1,
   },
   dashboardActions: { flexDirection: 'row', alignItems: 'center' },
-  gridItemContainer: {
-    flex: 1,
-    margin: 6,
-    position: 'relative',
-  },
 }));

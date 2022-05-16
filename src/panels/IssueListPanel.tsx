@@ -1,4 +1,3 @@
-import Constants from 'expo-constants';
 import { isEmpty } from 'lodash';
 import { HStack, Switch, Tooltip } from 'native-base';
 import { useEffect, useState } from 'react';

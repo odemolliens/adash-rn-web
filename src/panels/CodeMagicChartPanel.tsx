@@ -12,7 +12,7 @@ import ScreenshotButton from '../components/ScreenshotButton';
 import ZoomButton from '../components/ZoomButton';
 import useFetch from '../hooks/useFetch';
 import { baseCss } from '../themes';
-import { COLORS, config, formatDate } from '../utils';
+import { COLORS, formatDate } from '../utils';
 
 const PANEL_ID = 'CodeMagicChartPanel';
 

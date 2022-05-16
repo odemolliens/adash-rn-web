@@ -10,7 +10,7 @@ import ZoomButton from '../components/ZoomButton';
 import { useAppContext } from '../contexts/AppContext';
 import useFetch from '../hooks/useFetch';
 import { styleSheetFactory } from '../themes';
-import { config, formatDate } from '../utils';
+import { formatDate } from '../utils';
 
 const ERROR = 'error';
 const SUCCESS = 'success';

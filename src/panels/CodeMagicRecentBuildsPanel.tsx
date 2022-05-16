@@ -13,7 +13,6 @@ import useFetch from '../hooks/useFetch';
 import { styleSheetFactory } from '../themes';
 import {
   applyFilters,
-  config,
   extractTeams,
   extractVersions,
   formatDate,

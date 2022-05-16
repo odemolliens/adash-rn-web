@@ -16,7 +16,6 @@ import { baseCss } from '../themes';
 import {
   applyFilters,
   COLORS,
-  config,
   extractTeams,
   formatDate,
   getTeamColor,

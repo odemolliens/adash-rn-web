@@ -1,16 +1,13 @@
 import { createHash } from 'crypto';
-
 import { format } from 'date-fns';
 import domtoimage from 'dom-to-image';
 import html2canvas from 'html2canvas';
 import fileDownload from 'js-file-download';
 import { get, uniq } from 'lodash';
 import { Platform } from 'react-native';
-
 import store from './store';
 
 export const config = store;
-console.log(Platform);
 export const isWeb = Platform.OS === 'web';
 
 export const COLORS = [

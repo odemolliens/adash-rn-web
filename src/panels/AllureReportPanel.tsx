@@ -12,7 +12,6 @@ import ZoomButton from '../components/ZoomButton';
 import { useAppContext } from '../contexts/AppContext';
 import useFetch from '../hooks/useFetch';
 import { styleSheetFactory } from '../themes';
-import { config } from '../utils';
 
 const PANEL_ID = 'AllureReportPanel';
 

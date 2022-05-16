@@ -13,7 +13,7 @@ import ZoomButton from '../components/ZoomButton';
 import { useAppContext } from '../contexts/AppContext';
 import useFetch from '../hooks/useFetch';
 import { styleSheetFactory } from '../themes';
-import { applyFilters, COLORS, config, formatDate } from '../utils';
+import { applyFilters, COLORS, formatDate } from '../utils';
 
 const PANEL_ID = 'E2EKPIPanel';
 

@@ -1,4 +1,5 @@
 import { isEmpty, last } from 'lodash';
+import { useMemo } from 'react';
 import { Linking, Text, View } from 'react-native';
 import { useTheme } from 'react-native-themed-styles';
 import Download from '../components/Download';
@@ -19,15 +20,19 @@ export default function GitlabMergeRequestsClosedLast24hPanel() {
   const { colorScheme } = useAppContext();
   const [styles] = useTheme(themedStyles, colorScheme);
   const latest = last(gitlabData);
-  const data = last(
-    gitlabData.map(d =>
-      applyFilters(
-        d.GitLabClosedMergeRequests,
-        filterByVersion,
-        filterByTeam,
-        'source_branch'
-      )
-    )
+  const data = useMemo(
+    () =>
+      last(
+        gitlabData.map(d =>
+          applyFilters(
+            d.GitLabClosedMergeRequests,
+            filterByVersion,
+            filterByTeam,
+            'source_branch'
+          )
+        )
+      ),
+    [gitlabData, filterByVersion, filterByTeam]
   );
   const hasData = !isEmpty(data);
 

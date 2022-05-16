@@ -11,12 +11,7 @@ import ZoomButton from '../components/ZoomButton';
 import { useAppContext } from '../contexts/AppContext';
 import useFetch from '../hooks/useFetch';
 import { styleSheetFactory } from '../themes';
-import {
-  applyFilters,
-  config,
-  formatDate,
-  getBrowserStackBuildInfo,
-} from '../utils';
+import { applyFilters, formatDate, getBrowserStackBuildInfo } from '../utils';
 
 const ERROR = 'error';
 const FAILED = 'failed';
