@@ -9,7 +9,7 @@ import ZoomButton from '../components/ZoomButton';
 import { useAppContext } from '../contexts/AppContext';
 import useFetch from '../hooks/useFetch';
 import { baseCss, styleSheetFactory } from '../themes';
-import { applyFilters, config, formatDate } from '../utils';
+import { applyFilters, formatDate } from '../utils';
 
 const PANEL_ID = 'GitlabMergeRequestsClosedLast24hPanel';
 

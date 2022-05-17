@@ -18,7 +18,7 @@ const console = {
     mainWindow.webContents.send('consolelog', data);
 
     dialog.showMessageBox(null, {
-      message: 'From Electron:' + JSON.stringify(data),
+      message: JSON.stringify(data),
     });
   },
 };
@@ -135,15 +135,18 @@ function syncMetrics() {
     : path.join(process.resourcesPath, 'data');
 
   setImmediate(() => {
+    console.log('Syncinc metrics... this could take a while');
+
+    let output;
     if (!fs.existsSync(dataPath)) {
-      console.log(
-        sh`git clone -b ${config.get(
-          'app_metricsRepositoryBranch'
-        )} ${config.get('app_metricsRepository')} ${dataPath};`
-      );
+      output = sh`git clone -b ${config.get(
+        'app_metricsRepositoryBranch'
+      )} ${config.get('app_metricsRepository')} ${dataPath};`;
     } else {
-      console.log(sh`cd ${dataPath} && git pull`);
+      output = sh`cd ${dataPath} && git pull`;
     }
+
+    output && console.log(output);
   });
 }
 
