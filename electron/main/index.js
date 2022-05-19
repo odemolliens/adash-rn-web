@@ -85,9 +85,13 @@ function createMainWindow() {
           },
         },
         {
-          label: 'Sync metrics',
+          label: 'Auto Sync metrics',
           click() {
             syncMetrics();
+
+            setInterval(() => {
+              syncMetrics();
+            }, 60 * 10 * 1000);
           },
         },
       ],
@@ -134,20 +138,21 @@ function syncMetrics() {
     ? 'data'
     : path.join(process.resourcesPath, 'data');
 
-  setImmediate(() => {
+  let output;
+
+  if (!fs.existsSync(dataPath)) {
     console.log('Syncinc metrics... this could take a while');
 
-    let output;
-    if (!fs.existsSync(dataPath)) {
-      output = sh`git clone -b ${config.get(
-        'app_metricsRepositoryBranch'
-      )} ${config.get('app_metricsRepository')} ${dataPath};`;
-    } else {
-      output = sh`cd ${dataPath} && git pull`;
-    }
+    output = sh`git clone -b ${config.get(
+      'app_metricsRepositoryBranch'
+    )} ${config.get('app_metricsRepository')} ${dataPath};`;
 
     output && console.log(output);
-  });
+  } else {
+    setImmediate(() => {
+      output = sh`cd ${dataPath} && git pull`;
+    });
+  }
 }
 
 // quit application when all windows are closed
