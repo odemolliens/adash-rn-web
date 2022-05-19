@@ -1,6 +1,6 @@
 import { isEmpty, last } from 'lodash';
 import { HStack, Switch, Tooltip } from 'native-base';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { useTheme } from 'react-native-themed-styles';
 import * as GitlabHelper from '../api/gitlab_helper';
@@ -13,7 +13,7 @@ import ZoomButton from '../components/ZoomButton';
 import { useAppContext } from '../contexts/AppContext';
 import useFetch from '../hooks/useFetch';
 import { styleSheetFactory } from '../themes';
-import { formatDate } from '../utils';
+import { config, formatDate } from '../utils';
 
 type PipelineSchedule = {
   id: string;
@@ -38,18 +38,37 @@ function getVariant(active: boolean) {
 const PANEL_ID = 'GitlabPipelineSchedulesPanel';
 
 export default function GitlabPipelineSchedulesPanel() {
+  const { addPanelsConfigurations, removePanelConfigurations } =
+    useAppContext();
+
+  useEffect(() => {
+    addPanelsConfigurations({
+      [PANEL_ID]: {
+        label: 'Gitlab (PipelineSchedulesPanel)',
+        configs: [
+          {
+            type: 'string',
+            label: 'Project id',
+            configKey: 'GitlabPipelineSchedulesPanel_projectId',
+          },
+          {
+            type: 'string',
+            label: 'Token',
+            configKey: 'GitlabPipelineSchedulesPanel_token',
+          },
+        ],
+      },
+    });
+
+    return () => removePanelConfigurations(PANEL_ID);
+  }, []);
+
   const [showInactive, setShowInactive] = useState(false);
   const [runList, setRunList] = useState<string[]>([]);
 
   const { loading, data: gitlabData = [] } = useFetch(`/data/gitlab.json`);
 
-  const {
-    isAuthenticated,
-    clearFlashMessage,
-    colorScheme,
-    setFlashMessage,
-    auth,
-  } = useAppContext();
+  const { clearFlashMessage, colorScheme, setFlashMessage } = useAppContext();
   const [styles] = useTheme(themedStyles, colorScheme);
   const latest = last(gitlabData);
 
@@ -62,9 +81,9 @@ export default function GitlabPipelineSchedulesPanel() {
   const runPipeline = async ({ id }: { id: string }) => {
     try {
       await GitlabHelper.runScheduledPipelineById(
-        auth!.projectId,
+        config.get('GitlabPipelineSchedulesPanel_projectId'),
         id,
-        auth!.token
+        config.get('GitlabPipelineSchedulesPanel_token')
       );
 
       setFlashMessage({
@@ -84,6 +103,10 @@ export default function GitlabPipelineSchedulesPanel() {
       setFlashMessage({ type: 'error', message: String(e), panelId: PANEL_ID });
     }
   };
+
+  const isAuthenticated =
+    config.get('GitlabPipelineSchedulesPanel_projectId') &&
+    config.get('GitlabPipelineSchedulesPanel_token');
 
   return (
     <Panel id={PANEL_ID}>

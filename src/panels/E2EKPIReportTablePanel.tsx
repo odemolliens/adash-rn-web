@@ -1,6 +1,6 @@
 import { isEmpty, last } from 'lodash';
 import { Button } from 'native-base';
-import { useMemo } from 'react';
+import { Fragment, useMemo } from 'react';
 import { StyleSheet, Text } from 'react-native';
 import { Cell, Row, Table, TableWrapper } from 'react-native-table-component';
 import { useTheme } from 'react-native-themed-styles';
@@ -130,7 +130,7 @@ export default function E2EKPIReportTablePanel() {
           !isEmpty(latestPlatformData) &&
           ['iOS', 'Android'].map(platform => {
             return (
-              <>
+              <Fragment key={platform}>
                 <Text style={[stylesTheme.text, { marginTop: 20 }]}>
                   {platform} Run
                 </Text>
@@ -177,7 +177,7 @@ export default function E2EKPIReportTablePanel() {
                     </TableWrapper>
                   ))}
                 </Table>
-              </>
+              </Fragment>
             );
           })}
       </Panel.Body>

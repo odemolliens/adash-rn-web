@@ -25,12 +25,15 @@ export default function Dashboard() {
     <View style={{ overflow: 'hidden', flex: 1 }} key={configId}>
       <NativeBaseProvider theme={nativeBasetheme}>
         <NavigationContainer>
-          <Tab.Navigator screenOptions={{ headerShown: false }}>
+          <Tab.Navigator
+            screenOptions={{ headerShown: false }}
+            initialRouteName="CONFIGURATION"
+          >
             {tabs.map((key: string) => (
               <Tab.Screen
                 key={key}
                 name={key.toUpperCase()}
-                options={{ tabBarIcon: () => null }}
+                options={{ tabBarIcon: () => null, lazy: false }}
               >
                 {props => <Screen {...props} configKey={key} />}
               </Tab.Screen>

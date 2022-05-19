@@ -1,4 +1,4 @@
-import { capitalize, get } from 'lodash';
+import { capitalize } from 'lodash';
 import {
   Box,
   Button,
@@ -8,7 +8,7 @@ import {
   Switch,
   VStack,
 } from 'native-base';
-import { Fragment, useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 import { Text } from 'react-native';
 import { useAppContext } from './contexts/AppContext';
 import { isElectron } from './platform';
@@ -16,20 +16,26 @@ import { baseCss } from './themes';
 import { config, shorthash } from './utils';
 
 export default function ConfigurationTab() {
-  const { setConfigId } = useAppContext();
-  const [newConfig, setNewConfig] = useState<Record<string, unknown>>({});
+  const { setConfigId, panelsConfigurations } = useAppContext();
+  const { register, handleSubmit, control, watch, reset } = useForm({
+    defaultValues: config.allConfigs(),
+  });
 
-  function handleReset() {
-    setNewConfig({});
-    config.clear();
+  function updateHash() {
+    setConfigId(shorthash(JSON.stringify(config.allConfigs())));
   }
 
-  function saveChanges() {
-    for (const [key, value] of Object.entries(newConfig)) {
+  const onSubmit = (data: any) => {
+    for (const [key, value] of Object.entries(data)) {
       config.set(key, value);
     }
+    updateHash();
+  };
 
-    setConfigId(shorthash(JSON.stringify(config.allConfigs())));
+  function handleReset() {
+    config.clear();
+    reset();
+    updateHash();
   }
 
   return (
@@ -41,37 +47,38 @@ export default function ConfigurationTab() {
               <Text style={[baseCss.textBold]}>Versions Bar</Text>
               <HStack alignItems="center" space={4}>
                 <Text>Rotation Enabled</Text>
-                <Switch
-                  size="sm"
-                  isChecked={get(
-                    newConfig,
+
+                <Controller
+                  control={control}
+                  name={'versionsBar_rotationEnabled'}
+                  defaultValue={config.get(
                     'versionsBar_rotationEnabled',
-                    config.get('versionsBar_rotationEnabled', false)
+                    false
                   )}
-                  onValueChange={value => {
-                    setNewConfig(prev => ({
-                      ...prev,
-                      versionsBar_rotationEnabled: value,
-                    }));
-                  }}
+                  render={({ field: { onChange, value } }) => (
+                    <Switch
+                      size="sm"
+                      isChecked={value}
+                      onValueChange={onChange}
+                    />
+                  )}
                 />
               </HStack>
 
               <HStack alignItems="center" space={4}>
                 <Text>Hidden</Text>
-                <Switch
-                  size="sm"
-                  isChecked={get(
-                    newConfig,
-                    'versionsBar_hidden',
-                    config.get('versionsBar_hidden', false)
+
+                <Controller
+                  control={control}
+                  name={'versionsBar_hidden'}
+                  defaultValue={config.get('versionsBar_hidden', false)}
+                  render={({ field: { onChange, value } }) => (
+                    <Switch
+                      size="sm"
+                      isChecked={value}
+                      onValueChange={onChange}
+                    />
                   )}
-                  onValueChange={value => {
-                    setNewConfig(prev => ({
-                      ...prev,
-                      versionsBar_hidden: value,
-                    }));
-                  }}
                 />
               </HStack>
             </VStack>
@@ -80,111 +87,104 @@ export default function ConfigurationTab() {
               <Text style={[baseCss.textBold]}>Teams Bar</Text>
               <HStack alignItems="center" space={4}>
                 <Text>Hidden</Text>
-                <Switch
-                  size="sm"
-                  isChecked={get(
-                    newConfig,
-                    'teamsBar_hidden',
-                    config.get('teamsBar_hidden', false)
+
+                <Controller
+                  control={control}
+                  name={'teamsBar_hidden'}
+                  defaultValue={config.get('teamsBar_hidden', false)}
+                  render={({ field: { onChange, value } }) => (
+                    <Switch
+                      size="sm"
+                      isChecked={value}
+                      onValueChange={onChange}
+                    />
                   )}
-                  onValueChange={value => {
-                    setNewConfig(prev => ({
-                      ...prev,
-                      teamsBar_hidden: value,
-                    }));
-                  }}
                 />
               </HStack>
 
               <HStack alignItems="center" justifyContent="space-between">
                 <Text>Teams</Text>
-                <Input
-                  mx="3"
-                  placeholder="Input"
-                  w="75%"
-                  maxWidth="300px"
-                  value={get(
-                    newConfig,
-                    'teamsBar_teams',
-                    config.get('teamsBar_teams', [])
-                  ).join(',')}
-                  onChangeText={text => {
-                    setNewConfig(prev => ({
-                      ...prev,
-                      teamsBar_teams: text.split(','),
-                    }));
-                  }}
+                <Controller
+                  control={control}
+                  name={'teamsBar_teams'}
+                  defaultValue={config.get('teamsBar_teams', [])}
+                  render={({ field: { onChange, onBlur, value } }) => (
+                    <Input
+                      mx="3"
+                      placeholder="Input"
+                      w="75%"
+                      maxWidth="300px"
+                      value={value}
+                      onBlur={onBlur}
+                      onChangeText={text => onChange(text.split(','))}
+                    />
+                  )}
                 />
               </HStack>
             </VStack>
 
-            <VStack space={2}>
-              <Text style={[baseCss.textBold]}>GitLab (IssueList)</Text>
-              <HStack alignItems="center" justifyContent="space-between">
-                <Text>Project Id</Text>
-                <Box alignItems="end">
-                  <Input
-                    mx="3"
-                    placeholder="Input"
-                    w="75%"
-                    maxWidth="300px"
-                    value={get(
-                      newConfig,
-                      'GitLab_projectId',
-                      config.get('GitLab_projectId')
-                    )}
-                    onChangeText={text => {
-                      setNewConfig(prev => ({
-                        ...prev,
-                        GitLab_projectId: text,
-                      }));
-                    }}
-                  />
-                </Box>
-              </HStack>
+            {Object.entries(panelsConfigurations).map(
+              ([key, pConfig]: [string, Record<string, any>]) => {
+                return (
+                  <VStack space={2} key={key}>
+                    <Text style={[baseCss.textBold]}>{pConfig.label}</Text>
 
-              <HStack alignItems="center" justifyContent="space-between">
-                <Text>Token</Text>
-                <Box alignItems="end">
-                  <Input
-                    mx="3"
-                    placeholder="Input"
-                    w="75%"
-                    maxWidth="300px"
-                    value={get(
-                      newConfig,
-                      'GitLab_token',
-                      config.get('GitLab_token')
-                    )}
-                    onChangeText={text => {
-                      setNewConfig(prev => ({ ...prev, GitLab_token: text }));
-                    }}
-                  />
-                </Box>
-              </HStack>
-            </VStack>
+                    {pConfig.configs.map((ppConfig: Record<string, string>) => {
+                      return (
+                        <HStack
+                          alignItems="center"
+                          justifyContent="space-between"
+                          key={ppConfig.label}
+                        >
+                          <Text>{ppConfig.label}</Text>
+                          <Box alignItems="end">
+                            <Controller
+                              control={control}
+                              name={ppConfig.configKey}
+                              defaultValue={config.get(ppConfig.configKey, '')}
+                              render={({
+                                field: { onChange, onBlur, value },
+                              }) => (
+                                <Input
+                                  mx="3"
+                                  placeholder="Input"
+                                  w="75%"
+                                  maxWidth="300px"
+                                  value={value}
+                                  onBlur={onBlur}
+                                  onChangeText={onChange}
+                                />
+                              )}
+                            />
+                          </Box>
+                        </HStack>
+                      );
+                    })}
+                  </VStack>
+                );
+              }
+            )}
 
             {!isElectron && (
               <VStack space={2}>
                 <HStack alignItems="center" justifyContent="space-between">
                   <Text style={[baseCss.textBold]}>Metrics Endpoint</Text>
                   <Box alignItems="end">
-                    <Input
-                      mx="3"
-                      placeholder="Input"
-                      w="75%"
-                      maxWidth="300px"
-                      value={get(
-                        newConfig,
-                        'web_metricsEndpoint',
-                        config.get('web_metricsEndpoint')
+                    <Controller
+                      control={control}
+                      name={'web_metricsEndpoint'}
+                      defaultValue={config.get('web_metricsEndpoint', '')}
+                      render={({ field: { onChange, onBlur, value } }) => (
+                        <Input
+                          mx="3"
+                          placeholder="Input"
+                          w="75%"
+                          maxWidth="300px"
+                          value={value}
+                          onBlur={onBlur}
+                          onChangeText={onChange}
+                        />
                       )}
-                      onChangeText={text => {
-                        setNewConfig(prev => ({
-                          ...prev,
-                          web_metricsEndpoint: text,
-                        }));
-                      }}
                     />
                   </Box>
                 </HStack>
@@ -196,22 +196,21 @@ export default function ConfigurationTab() {
                 <HStack alignItems="center" justifyContent="space-between">
                   <Text style={[baseCss.textBold]}>Metrics Repository</Text>
                   <Box alignItems="end">
-                    <Input
-                      mx="3"
-                      placeholder="Input"
-                      w="75%"
-                      maxWidth="300px"
-                      value={get(
-                        newConfig,
-                        'app_metricsRepository',
-                        config.get('app_metricsRepository')
+                    <Controller
+                      control={control}
+                      name={'app_metricsRepository'}
+                      defaultValue={config.get('app_metricsRepository', '')}
+                      render={({ field: { onChange, onBlur, value } }) => (
+                        <Input
+                          mx="3"
+                          placeholder="Input"
+                          w="75%"
+                          maxWidth="300px"
+                          value={value}
+                          onBlur={onBlur}
+                          onChangeText={onChange}
+                        />
                       )}
-                      onChangeText={text => {
-                        setNewConfig(prev => ({
-                          ...prev,
-                          app_metricsRepository: text,
-                        }));
-                      }}
                     />
                   </Box>
                 </HStack>
@@ -225,22 +224,24 @@ export default function ConfigurationTab() {
                     Metrics Repository Branch
                   </Text>
                   <Box alignItems="end">
-                    <Input
-                      mx="3"
-                      placeholder="Input"
-                      w="75%"
-                      maxWidth="300px"
-                      value={get(
-                        newConfig,
+                    <Controller
+                      control={control}
+                      name={'app_metricsRepositoryBranch'}
+                      defaultValue={config.get(
                         'app_metricsRepositoryBranch',
-                        config.get('app_metricsRepositoryBranch')
+                        ''
                       )}
-                      onChangeText={text => {
-                        setNewConfig(prev => ({
-                          ...prev,
-                          app_metricsRepositoryBranch: text,
-                        }));
-                      }}
+                      render={({ field: { onChange, onBlur, value } }) => (
+                        <Input
+                          mx="3"
+                          placeholder="Input"
+                          w="75%"
+                          maxWidth="300px"
+                          value={value}
+                          onBlur={onBlur}
+                          onChangeText={onChange}
+                        />
+                      )}
                     />
                   </Box>
                 </HStack>
@@ -257,28 +258,21 @@ export default function ConfigurationTab() {
               <Text>
                 Default Theme{' '}
                 <Text style={[baseCss.textBold]}>
-                  {get(
-                    newConfig,
-                    'themes_defaultTheme',
-                    config.get('themes_defaultTheme', 'dark')
-                  )}
+                  {watch('themes_defaultTheme')}
                 </Text>
               </Text>
-              <Switch
-                size="sm"
-                isChecked={
-                  get(
-                    newConfig,
-                    'themes_defaultTheme',
-                    config.get('themes_defaultTheme', 'dark')
-                  ) === 'dark'
-                }
-                onValueChange={value => {
-                  setNewConfig(prev => ({
-                    ...prev,
-                    themes_defaultTheme: value ? 'dark' : 'light',
-                  }));
-                }}
+
+              <Controller
+                control={control}
+                name={'themes_defaultTheme'}
+                defaultValue={config.get('themes_defaultTheme', 'dark')}
+                render={({ field: { onChange, value } }) => (
+                  <Switch
+                    size="sm"
+                    isChecked={value === 'dark'}
+                    onValueChange={value => onChange(value ? 'dark' : 'light')}
+                  />
+                )}
               />
             </HStack>
 
@@ -294,46 +288,41 @@ export default function ConfigurationTab() {
                     'textColor',
                     'textColor2',
                   ].map(property => (
-                    <Fragment key={`${theme}${property}`}>
-                      <HStack
-                        alignItems="center"
-                        justifyContent="space-between"
-                      >
-                        <Text>{property}</Text>
-                        <HStack alignItems="center" space={3}>
-                          <Input
-                            placeholder="Input"
-                            w="100px"
-                            value={get(
-                              newConfig,
-                              `themes_${theme}_${property}`,
-                              config.get(`themes_${theme}_${property}`)
-                            )}
-                            onChangeText={text => {
-                              setNewConfig(prev => ({
-                                ...prev,
-                                [`themes_${theme}_${property}`]: text,
-                              }));
-                            }}
-                          />
+                    <HStack
+                      key={`${theme}${property}`}
+                      alignItems="center"
+                      justifyContent="space-between"
+                    >
+                      <Text>{property}</Text>
+                      <HStack alignItems="center" space={3}>
+                        <Controller
+                          control={control}
+                          name={`themes_${theme}_${property}`}
+                          defaultValue={config.get(
+                            `themes_${theme}_${property}`,
+                            ''
+                          )}
+                          render={({ field: { onChange, onBlur, value } }) => (
+                            <Input
+                              placeholder="Input"
+                              w="100px"
+                              value={value}
+                              onBlur={onBlur}
+                              onChangeText={onChange}
+                            />
+                          )}
+                        />
 
-                          <input
-                            type="color"
-                            value={get(
-                              newConfig,
-                              `themes_${theme}_${property}`,
-                              config.get(`themes_${theme}_${property}`)
-                            )}
-                            onChange={e => {
-                              setNewConfig(prev => ({
-                                ...prev,
-                                [`themes_${theme}_${property}`]: e.target.value,
-                              }));
-                            }}
-                          />
-                        </HStack>
+                        <input
+                          type="color"
+                          defaultValue={config.get(
+                            `themes_${theme}_${property}`,
+                            ''
+                          )}
+                          {...register(`themes_${theme}_${property}`)}
+                        />
                       </HStack>
-                    </Fragment>
+                    </HStack>
                   ))}
                 </VStack>
               );
@@ -342,8 +331,8 @@ export default function ConfigurationTab() {
         </HStack>
 
         <HStack space={4} alignSelf="center">
-          <Button onPress={() => handleReset()}>Reset</Button>
-          <Button onPress={() => saveChanges()}>Save</Button>
+          <Button onPress={handleReset}>Reset</Button>
+          <Button onPress={handleSubmit(onSubmit)}>Save</Button>
         </HStack>
       </VStack>
     </ScrollView>

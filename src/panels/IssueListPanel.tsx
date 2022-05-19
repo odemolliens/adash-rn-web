@@ -33,7 +33,13 @@ function getVariantByLabel(issue: GitlabHelper.Issue) {
 }
 
 export default function IssueListPanel() {
-  const { colorScheme, setFlashMessage, clearFlashMessage } = useAppContext();
+  const {
+    colorScheme,
+    setFlashMessage,
+    clearFlashMessage,
+    addPanelsConfigurations,
+    removePanelConfigurations,
+  } = useAppContext();
   const [styles] = useTheme(themedStyles, colorScheme);
   const [issues, setIssues] = useState<GitlabHelper.Issue[]>([]);
   const [loading, setLoading] = useState(true);
@@ -45,8 +51,8 @@ export default function IssueListPanel() {
       setLoading(true);
       setIssues(
         await GitlabHelper.getIssues(
-          config.get('GitLab_projectId'),
-          config.get('GitLab_token')
+          config.get('IssueListPanel_projectId'),
+          config.get('IssueListPanel_token')
         )
       );
 
@@ -63,6 +69,26 @@ export default function IssueListPanel() {
 
   useEffect(() => {
     fetchIssues();
+
+    addPanelsConfigurations({
+      [PANEL_ID]: {
+        label: 'GitLab (IssueList)',
+        configs: [
+          {
+            type: 'string',
+            label: 'Project Id',
+            configKey: 'IssueListPanel_projectId',
+          },
+          {
+            type: 'string',
+            label: 'Token',
+            configKey: 'IssueListPanel_token',
+          },
+        ],
+      },
+    });
+
+    return () => removePanelConfigurations(PANEL_ID);
   }, []);
 
   const hasData = !isEmpty(issues);
