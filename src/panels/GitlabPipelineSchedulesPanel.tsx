@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { useTheme } from 'react-native-themed-styles';
 import * as GitlabHelper from '../api/gitlab_helper';
+import ConfigurationButton from '../components/ConfigurationButton';
 import Download from '../components/Download';
 import Panel from '../components/Panel';
 import PlayButton from '../components/PlayButton';
@@ -38,8 +39,7 @@ function getVariant(active: boolean) {
 const PANEL_ID = 'GitlabPipelineSchedulesPanel';
 
 export default function GitlabPipelineSchedulesPanel() {
-  const { addPanelsConfigurations, removePanelConfigurations } =
-    useAppContext();
+  const { addPanelsConfigurations, hasZoomedPanel } = useAppContext();
 
   useEffect(() => {
     addPanelsConfigurations({
@@ -59,8 +59,6 @@ export default function GitlabPipelineSchedulesPanel() {
         ],
       },
     });
-
-    return () => removePanelConfigurations(PANEL_ID);
   }, []);
 
   const [showInactive, setShowInactive] = useState(false);
@@ -127,6 +125,7 @@ export default function GitlabPipelineSchedulesPanel() {
         )}
 
         <ScreenshotButton panelId={PANEL_ID} />
+        {!hasZoomedPanel && <ConfigurationButton />}
       </Panel.Actions>
 
       <Panel.Body>

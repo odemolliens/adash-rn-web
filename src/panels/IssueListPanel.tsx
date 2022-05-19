@@ -5,6 +5,7 @@ import { Linking, Pressable, Text, View } from 'react-native';
 import { useTheme } from 'react-native-themed-styles';
 import { useInterval } from 'usehooks-ts';
 import * as GitlabHelper from '../api/gitlab_helper';
+import ConfigurationButton from '../components/ConfigurationButton';
 import Download from '../components/Download';
 import Panel from '../components/Panel';
 import ScreenshotButton from '../components/ScreenshotButton';
@@ -38,7 +39,7 @@ export default function IssueListPanel() {
     setFlashMessage,
     clearFlashMessage,
     addPanelsConfigurations,
-    removePanelConfigurations,
+    hasZoomedPanel,
   } = useAppContext();
   const [styles] = useTheme(themedStyles, colorScheme);
   const [issues, setIssues] = useState<GitlabHelper.Issue[]>([]);
@@ -87,8 +88,6 @@ export default function IssueListPanel() {
         ],
       },
     });
-
-    return () => removePanelConfigurations(PANEL_ID);
   }, []);
 
   const hasData = !isEmpty(issues);
@@ -119,6 +118,7 @@ export default function IssueListPanel() {
         )}
 
         <ScreenshotButton panelId={PANEL_ID} />
+        {!hasZoomedPanel && <ConfigurationButton />}
       </Panel.Actions>
 
       {hasData && (
