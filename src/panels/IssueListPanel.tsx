@@ -12,6 +12,7 @@ import ScreenshotButton from '../components/ScreenshotButton';
 import StatusIcon from '../components/StatusIcon';
 import ZoomButton from '../components/ZoomButton';
 import { useAppContext } from '../contexts/AppContext';
+import { registerPanelConfigs } from '../panelsStore';
 import { baseCss, styleSheetFactory } from '../themes';
 import { config, formatDate } from '../utils';
 
@@ -33,14 +34,28 @@ function getVariantByLabel(issue: GitlabHelper.Issue) {
   }
 }
 
+registerPanelConfigs({
+  [PANEL_ID]: {
+    label: 'GitLab (IssueList)',
+    configs: [
+      {
+        type: 'string',
+        label: 'Project Id',
+        configKey: 'IssueListPanel_projectId',
+      },
+      {
+        type: 'string',
+        label: 'Token',
+        configKey: 'IssueListPanel_token',
+      },
+    ],
+  },
+});
+
 export default function IssueListPanel() {
-  const {
-    colorScheme,
-    setFlashMessage,
-    clearFlashMessage,
-    addPanelsConfigurations,
-    hasZoomedPanel,
-  } = useAppContext();
+  const { colorScheme, setFlashMessage, clearFlashMessage, hasZoomedPanel } =
+    useAppContext();
+
   const [styles] = useTheme(themedStyles, colorScheme);
   const [issues, setIssues] = useState<GitlabHelper.Issue[]>([]);
   const [loading, setLoading] = useState(true);
@@ -70,24 +85,6 @@ export default function IssueListPanel() {
 
   useEffect(() => {
     fetchIssues();
-
-    addPanelsConfigurations({
-      [PANEL_ID]: {
-        label: 'GitLab (IssueList)',
-        configs: [
-          {
-            type: 'string',
-            label: 'Project Id',
-            configKey: 'IssueListPanel_projectId',
-          },
-          {
-            type: 'string',
-            label: 'Token',
-            configKey: 'IssueListPanel_token',
-          },
-        ],
-      },
-    });
   }, []);
 
   const hasData = !isEmpty(issues);

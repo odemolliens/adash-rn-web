@@ -1,4 +1,3 @@
-import { omit } from 'lodash';
 import React, { ReactNode, useContext, useState } from 'react';
 import { useColorScheme } from 'react-native';
 import { ALL_TEAMS } from '../components/TeamList';
@@ -29,11 +28,6 @@ type AppContextProps = {
   configId: string;
   setConfigId: (configId: string) => void;
   hasZoomedPanel: boolean;
-  panelsConfigurations: Record<string, Record<string, unknown>>;
-  addPanelsConfigurations: (
-    configs: Record<string, Record<string, unknown>>
-  ) => void | any;
-  removePanelConfigurations: (panelId: string) => void;
 };
 
 const AppContext = React.createContext({} as AppContextProps);
@@ -55,19 +49,6 @@ export function AppContextProvider({ children }: { children: ReactNode }) {
   const [panelsConfigurations, setPanelsConfigurations] = useState<
     Record<string, Record<string, unknown>>
   >({});
-
-  function addPanelsConfigurations(
-    panelConfig: Record<string, Record<string, unknown>>
-  ) {
-    setPanelsConfigurations(prev => ({
-      ...prev,
-      ...panelConfig,
-    }));
-  }
-
-  function removePanelConfigurations(panelId: string) {
-    setPanelsConfigurations(omit(panelsConfigurations, panelId));
-  }
 
   function closeZoomedPanel() {
     setZoomedPanel('');
@@ -101,9 +82,6 @@ export function AppContextProvider({ children }: { children: ReactNode }) {
         configId,
         setConfigId,
         hasZoomedPanel: !!zoomedPanel,
-        panelsConfigurations,
-        addPanelsConfigurations,
-        removePanelConfigurations,
       }}
     >
       {children}

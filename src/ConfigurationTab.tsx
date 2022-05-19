@@ -8,15 +8,28 @@ import {
   Switch,
   VStack,
 } from 'native-base';
+import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { Text } from 'react-native';
 import { useAppContext } from './contexts/AppContext';
+import { usePanelsStore } from './panelsStore';
 import { isElectron } from './platform';
 import { baseCss } from './themes';
 import { config, shorthash } from './utils';
 
 export default function ConfigurationTab() {
-  const { setConfigId, panelsConfigurations } = useAppContext();
+  useEffect(() => {
+    // load panels
+    config.get('availablePanels').map((panel: string) => {
+      import(`./panels/${panel}`);
+    });
+  }, []);
+
+  const { setConfigId } = useAppContext();
+  const panelsConfigurations = usePanelsStore(
+    state => state.panelsConfigurations
+  );
+
   const { register, handleSubmit, control, watch, reset } = useForm({
     defaultValues: config.allConfigs(),
   });
@@ -123,48 +136,6 @@ export default function ConfigurationTab() {
               </HStack>
             </VStack>
 
-            {Object.entries(panelsConfigurations).map(
-              ([key, pConfig]: [string, Record<string, any>]) => {
-                return (
-                  <VStack space={2} key={key}>
-                    <Text style={[baseCss.textBold]}>{pConfig.label}</Text>
-
-                    {pConfig.configs.map((ppConfig: Record<string, string>) => {
-                      return (
-                        <HStack
-                          alignItems="center"
-                          justifyContent="space-between"
-                          key={ppConfig.label}
-                        >
-                          <Text>{ppConfig.label}</Text>
-                          <Box alignItems="end">
-                            <Controller
-                              control={control}
-                              name={ppConfig.configKey}
-                              defaultValue={config.get(ppConfig.configKey, '')}
-                              render={({
-                                field: { onChange, onBlur, value },
-                              }) => (
-                                <Input
-                                  mx="3"
-                                  placeholder="Input"
-                                  w="75%"
-                                  maxWidth="300px"
-                                  value={value}
-                                  onBlur={onBlur}
-                                  onChangeText={onChange}
-                                />
-                              )}
-                            />
-                          </Box>
-                        </HStack>
-                      );
-                    })}
-                  </VStack>
-                );
-              }
-            )}
-
             {!isElectron && (
               <VStack space={2}>
                 <HStack alignItems="center" justifyContent="space-between">
@@ -247,6 +218,60 @@ export default function ConfigurationTab() {
                 </HStack>
               </VStack>
             )}
+
+            <fieldset style={{ padding: 12 }}>
+              <legend>
+                <Text>Panels configurations</Text>
+              </legend>
+              <VStack space={4}>
+                {Object.entries(panelsConfigurations).map(
+                  ([key, pConfig]: [string, Record<string, any>]) => {
+                    return (
+                      <VStack space={2} key={key}>
+                        <Text style={[baseCss.textBold]}>{pConfig.label}</Text>
+
+                        {pConfig.configs.map(
+                          (ppConfig: Record<string, string>) => {
+                            return (
+                              <HStack
+                                alignItems="center"
+                                justifyContent="space-between"
+                                key={ppConfig.label}
+                              >
+                                <Text>{ppConfig.label}</Text>
+                                <Box alignItems="end">
+                                  <Controller
+                                    control={control}
+                                    name={ppConfig.configKey}
+                                    defaultValue={config.get(
+                                      ppConfig.configKey,
+                                      ''
+                                    )}
+                                    render={({
+                                      field: { onChange, onBlur, value },
+                                    }) => (
+                                      <Input
+                                        mx="3"
+                                        placeholder="Input"
+                                        w="75%"
+                                        maxWidth="300px"
+                                        value={value}
+                                        onBlur={onBlur}
+                                        onChangeText={onChange}
+                                      />
+                                    )}
+                                  />
+                                </Box>
+                              </HStack>
+                            );
+                          }
+                        )}
+                      </VStack>
+                    );
+                  }
+                )}
+              </VStack>
+            </fieldset>
           </VStack>
 
           <VStack space={2}>

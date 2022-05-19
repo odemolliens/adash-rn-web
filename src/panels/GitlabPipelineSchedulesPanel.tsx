@@ -1,6 +1,6 @@
 import { isEmpty, last } from 'lodash';
 import { HStack, Switch, Tooltip } from 'native-base';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { useTheme } from 'react-native-themed-styles';
 import * as GitlabHelper from '../api/gitlab_helper';
@@ -13,6 +13,7 @@ import StatusIcon from '../components/StatusIcon';
 import ZoomButton from '../components/ZoomButton';
 import { useAppContext } from '../contexts/AppContext';
 import useFetch from '../hooks/useFetch';
+import { registerPanelConfigs } from '../panelsStore';
 import { styleSheetFactory } from '../themes';
 import { config, formatDate } from '../utils';
 
@@ -38,29 +39,26 @@ function getVariant(active: boolean) {
 
 const PANEL_ID = 'GitlabPipelineSchedulesPanel';
 
-export default function GitlabPipelineSchedulesPanel() {
-  const { addPanelsConfigurations, hasZoomedPanel } = useAppContext();
-
-  useEffect(() => {
-    addPanelsConfigurations({
-      [PANEL_ID]: {
-        label: 'Gitlab (PipelineSchedulesPanel)',
-        configs: [
-          {
-            type: 'string',
-            label: 'Project id',
-            configKey: 'GitlabPipelineSchedulesPanel_projectId',
-          },
-          {
-            type: 'string',
-            label: 'Token',
-            configKey: 'GitlabPipelineSchedulesPanel_token',
-          },
-        ],
+registerPanelConfigs({
+  [PANEL_ID]: {
+    label: 'Gitlab (PipelineSchedulesPanel)',
+    configs: [
+      {
+        type: 'string',
+        label: 'Project id',
+        configKey: 'GitlabPipelineSchedulesPanel_projectId',
       },
-    });
-  }, []);
+      {
+        type: 'string',
+        label: 'Token',
+        configKey: 'GitlabPipelineSchedulesPanel_token',
+      },
+    ],
+  },
+});
 
+export default function GitlabPipelineSchedulesPanel() {
+  const { hasZoomedPanel } = useAppContext();
   const [showInactive, setShowInactive] = useState(false);
   const [runList, setRunList] = useState<string[]>([]);
 

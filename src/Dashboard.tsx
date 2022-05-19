@@ -30,7 +30,7 @@ export default function Dashboard() {
               <Tab.Screen
                 key={key}
                 name={key.toUpperCase()}
-                options={{ tabBarIcon: () => null, lazy: false }}
+                options={{ tabBarIcon: () => null /*, lazy: false*/ }}
               >
                 {props => <Screen {...props} configKey={key} />}
               </Tab.Screen>
