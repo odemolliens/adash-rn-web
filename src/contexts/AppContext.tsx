@@ -46,9 +46,6 @@ export function AppContextProvider({ children }: { children: ReactNode }) {
     defaultColorScheme
   );
   const [flashMessage, setFlashMessage] = useState({} as FlashMessage);
-  const [panelsConfigurations, setPanelsConfigurations] = useState<
-    Record<string, Record<string, unknown>>
-  >({});
 
   function closeZoomedPanel() {
     setZoomedPanel('');

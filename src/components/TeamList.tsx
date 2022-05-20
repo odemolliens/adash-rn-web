@@ -1,7 +1,8 @@
+import { isEmpty } from 'lodash';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useAppContext } from '../contexts/AppContext';
-import { getTeamColor, TEAMS } from '../utils';
+import { getTeamColor, getTeams } from '../utils';
 import Chip from './Chip';
 
 export const ALL_TEAMS = '';
@@ -11,19 +12,15 @@ export default function TeamList() {
   const [showAll, setShowAll] = useState<boolean>(false);
 
   // add "All" button
-  const teams = [ALL_TEAMS, ...TEAMS];
-
-  if (teams.length <= 2) {
-    return null;
-  }
+  const teams = [ALL_TEAMS, ...getTeams()];
 
   return (
     <View style={css.teamsContainer}>
       <Chip
         onPress={() => {
-          setFilterByTeam('');
+          setFilterByTeam(ALL_TEAMS);
         }}
-        variant={filterByTeam === '' ? 'highlight' : undefined}
+        variant={isEmpty(filterByTeam) ? 'highlight' : undefined}
       >
         All
       </Chip>
@@ -36,19 +33,17 @@ export default function TeamList() {
           }}
           variant={filterByTeam === v ? 'highlight' : undefined}
         >
-          {i !== 0 && (
-            <View
-              style={{
-                width: 15,
-                height: 15,
-                backgroundColor: getTeamColor(v),
-                borderRadius: 50,
-                overflow: 'hidden',
-                marginRight: 6,
-              }}
-            />
-          )}
-          {v ? v : 'All'}
+          <View
+            style={{
+              width: 15,
+              height: 15,
+              backgroundColor: getTeamColor(v),
+              borderRadius: 50,
+              overflow: 'hidden',
+              marginRight: 6,
+            }}
+          />
+          {v}
         </Chip>
       ))}
 

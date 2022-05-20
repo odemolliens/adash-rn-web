@@ -60,9 +60,9 @@ export default function VersionList({
       <Chip
         onPress={() => {
           setLoop(false);
-          setFilterByVersion('');
+          setFilterByVersion(ALL_VERSIONS);
         }}
-        variant={filterByVersion === '' ? 'highlight' : undefined}
+        variant={isEmpty(filterByVersion) ? 'highlight' : undefined}
       >
         All
       </Chip>
@@ -77,7 +77,7 @@ export default function VersionList({
             }}
             variant={filterByVersion === v ? 'highlight' : undefined}
           >
-            {v ? v : 'All'}
+            {v}
           </Chip>
         ))}
 

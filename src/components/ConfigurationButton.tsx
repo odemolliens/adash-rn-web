@@ -13,7 +13,7 @@ export default function ConfigurationButton() {
 
   return (
     <Tooltip label="Configuration">
-      <Pressable onPress={() => navigation.navigate('CONFIGURATION')}>
+      <Pressable onPress={() => navigation.navigate('CONFIGURATION' as never)}>
         <Ionicons name="build" size={18} color={theme.textColor} />
       </Pressable>
     </Tooltip>

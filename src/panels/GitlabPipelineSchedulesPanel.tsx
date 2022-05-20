@@ -61,9 +61,7 @@ export default function GitlabPipelineSchedulesPanel() {
   const { hasZoomedPanel } = useAppContext();
   const [showInactive, setShowInactive] = useState(false);
   const [runList, setRunList] = useState<string[]>([]);
-
   const { loading, data: gitlabData = [] } = useFetch(`/data/gitlab.json`);
-
   const { clearFlashMessage, colorScheme, setFlashMessage } = useAppContext();
   const [styles] = useTheme(themedStyles, colorScheme);
   const latest = last(gitlabData);
@@ -101,8 +99,8 @@ export default function GitlabPipelineSchedulesPanel() {
   };
 
   const isAuthenticated =
-    config.get('GitlabPipelineSchedulesPanel_projectId') &&
-    config.get('GitlabPipelineSchedulesPanel_token');
+    !isEmpty(config.get('GitlabPipelineSchedulesPanel_projectId')) &&
+    !isEmpty(config.get('GitlabPipelineSchedulesPanel_token'));
 
   return (
     <Panel id={PANEL_ID}>
