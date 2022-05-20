@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useAppContext } from '../contexts/AppContext';
 import { getTeamColor, TEAMS } from '../utils';
@@ -7,6 +8,7 @@ export const ALL_TEAMS = '';
 
 export default function TeamList() {
   const { filterByTeam, setFilterByTeam } = useAppContext();
+  const [showAll, setShowAll] = useState<boolean>(false);
 
   // add "All" button
   const teams = [ALL_TEAMS, ...TEAMS];
@@ -17,7 +19,16 @@ export default function TeamList() {
 
   return (
     <View style={css.teamsContainer}>
-      {teams.map((v, i) => (
+      <Chip
+        onPress={() => {
+          setFilterByTeam('');
+        }}
+        variant={filterByTeam === '' ? 'highlight' : undefined}
+      >
+        All
+      </Chip>
+
+      {teams.slice(1, showAll ? undefined : 5).map((v, i) => (
         <Chip
           key={v}
           onPress={() => {
@@ -40,10 +51,21 @@ export default function TeamList() {
           {v ? v : 'All'}
         </Chip>
       ))}
+
+      {teams.length >= 5 && (
+        <Chip
+          onPress={() => {
+            setShowAll(!showAll);
+          }}
+          variant={teams.indexOf(filterByTeam) > 5 ? 'highlight' : undefined}
+        >
+          {!showAll ? '...' : '>'}
+        </Chip>
+      )}
     </View>
   );
 }
 
 const css = StyleSheet.create({
-  teamsContainer: { flexDirection: 'row' },
+  teamsContainer: { flexDirection: 'row', overflowX: 'auto' },
 });

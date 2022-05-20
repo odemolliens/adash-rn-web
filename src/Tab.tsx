@@ -131,8 +131,8 @@ const themedStyles = styleSheetFactory(theme => ({
   filtersInnerContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    flexWrap: 'wrap',
     flex: 1,
+    overflowX: 'auto',
   },
   dashboardActions: { flexDirection: 'row', alignItems: 'center' },
 }));

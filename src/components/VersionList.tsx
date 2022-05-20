@@ -29,10 +29,10 @@ export default function VersionList({
     'versionsBar_rotationEnabled',
     true
   );
-  const [loop, setLoop] = useState(versionsRotationEnabled);
+  const [loop, setLoop] = useState<boolean>(versionsRotationEnabled);
+  const [showAll, setShowAll] = useState<boolean>(false);
   const { colorScheme } = useAppContext();
   const [styles, theme] = useTheme(themedStyles, colorScheme);
-
   const { data: gitlabData = [] } = useFetch(`/data/gitlab.json`);
 
   // add "All" button
@@ -57,8 +57,18 @@ export default function VersionList({
 
   return (
     <View style={styles.versionsContainer}>
+      <Chip
+        onPress={() => {
+          setLoop(false);
+          setFilterByVersion('');
+        }}
+        variant={filterByVersion === '' ? 'highlight' : undefined}
+      >
+        All
+      </Chip>
+
       {hasData &&
-        versions.map(v => (
+        versions.slice(1, showAll ? undefined : 5).map(v => (
           <Chip
             key={v}
             onPress={() => {
@@ -70,6 +80,20 @@ export default function VersionList({
             {v ? v : 'All'}
           </Chip>
         ))}
+
+      {versions.length >= 5 && (
+        <Chip
+          onPress={() => {
+            setShowAll(!showAll);
+          }}
+          variant={
+            versions.indexOf(filterByVersion) > 5 ? 'highlight' : undefined
+          }
+        >
+          {!showAll ? '...' : '<'}
+        </Chip>
+      )}
+
       {hasData && (
         <Chip
           variant={loop ? 'highlight' : undefined}
@@ -105,6 +129,9 @@ export default function VersionList({
 }
 
 const themedStyles = styleSheetFactory(theme => ({
-  versionsContainer: { flexDirection: 'row' },
+  versionsContainer: {
+    flexDirection: 'row',
+    overflowX: 'auto',
+  },
   counter: { color: theme.textColor },
 }));
