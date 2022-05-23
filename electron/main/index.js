@@ -27,12 +27,14 @@ const isDevelopment = process.env.NODE_ENV !== 'production';
 
 // global reference to mainWindow (necessary to prevent window from being garbage collected)
 let mainWindow;
+let syncInterval;
 
 function createMainWindow() {
   const browserWindow = new BrowserWindow({
     webPreferences: { nodeIntegration: true, webSecurity: false },
-    width: 1280,
-    height: 768,
+    width: 1920,
+    height: 1080,
+    sandbox: true,
   });
 
   protocol.interceptFileProtocol(
@@ -51,7 +53,8 @@ function createMainWindow() {
       }
     },
     function (err) {
-      if (err) console.error('Failed to register protocol');
+      // nothing
+      //if (err) console.log('Failed to register protocol');
     }
   );
 
@@ -128,6 +131,16 @@ function createMainWindow() {
             syncMetrics();
           },
         },
+        {
+          label: 'FAKE Sync metrics',
+          click() {
+            mainWindow.webContents.send('sync', 'FAKE Sync metrics');
+
+            setTimeout(() => {
+              mainWindow.webContents.send('syncend');
+            }, 5 * 1000);
+          },
+        },
       ],
     },
   ];
@@ -174,6 +187,8 @@ function syncMetrics() {
 
   let output;
 
+  mainWindow.webContents.send('sync');
+
   if (!fs.existsSync(dataPath)) {
     console.log('Syncinc metrics... this could take a while');
 
@@ -182,19 +197,24 @@ function syncMetrics() {
     )} ${config.get('app_metricsRepository')} ${dataPath};`;
 
     output && console.log(output);
+
+    clearInterval(syncInterval);
+    syncInterval = setInterval(() => {
+      syncMetrics();
+    }, 60 * 1000);
   } else {
-    setImmediate(() => {
-      output = sh`cd ${dataPath} && git pull`;
-    });
+    output = sh`cd ${dataPath} && git pull`;
   }
+
+  mainWindow.webContents.send('syncend');
 }
 
 // quit application when all windows are closed
 app.on('window-all-closed', () => {
   // on macOS it is common for applications to stay open until the user explicitly quits
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
+  //if (process.platform !== 'darwin') {
+  app.quit();
+  //}
 });
 
 app.on('activate', () => {

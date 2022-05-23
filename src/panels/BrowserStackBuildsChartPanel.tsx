@@ -87,6 +87,7 @@ export default function BrowserStackBuildsChartPanel() {
           <Chart
             type="bar"
             options={{
+              normalized: true,
               plugins: {
                 legend: {
                   labels: {

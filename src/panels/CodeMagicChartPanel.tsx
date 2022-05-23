@@ -86,6 +86,7 @@ export default function CodeMagicChartPanel() {
           <Chart
             type="bar"
             options={{
+              normalized: true,
               plugins: {
                 legend: {
                   labels: {

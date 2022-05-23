@@ -187,6 +187,7 @@ export default function GitlabMergeRequestsChartPanel() {
           <Chart
             type="bar"
             options={{
+              normalized: true,
               plugins: {
                 legend: {
                   labels: {

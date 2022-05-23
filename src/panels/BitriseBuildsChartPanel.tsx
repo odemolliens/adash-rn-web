@@ -84,6 +84,7 @@ export default function BitriseBuildsChartPanel() {
           <Chart
             type="bar"
             options={{
+              normalized: true,
               plugins: {
                 legend: {
                   labels: {

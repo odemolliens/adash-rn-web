@@ -169,6 +169,7 @@ export default function GitlabPipelinesChartPanel() {
           <Chart
             type="bar"
             options={{
+              normalized: true,
               plugins: {
                 legend: {
                   labels: {

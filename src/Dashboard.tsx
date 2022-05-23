@@ -3,6 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { extendTheme, NativeBaseProvider } from 'native-base';
 import React, { lazy, Suspense, useMemo } from 'react';
 import { View } from 'react-native';
+import StatusBar from './components/StatusBar';
 import ZoomPanel from './components/ZoomPanel';
 import ConfigurationTab from './ConfigurationTab';
 import { useAppContext } from './contexts/AppContext';
@@ -50,6 +51,8 @@ export default function Dashboard() {
           </Suspense>
         </ZoomPanel>
       </NativeBaseProvider>
+
+      <StatusBar />
     </View>
   );
 }

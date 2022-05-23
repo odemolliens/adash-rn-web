@@ -3,7 +3,6 @@ import { HStack, Switch, Tooltip } from 'native-base';
 import { useEffect, useState } from 'react';
 import { Linking, Pressable, Text, View } from 'react-native';
 import { useTheme } from 'react-native-themed-styles';
-import { useInterval } from 'usehooks-ts';
 import * as GitlabHelper from '../api/gitlab_helper';
 import ConfigurationButton from '../components/ConfigurationButton';
 import Download from '../components/Download';
@@ -12,6 +11,7 @@ import ScreenshotButton from '../components/ScreenshotButton';
 import StatusIcon from '../components/StatusIcon';
 import ZoomButton from '../components/ZoomButton';
 import { useAppContext } from '../contexts/AppContext';
+import useFetchIssueList from '../hooks/useFetchIssueList';
 import { registerPanelConfigs } from '../panelsStore';
 import { baseCss, styleSheetFactory } from '../themes';
 import { config, formatDate } from '../utils';
@@ -57,35 +57,29 @@ export default function IssueListPanel() {
     useAppContext();
 
   const [styles] = useTheme(themedStyles, colorScheme);
-  const [issues, setIssues] = useState<GitlabHelper.Issue[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [lastUpdate, setLastUpdate] = useState<Date | undefined>();
   const [showCritical, setShowCritical] = useState(true);
 
-  const fetchIssues = async () => {
-    try {
-      setLoading(true);
-      setIssues(
-        await GitlabHelper.getIssues(
-          config.get('IssueListPanel_projectId'),
-          config.get('IssueListPanel_token')
-        )
-      );
-
-      setLastUpdate(new Date());
-      clearFlashMessage();
-    } catch (e) {
-      setFlashMessage({ type: 'error', message: String(e), panelId: PANEL_ID });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useInterval(fetchIssues, 60 * 1000);
+  const {
+    data: issues = [],
+    loading,
+    error,
+    lastUpdate,
+  } = useFetchIssueList(
+    config.get('IssueListPanel_projectId'),
+    config.get('IssueListPanel_token')
+  );
 
   useEffect(() => {
-    fetchIssues();
-  }, []);
+    clearFlashMessage();
+
+    if (error) {
+      setFlashMessage({
+        type: 'error',
+        message: String(error),
+        panelId: PANEL_ID,
+      });
+    }
+  }, [error]);
 
   const hasData = !isEmpty(issues);
   const inError = !hasData;

@@ -179,6 +179,7 @@ export default function GitlabJobsChartPanel() {
           <Chart
             type="bar"
             options={{
+              normalized: true,
               plugins: {
                 legend: {
                   labels: {

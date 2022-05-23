@@ -3,6 +3,7 @@ import { useColorScheme } from 'react-native';
 import { ALL_TEAMS } from '../components/TeamList';
 import { ALL_VERSIONS } from '../components/VersionList';
 import useStore from '../hooks/useStore';
+import useSyncMetrics from '../hooks/useSyncMetrics';
 
 type FlashMessage = {
   type: 'error' | 'success';
@@ -28,6 +29,9 @@ type AppContextProps = {
   configId: string;
   setConfigId: (configId: string) => void;
   hasZoomedPanel: boolean;
+  syncing: Record<string, string>[];
+  addSyncing: (syncMsg: any) => void;
+  removeSyncing: (key: string) => void;
 };
 
 const AppContext = React.createContext({} as AppContextProps);
@@ -35,6 +39,7 @@ const AppContext = React.createContext({} as AppContextProps);
 export const useAppContext = () => useContext(AppContext);
 
 export function AppContextProvider({ children }: { children: ReactNode }) {
+  const { syncing, addSyncing, removeSyncing } = useSyncMetrics();
   const [configId, setConfigId] = useState('');
   const [filterByVersion, setFilterByVersion] = useState(ALL_VERSIONS);
   const [zoomedPanel, setZoomedPanel] = useState('');
@@ -79,6 +84,9 @@ export function AppContextProvider({ children }: { children: ReactNode }) {
         configId,
         setConfigId,
         hasZoomedPanel: !!zoomedPanel,
+        syncing,
+        addSyncing,
+        removeSyncing,
       }}
     >
       {children}
