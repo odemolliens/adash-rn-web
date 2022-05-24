@@ -9,6 +9,7 @@ import ScreenshotButton from '../components/ScreenshotButton';
 import ZoomButton from '../components/ZoomButton';
 import { useAppContext } from '../contexts/AppContext';
 import useFetch from '../hooks/useFetch';
+import { isElectron } from '../platform';
 import { styleSheetFactory } from '../themes';
 import { config, formatDate } from '../utils';
 
@@ -61,9 +62,9 @@ export default function E2EKPIReportTablePanel() {
 
   function onTeamPress(teamName: string) {
     window.open(
-      `${config.get(
-        'web_metricsEndpoint'
-      )}/data/kpi-${teamName.toLowerCase()}.html`
+      `${
+        isElectron ? 'file:///' : config.get('web_metricsEndpoint')
+      }/data/kpi-${teamName.toLowerCase()}.html`
     );
   }
 
