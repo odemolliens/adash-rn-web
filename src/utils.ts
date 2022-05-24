@@ -5,6 +5,7 @@ import Constants from 'expo-constants';
 import html2canvas from 'html2canvas';
 import fileDownload from 'js-file-download';
 import { get, uniq } from 'lodash';
+import jsonpack from 'jsonpack/main';
 
 export const config = Constants.manifest?.extra!;
 
@@ -76,7 +77,7 @@ export function getTeamColor(team: string) {
 }
 
 export const fetcher = (...args: readonly any[]) =>
-  fetch(...args).then(res => res.json());
+  fetch(...args).then(res => res.text()).then(res => jsonpack.unpack(res));
 
 export function applyFilters(
   data: readonly Record<string, any>[] = [],

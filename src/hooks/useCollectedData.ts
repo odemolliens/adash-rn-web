@@ -6,6 +6,7 @@ import { fetcher } from '../utils';
 export function useFetch<T = readonly Record<string, any>[]>(
   url: string
 ): { readonly data: T; readonly loading: boolean; readonly error: any } {
+  url = url.replace('.json', '.db')
   const options = {
     refreshInterval: 60 * 1000,
   };
