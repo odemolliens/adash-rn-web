@@ -19,7 +19,7 @@ type Notification = {
 export default function Notifications() {
   const { height } = useWindowDimensions();
   const { data: notificationsData = [] } = useFetch<Notification[]>(
-    `/data/notifications.json`
+    `/data/notifications.db`
   );
 
   const { colorScheme } = useAppContext();

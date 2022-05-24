@@ -33,7 +33,7 @@ export default function VersionList({
   const [showAll, setShowAll] = useState<boolean>(false);
   const { colorScheme } = useAppContext();
   const [styles, theme] = useTheme(themedStyles, colorScheme);
-  const { data: gitlabData = [] } = useFetch(`/data/gitlab.json`);
+  const { data: gitlabData = [] } = useFetch(`/data/gitlab.db`);
 
   // add "All" button
   const versions = useMemo(

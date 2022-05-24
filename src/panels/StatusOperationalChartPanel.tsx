@@ -38,7 +38,7 @@ function getVariant(status: string) {
 }
 
 export default function StatusOperationalChartPanel() {
-  const { loading, data: statusData = [] } = useFetch(`/data/status.json`);
+  const { loading, data: statusData = [] } = useFetch(`/data/status.db`);
   const { colorScheme } = useAppContext();
   const [styles] = useTheme(themedStyles, colorScheme);
   const latest = last(statusData);

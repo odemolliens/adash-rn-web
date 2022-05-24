@@ -4,9 +4,9 @@ import { format } from 'date-fns';
 import domtoimage from 'dom-to-image';
 import html2canvas from 'html2canvas';
 import fileDownload from 'js-file-download';
+import jsonpack from 'jsonpack/main';
 import { get, uniq } from 'lodash';
 import { Platform } from 'react-native';
-import jsonpack from 'jsonpack/main'
 
 import store from './store';
 
@@ -87,7 +87,9 @@ export function getTeamColor(team: string) {
 }
 
 export const fetcher = (...args: readonly any[]) =>
-  fetch(...args).then(res => res.text()).then(res => jsonpack.unpack(res))
+  fetch(...args)
+    .then(res => res.text())
+    .then(res => jsonpack.unpack(res));
 
 export function applyFilters(
   data: readonly Record<string, any>[] = [],

@@ -37,7 +37,7 @@ function getVariant(build: { status: string }) {
 }
 
 export default function BrowserStackBuildsStatusPanel() {
-  const { loading, data = [] } = useFetch(`/data/browserstack.json`);
+  const { loading, data = [] } = useFetch(`/data/browserstack.db`);
 
   const { filterByVersion, filterByTeam, isFilteringActive } = useAppContext();
   const { colorScheme } = useAppContext();

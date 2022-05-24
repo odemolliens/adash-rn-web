@@ -16,7 +16,7 @@ import { config, formatDate } from '../utils';
 const PANEL_ID = 'E2EKPIReportTablePanel';
 
 export default function E2EKPIReportTablePanel() {
-  const { loading, data: kpie2e = [] } = useFetch(`/data/kpie2e.json`);
+  const { loading, data: kpie2e = [] } = useFetch(`/data/kpie2e.db`);
 
   const { colorScheme } = useAppContext();
   const [stylesTheme] = useTheme(themedStyles, colorScheme);

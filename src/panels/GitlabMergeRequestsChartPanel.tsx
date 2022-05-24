@@ -37,10 +37,9 @@ export default function GitlabMergeRequestsChartPanel() {
   const [domain, setDomain] = useState<Domain | undefined>();
 
   const { loading: loading1, data: gitlabData = [] } =
-    useFetch(`/data/gitlab.json`);
-  const { loading: loading2, data: thresholdsData = {} } = useFetch<
-    Record<string, any>
-  >(`/data/thresholds.json`);
+    useFetch(`/data/gitlab.db`);
+  const { loading: loading2, data: thresholdsData = {} } =
+    useFetch<Record<string, any>>(`/data/thresholds.db`);
 
   const loading = loading1 || loading2;
   const { filterByVersion, filterByTeam, isFilteringActive } = useAppContext();

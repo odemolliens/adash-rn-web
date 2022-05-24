@@ -40,7 +40,7 @@ function getVariant(build: {
 
 export default function BitriseBuildsStatusPanel() {
   const { loading, data = [] } =
-    useFetch<Record<string, any>[]>(`/data/bitrise.json`);
+    useFetch<Record<string, any>[]>(`/data/bitrise.db`);
 
   const { colorScheme } = useAppContext();
   const [styles] = useTheme(themedStyles, colorScheme);

@@ -43,8 +43,7 @@ function getVariant(build: { status: string }) {
 }
 
 export default function CodeMagicRecentBuildsPanel() {
-  const { loading, data: codeMagicData = [] } =
-    useFetch(`/data/codemagic.json`);
+  const { loading, data: codeMagicData = [] } = useFetch(`/data/codemagic.db`);
 
   const { filterByVersion, filterByTeam, isFilteringActive } = useAppContext();
   const { colorScheme } = useAppContext();

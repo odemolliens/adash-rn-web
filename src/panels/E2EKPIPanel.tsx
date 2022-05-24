@@ -19,7 +19,7 @@ const PANEL_ID = 'E2EKPIPanel';
 
 export default function E2EKPIPanel() {
   const [domain, setDomain] = useState<Domain | undefined>();
-  const { loading, data: kpie2e = [] } = useFetch(`/data/kpie2e.json`);
+  const { loading, data: kpie2e = [] } = useFetch(`/data/kpie2e.db`);
 
   const hasData = !isEmpty(kpie2e);
   const { colorScheme, filterByTeam, isFilteringActive } = useAppContext();

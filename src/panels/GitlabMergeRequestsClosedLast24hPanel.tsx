@@ -14,7 +14,7 @@ import { applyFilters, formatDate } from '../utils';
 const PANEL_ID = 'GitlabMergeRequestsClosedLast24hPanel';
 
 export default function GitlabMergeRequestsClosedLast24hPanel() {
-  const { loading, data: gitlabData = [] } = useFetch(`/data/gitlab.json`);
+  const { loading, data: gitlabData = [] } = useFetch(`/data/gitlab.db`);
 
   const { filterByVersion, filterByTeam, isFilteringActive } = useAppContext();
   const { colorScheme } = useAppContext();
