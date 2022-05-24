@@ -196,9 +196,11 @@ function syncMetrics() {
   if (!fs.existsSync(dataPath)) {
     console.log('Syncinc metrics... this could take a while');
 
-    output = sh`git clone -b ${config.get(
+    output = sh`git clone ${config.get(
+      'app_metricsRepository'
+    )} -b ${config.get(
       'app_metricsRepositoryBranch'
-    )} ${config.get('app_metricsRepository')} ${dataPath};`;
+    )} --single-branch ${dataPath};`;
 
     output && console.log(output);
 
