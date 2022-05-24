@@ -87,7 +87,9 @@ export default function VersionList({
             setShowAll(!showAll);
           }}
           variant={
-            versions.indexOf(filterByVersion) > 5 ? 'highlight' : undefined
+            !showAll && versions.indexOf(filterByVersion) > 5
+              ? 'highlight'
+              : undefined
           }
         >
           {!showAll ? '...' : '<'}

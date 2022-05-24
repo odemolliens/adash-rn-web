@@ -52,7 +52,11 @@ export default function TeamList() {
           onPress={() => {
             setShowAll(!showAll);
           }}
-          variant={teams.indexOf(filterByTeam) > 5 ? 'highlight' : undefined}
+          variant={
+            !showAll && teams.indexOf(filterByTeam) > 5
+              ? 'highlight'
+              : undefined
+          }
         >
           {!showAll ? '...' : '>'}
         </Chip>
