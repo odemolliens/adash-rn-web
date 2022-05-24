@@ -1,3 +1,4 @@
+import { HStack } from 'native-base';
 import { ReactNode } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 import { useTheme } from 'react-native-themed-styles';
@@ -40,7 +41,7 @@ Panel.Actions = function ({ children }: { children: ReactNode }) {
       // @ts-ignore-next-line
       dataSet={{ html2canvasIgnore: true }}
     >
-      {children}
+      <HStack space={1}>{children}</HStack>
     </View>
   );
 };
@@ -113,10 +114,6 @@ const themedStyles = styleSheetFactory(theme => ({
     position: 'absolute',
     top: 0,
     right: 0,
-    display: 'flex',
-    justifyContent: 'space-between',
-    flexDirection: 'row',
-    gap: 5,
   },
   panel: { flex: 1, justifyContent: 'space-between' },
   highlight: {
