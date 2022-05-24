@@ -193,24 +193,18 @@ function syncMetrics() {
 
   mainWindow.webContents.send('sync');
 
-  if (!fs.existsSync(dataPath)) {
-    console.log('Syncinc metrics... this could take a while');
+  sh`rm -rf ${dataPath}`;
 
-    output = sh`git clone ${config.get(
-      'app_metricsRepository'
-    )} -b ${config.get(
-      'app_metricsRepositoryBranch'
-    )} --single-branch ${dataPath};`;
+  output = sh`git clone ${config.get('app_metricsRepository')} -b ${config.get(
+    'app_metricsRepositoryBranch'
+  )} --single-branch ${dataPath};`;
 
-    output && console.log(output);
+  output && console.log(output);
 
-    clearInterval(syncInterval);
-    syncInterval = setInterval(() => {
-      syncMetrics();
-    }, 60 * 1000);
-  } else {
-    output = sh`cd ${dataPath} && git pull`;
-  }
+  clearInterval(syncInterval);
+  syncInterval = setInterval(() => {
+    syncMetrics();
+  }, 60 * 1000);
 
   mainWindow.webContents.send('syncend');
 }
@@ -233,4 +227,8 @@ app.on('activate', () => {
 // create main BrowserWindow when electron is ready
 app.on('ready', () => {
   mainWindow = createMainWindow();
+
+  setImmediate(() => {
+    syncMetrics();
+  });
 });
