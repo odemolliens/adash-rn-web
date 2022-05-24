@@ -8,6 +8,8 @@ import { config, fetcher } from '../utils';
 export default function useFetch<T = readonly Record<string, any>[]>(
   metricsPath: string
 ): { readonly data: T; readonly loading: boolean; readonly error: any } {
+  metricsPath = metricsPath.replace('.json', '.db')
+
   const { removeSyncing, addSyncing } = useAppContext();
 
   const options = {

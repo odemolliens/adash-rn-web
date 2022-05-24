@@ -33,6 +33,7 @@
     "fastify-static": "^4.7.0",
     "html2canvas": "^1.4.1",
     "js-file-download": "^0.4.12",
+    "jsonpack": "^1.1.5",
     "lodash": "^4.17.21",
     "modal-react-native-web": "^0.2.0",
     "native-base": "^3.4.3",
