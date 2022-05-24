@@ -1,7 +1,7 @@
 'use strict';
 
 import { shell, simpleLogger } from 'adash-ts-helper';
-import { app, BrowserWindow, dialog, Menu, protocol } from 'electron';
+import { app, BrowserWindow, dialog, ipcMain, Menu, protocol } from 'electron';
 import fs from 'fs';
 import * as path from 'path';
 import { format as formatUrl } from 'url';
@@ -35,6 +35,10 @@ function createMainWindow() {
     width: 1920,
     height: 1080,
     sandbox: true,
+  });
+
+  ipcMain.on('reload', () => {
+    mainWindow.webContents.reloadIgnoringCache();
   });
 
   protocol.interceptFileProtocol(

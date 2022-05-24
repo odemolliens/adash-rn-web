@@ -26,8 +26,6 @@ type AppContextProps = {
   flashMessage?: FlashMessage;
   setFlashMessage: (flashMessage: FlashMessage) => void;
   clearFlashMessage: () => void;
-  configId: string;
-  setConfigId: (configId: string) => void;
   hasZoomedPanel: boolean;
   syncing: Record<string, string>[];
   addSyncing: (syncMsg: any) => void;
@@ -40,7 +38,6 @@ export const useAppContext = () => useContext(AppContext);
 
 export function AppContextProvider({ children }: { children: ReactNode }) {
   const { syncing, addSyncing, removeSyncing } = useSyncMetrics();
-  const [configId, setConfigId] = useState('');
   const [filterByVersion, setFilterByVersion] = useState(ALL_VERSIONS);
   const [zoomedPanel, setZoomedPanel] = useState('');
   const [filterByTeam, setFilterByTeam] = useState(ALL_TEAMS);
@@ -81,8 +78,6 @@ export function AppContextProvider({ children }: { children: ReactNode }) {
         flashMessage,
         setFlashMessage,
         clearFlashMessage,
-        configId,
-        setConfigId,
         hasZoomedPanel: !!zoomedPanel,
         syncing,
         addSyncing,

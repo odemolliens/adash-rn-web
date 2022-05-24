@@ -3,18 +3,19 @@ import { NavigationContainer } from '@react-navigation/native';
 import { extendTheme, NativeBaseProvider } from 'native-base';
 import React, { lazy, Suspense, useMemo } from 'react';
 import { View } from 'react-native';
+import DevModeBar from './components/DevModeBar';
 import StatusBar from './components/StatusBar';
 import ZoomPanel from './components/ZoomPanel';
 import ConfigurationTab from './ConfigurationTab';
 import { useAppContext } from './contexts/AppContext';
 import useStore from './hooks/useStore';
 import Screen from './Tab';
+import { config } from './utils';
 
 const Tab = createBottomTabNavigator();
 
 export default function Dashboard() {
-  const { zoomedPanel, closeZoomedPanel, configId, hasZoomedPanel } =
-    useAppContext();
+  const { zoomedPanel, closeZoomedPanel, hasZoomedPanel } = useAppContext();
   const ZoomedPanelComponent = useMemo(
     () => lazy(() => import(`./panels/${zoomedPanel}`)),
     [zoomedPanel]
@@ -22,8 +23,12 @@ export default function Dashboard() {
 
   const [tabs] = useStore('tabs', []);
 
+  const statusBarHidden = config.get('statusBar_hidden', false);
+
   return (
-    <View style={{ overflow: 'hidden', flex: 1 }} key={configId}>
+    <View style={{ overflow: 'hidden', flex: 1 }}>
+      <DevModeBar />
+
       <NativeBaseProvider theme={nativeBasetheme}>
         <NavigationContainer>
           <Tab.Navigator screenOptions={{ headerShown: false }}>
@@ -31,7 +36,7 @@ export default function Dashboard() {
               <Tab.Screen
                 key={key}
                 name={key.toUpperCase()}
-                options={{ tabBarIcon: () => null /*, lazy: false*/ }}
+                options={{ tabBarIcon: () => null }}
               >
                 {props => <Screen {...props} configKey={key} />}
               </Tab.Screen>
@@ -52,7 +57,7 @@ export default function Dashboard() {
         </ZoomPanel>
       </NativeBaseProvider>
 
-      <StatusBar />
+      {!statusBarHidden && <StatusBar />}
     </View>
   );
 }

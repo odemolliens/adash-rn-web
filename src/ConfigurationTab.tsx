@@ -11,11 +11,10 @@ import {
 import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { Text } from 'react-native';
-import { useAppContext } from './contexts/AppContext';
 import { usePanelsStore } from './panelsStore';
-import { isElectron } from './platform';
+import { forceReload, isElectron } from './platform';
 import { baseCss } from './themes';
-import { config, shorthash } from './utils';
+import { config } from './utils';
 
 export default function ConfigurationTab() {
   useEffect(() => {
@@ -25,7 +24,6 @@ export default function ConfigurationTab() {
     });
   }, []);
 
-  const { setConfigId } = useAppContext();
   const panelsConfigurations = usePanelsStore(
     state => state.panelsConfigurations
   );
@@ -34,21 +32,17 @@ export default function ConfigurationTab() {
     defaultValues: config.allConfigs(),
   });
 
-  function updateHash() {
-    setConfigId(shorthash(JSON.stringify(config.allConfigs())));
-  }
-
   const onSubmit = (data: any) => {
     for (const [key, value] of Object.entries(data)) {
       config.set(key, value);
     }
-    updateHash();
+    forceReload();
   };
 
   function handleReset() {
     config.clear();
     reset();
-    updateHash();
+    forceReload();
   }
 
   return (
@@ -130,6 +124,27 @@ export default function ConfigurationTab() {
                       value={value}
                       onBlur={onBlur}
                       onChangeText={text => onChange(text.split(','))}
+                    />
+                  )}
+                />
+              </HStack>
+            </VStack>
+
+            <VStack space={2}>
+              <Text style={[baseCss.textBold]}>Status Bar</Text>
+
+              <HStack alignItems="center" space={4}>
+                <Text>Hidden</Text>
+
+                <Controller
+                  control={control}
+                  name={'statusBar_hidden'}
+                  defaultValue={config.get('statusBar_hidden', false)}
+                  render={({ field: { onChange, value } }) => (
+                    <Switch
+                      size="sm"
+                      isChecked={value}
+                      onValueChange={onChange}
                     />
                   )}
                 />

@@ -8,10 +8,11 @@
     "server": "npx ts-node server.ts",
     "start": "expo start",
     "build": "expo build:web --no-pwa",
-    "build:electron": "yarn electron-webpack && yarn electron-builder --dir -c.compression=store -c.mac.identity=null",
+    "build:electron": "NODE_ENV=production yarn electron-webpack && yarn electron-builder --dir -c.compression=store -c.mac.identity=null",
     "fix": "run-s fix:*",
     "fix:prettier": "prettier \"src/**/*.ts*\" --write",
-    "fix:lint": "eslint src --ext .ts --fix"
+    "fix:lint": "eslint src --ext .ts --fix",
+    "postinstall": "electron-builder install-app-deps"
   },
   "dependencies": {
     "@fastify/compress": "^5.0.0",

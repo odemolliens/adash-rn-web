@@ -17,7 +17,7 @@ export default function () {
         position: 'absolute',
         bottom: 48,
         left: 0,
-        right: 0,
+        right: 'auto',
       }}
     >
       <Text style={{ color: 'white' }}>{last(syncing)!.message}</Text>
