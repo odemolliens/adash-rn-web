@@ -86,10 +86,16 @@ export function getTeamColor(team: string) {
   return COLORS[getTeams().indexOf(team.toUpperCase())];
 }
 
-export const fetcher = (...args: readonly any[]) =>
-  fetch(...args)
+export const fetcher = (...args: readonly any[]) => {
+  if (args[0].includes('json')) {
+    return fetch(...args)
+      .then(res => res.json())
+  }
+
+  return fetch(...args)
     .then(res => res.text())
     .then(res => jsonpack.unpack(res));
+}
 
 export function applyFilters(
   data: readonly Record<string, any>[] = [],
