@@ -10,6 +10,8 @@ export default function EditGridSizeMenuItem({
   gridSize,
   onChange,
 }: EditGridSizeMenuItemProps) {
+  const currentGridSize = Number(gridSize);
+
   return (
     <View
       style={{
@@ -18,10 +20,19 @@ export default function EditGridSizeMenuItem({
         justifyContent: 'space-between',
       }}
     >
-      <Button onPress={() => onChange(Number(gridSize) - 1 + '')}>-</Button>
+      <Button
+        onPress={() =>
+          onChange(
+            (currentGridSize - 1 > 0 ? currentGridSize - 1 : currentGridSize) +
+              ''
+          )
+        }
+      >
+        -
+      </Button>
 
       <Text>Grid Size: {gridSize}</Text>
-      <Button onPress={() => onChange(Number(gridSize) + 1 + '')}>+</Button>
+      <Button onPress={() => onChange(currentGridSize + 1 + '')}>+</Button>
     </View>
   );
 }

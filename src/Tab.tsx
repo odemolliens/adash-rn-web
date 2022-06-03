@@ -30,14 +30,15 @@ export default function Tab({ configKey }: { configKey: string }) {
   const [editing, setEditing] = useState(false);
   const { width: maxWidth } = useWindowDimensions();
   const [gridSize, setGridSize] = useStore<string>(
-    `tabs_${configKey}_gridSize`
+    `tabs_${configKey}_gridSize`,
+    '3'
   );
-  const [data, setData] = useStore<string[]>(`tabs_${configKey}_panels`);
+  const [data, setData] = useStore<string[]>(`tabs_${configKey}_panels`, []);
   const [isVersionsBarHidden] = useStore('versionsBar_hidden', false);
   const [isTeamsBarHidden] = useStore('teamsBar_hidden', false);
   const debouncedWidth = useDebounce<number>(maxWidth, 2000);
   const defaultPanelsForTab = useMemo(
-    () => get(config.defaultConfigs(), `tabs_${configKey}_panels`),
+    () => get(config.defaultConfigs(), `tabs_${configKey}_panels`) || [],
     [configKey]
   );
 
@@ -86,7 +87,7 @@ export default function Tab({ configKey }: { configKey: string }) {
           </ScrollView>
 
           <PanelsBar
-            availablePanels={config.get('availablePanels')}
+            availablePanels={config.get('availablePanels', [])}
             defaultPanels={defaultPanelsForTab}
             currentPanels={data}
             editing={editing}

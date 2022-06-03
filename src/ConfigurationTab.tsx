@@ -131,6 +131,30 @@ export default function ConfigurationTab() {
             </VStack>
 
             <VStack space={2}>
+              <Text style={[baseCss.textBold]}>Tabs</Text>
+
+              <HStack alignItems="center" justifyContent="space-between">
+                <Text>List</Text>
+                <Controller
+                  control={control}
+                  name={'tabs'}
+                  defaultValue={config.get('tabs', [])}
+                  render={({ field: { onChange, onBlur, value } }) => (
+                    <Input
+                      mx="3"
+                      placeholder="Input"
+                      w="75%"
+                      maxWidth="300px"
+                      value={value}
+                      onBlur={onBlur}
+                      onChangeText={text => onChange(text.split(','))}
+                    />
+                  )}
+                />
+              </HStack>
+            </VStack>
+
+            <VStack space={2}>
               <Text style={[baseCss.textBold]}>Status Bar</Text>
 
               <HStack alignItems="center" space={4}>
