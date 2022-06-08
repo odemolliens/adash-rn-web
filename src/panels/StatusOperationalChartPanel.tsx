@@ -9,7 +9,7 @@ import ScreenshotButton from '../components/ScreenshotButton';
 import StatusIcon from '../components/StatusIcon';
 import ZoomButton from '../components/ZoomButton';
 import { useAppContext } from '../contexts/AppContext';
-import { useFetch } from '../hooks/useCollectedData';
+import useFetch from '../hooks/useFetch';
 import { baseCss, styleSheetFactory } from '../themes';
 import { config, formatDate, iEquals } from '../utils';
 
@@ -38,9 +38,7 @@ function getVariant(status: string) {
 }
 
 export default function StatusOperationalChartPanel() {
-  const { loading, data: statusData = [] } = useFetch(
-    `${config.metricsEndpoint}/data/status.json`
-  );
+  const { loading, data: statusData = [] } = useFetch(`/data/status.db`);
   const { colorScheme } = useAppContext();
   const [styles] = useTheme(themedStyles, colorScheme);
   const latest = last(statusData);

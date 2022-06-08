@@ -7,18 +7,12 @@ import { DEFAULT_THEME } from '../themes';
 import { downloadPanelData } from '../utils';
 
 type DownloadProps = {
-  onPress?: () => void;
   size?: number;
   data?: any;
   filename: string;
 };
 
-export default function Download({
-  onPress,
-  data,
-  filename,
-  size = 18,
-}: DownloadProps) {
+export default function Download({ data, filename, size = 18 }: DownloadProps) {
   const { colorScheme } = useAppContext();
   const [_, theme] = useTheme(DEFAULT_THEME, colorScheme);
 

@@ -3,7 +3,7 @@ import { Menu, Pressable, Tooltip } from 'native-base';
 import { Text, useWindowDimensions, View } from 'react-native';
 import { useTheme } from 'react-native-themed-styles';
 import { useAppContext } from '../contexts/AppContext';
-import { useFetch } from '../hooks/useCollectedData';
+import useFetch from '../hooks/useFetch';
 import { baseCss, styleSheetFactory } from '../themes';
 import { config, formatDate } from '../utils';
 import Chip from './Chip';
@@ -19,7 +19,7 @@ type Notification = {
 export default function Notifications() {
   const { height } = useWindowDimensions();
   const { data: notificationsData = [] } = useFetch<Notification[]>(
-    `${config.metricsEndpoint}/data/notifications.json`
+    `/data/notifications.db`
   );
 
   const { colorScheme } = useAppContext();

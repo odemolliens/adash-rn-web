@@ -8,9 +8,9 @@ import ScreenshotButton from '../components/ScreenshotButton';
 import StatusIcon from '../components/StatusIcon';
 import ZoomButton from '../components/ZoomButton';
 import { useAppContext } from '../contexts/AppContext';
-import { useFetch } from '../hooks/useCollectedData';
+import useFetch from '../hooks/useFetch';
 import { styleSheetFactory } from '../themes';
-import { config, formatDate } from '../utils';
+import { formatDate } from '../utils';
 
 const ERROR = 'error';
 const SUCCESS = 'success';
@@ -39,9 +39,8 @@ function getVariant(build: {
 }
 
 export default function BitriseBuildsStatusPanel() {
-  const { loading, data = [] } = useFetch<Record<string, any>[]>(
-    `${config.metricsEndpoint}/data/bitrise.json`
-  );
+  const { loading, data = [] } =
+    useFetch<Record<string, any>[]>(`/data/bitrise.db`);
 
   const { colorScheme } = useAppContext();
   const [styles] = useTheme(themedStyles, colorScheme);

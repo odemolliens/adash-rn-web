@@ -11,17 +11,15 @@ import Panel from '../components/Panel';
 import ScreenshotButton from '../components/ScreenshotButton';
 import ZoomButton from '../components/ZoomButton';
 import { useAppContext } from '../contexts/AppContext';
-import { useFetch } from '../hooks/useCollectedData';
+import useFetch from '../hooks/useFetch';
 import { styleSheetFactory } from '../themes';
-import { applyFilters, COLORS, config, formatDate } from '../utils';
+import { applyFilters, COLORS, formatDate } from '../utils';
 
 const PANEL_ID = 'E2EKPIPanel';
 
 export default function E2EKPIPanel() {
   const [domain, setDomain] = useState<Domain | undefined>();
-  const { loading, data: kpie2e = [] } = useFetch(
-    `${config.metricsEndpoint}/data/kpie2e.json`
-  );
+  const { loading, data: kpie2e = [] } = useFetch(`/data/kpie2e.db`);
 
   const hasData = !isEmpty(kpie2e);
   const { colorScheme, filterByTeam, isFilteringActive } = useAppContext();

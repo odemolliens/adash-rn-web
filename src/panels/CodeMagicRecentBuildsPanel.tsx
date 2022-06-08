@@ -9,11 +9,10 @@ import ScreenshotButton from '../components/ScreenshotButton';
 import StatusIcon from '../components/StatusIcon';
 import ZoomButton from '../components/ZoomButton';
 import { useAppContext } from '../contexts/AppContext';
-import { useFetch } from '../hooks/useCollectedData';
+import useFetch from '../hooks/useFetch';
 import { styleSheetFactory } from '../themes';
 import {
   applyFilters,
-  config,
   extractTeams,
   extractVersions,
   formatDate,
@@ -44,9 +43,7 @@ function getVariant(build: { status: string }) {
 }
 
 export default function CodeMagicRecentBuildsPanel() {
-  const { loading, data: codeMagicData = [] } = useFetch(
-    `${config.metricsEndpoint}/data/codemagic.json`
-  );
+  const { loading, data: codeMagicData = [] } = useFetch(`/data/codemagic.db`);
 
   const { filterByVersion, filterByTeam, isFilteringActive } = useAppContext();
   const { colorScheme } = useAppContext();
@@ -109,7 +106,7 @@ export default function CodeMagicRecentBuildsPanel() {
                 </Tooltip>
 
                 <Text style={styles.text}>
-                  {`${b.fileWorkflowId.replaceAll('_', ' ').toUpperCase()} - ${
+                  {`${b.fileWorkflowId.replace(/\_/g, '').toUpperCase()} - ${
                     extractTeams(b.branch)[0]
                   } - ${
                     extractVersions(b.branch)[0]

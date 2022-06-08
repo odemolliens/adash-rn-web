@@ -10,19 +10,17 @@ import FilterDomain, {
 import Panel from '../components/Panel';
 import ScreenshotButton from '../components/ScreenshotButton';
 import ZoomButton from '../components/ZoomButton';
-import { useFetch } from '../hooks/useCollectedData';
+import useFetch from '../hooks/useFetch';
 import { baseCss } from '../themes';
-import { COLORS, config, formatDate } from '../utils';
+import { COLORS, formatDate } from '../utils';
 
 const PANEL_ID = 'BitriseBuildsChartPanel';
 
 export default function BitriseBuildsChartPanel() {
-  const { loading: loading1, data: bitriseData = [] } = useFetch(
-    `${config.metricsEndpoint}/data/bitrise.json`
-  );
-  const { loading: loading2, data: thresholdsData = {} } = useFetch<
-    Record<string, any>
-  >(`${config.metricsEndpoint}/data/thresholds.json`);
+  const { loading: loading1, data: bitriseData = [] } =
+    useFetch(`/data/bitrise.db`);
+  const { loading: loading2, data: thresholdsData = {} } =
+    useFetch<Record<string, any>>(`/data/thresholds.db`);
 
   const loading = loading1 || loading2;
   const latest = last(bitriseData);
@@ -85,6 +83,7 @@ export default function BitriseBuildsChartPanel() {
           <Chart
             type="bar"
             options={{
+              normalized: true,
               plugins: {
                 legend: {
                   labels: {

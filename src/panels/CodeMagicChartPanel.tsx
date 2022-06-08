@@ -10,19 +10,17 @@ import FilterDomain, {
 import Panel from '../components/Panel';
 import ScreenshotButton from '../components/ScreenshotButton';
 import ZoomButton from '../components/ZoomButton';
-import { useFetch } from '../hooks/useCollectedData';
+import useFetch from '../hooks/useFetch';
 import { baseCss } from '../themes';
-import { COLORS, config, formatDate } from '../utils';
+import { COLORS, formatDate } from '../utils';
 
 const PANEL_ID = 'CodeMagicChartPanel';
 
 export default function CodeMagicChartPanel() {
-  const { data: codeMagicData = [], loading: loading1 } = useFetch(
-    `${config.metricsEndpoint}/data/codemagic.json`
-  );
-  const { data: thresholdsData = {}, loading: loading2 } = useFetch<
-    Record<string, any>
-  >(`${config.metricsEndpoint}/data/thresholds.json`);
+  const { data: codeMagicData = [], loading: loading1 } =
+    useFetch(`/data/codemagic.db`);
+  const { data: thresholdsData = {}, loading: loading2 } =
+    useFetch<Record<string, any>>(`/data/thresholds.db`);
 
   const loading = loading1 || loading2;
   const latest = last(codeMagicData);
@@ -87,6 +85,7 @@ export default function CodeMagicChartPanel() {
           <Chart
             type="bar"
             options={{
+              normalized: true,
               plugins: {
                 legend: {
                   labels: {

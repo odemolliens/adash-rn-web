@@ -1,5 +1,6 @@
-import { Button, Menu, VStack } from 'native-base';
-import React, { lazy, Suspense, useMemo, useState } from 'react';
+import { get } from 'lodash';
+import { Menu } from 'native-base';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   SafeAreaView,
   ScrollView,
@@ -8,79 +9,46 @@ import {
 } from 'react-native';
 import GridView from 'react-native-draggable-gridview';
 import { useTheme } from 'react-native-themed-styles';
-import { useLocalStorage } from 'usehooks-ts';
-import AuthenticateMenuItem from './components/ConfigMenu/AuthenticateMenuItem';
+import { useDebounce } from 'usehooks-ts';
+import { applyChartTheme } from './chartjs';
 import ConfigMenu from './components/ConfigMenu/ConfigMenu';
 import EditGridSizeMenuItem from './components/ConfigMenu/EditGridSizeMenuItem';
 import EditPanelsMenuItem from './components/ConfigMenu/EditPanelsMenuItem';
+import GridItem from './components/GridItem';
 import Notifications from './components/Notifications';
 import PanelsBar from './components/PanelsBar';
 import TeamList from './components/TeamList';
 import VersionList from './components/VersionList';
 import { useAppContext } from './contexts/AppContext';
-import { applyChartTheme } from './chartjs';
+import useStore from './hooks/useStore';
 import { styleSheetFactory } from './themes';
-import { config, shorthash } from './utils';
-import { ErrorBoundary } from 'react-error-boundary';
-import Panel from './components/Panel';
+import { config } from './utils';
 
 export default function Tab({ configKey }: { configKey: string }) {
-  const { width: maxWidth } = useWindowDimensions();
-  const { colorScheme, zoomedPanel } = useAppContext();
+  const { colorScheme, hasZoomedPanel } = useAppContext();
   const [styles, theme] = useTheme(themedStyles, colorScheme);
   const [editing, setEditing] = useState(false);
-  const configId = shorthash(JSON.stringify(config));
-
-  const [gridSize, setGridSize] = useLocalStorage(
-    `config.tabs.${configKey}.gridSize_${configId}`,
-    config.tabs[configKey].gridSize + ''
+  const { width: maxWidth } = useWindowDimensions();
+  const [gridSize, setGridSize] = useStore<string>(
+    `tabs_${configKey}_gridSize`,
+    '3'
   );
-  const hasZoomedPanel = !!zoomedPanel;
-
-  applyChartTheme(theme);
-
-  const [data, setData] = useLocalStorage(
-    `config.tabs.${configKey}.panels_${configId}`,
-    config.tabs[configKey].panels
+  const [data, setData] = useStore<string[]>(`tabs_${configKey}_panels`, []);
+  const [isVersionsBarHidden] = useStore('versionsBar_hidden', false);
+  const [isTeamsBarHidden] = useStore('teamsBar_hidden', false);
+  const debouncedWidth = useDebounce<number>(maxWidth, 2000);
+  const defaultPanelsForTab = useMemo(
+    () => get(config.defaultConfigs(), `tabs_${configKey}_panels`) || [],
+    [configKey]
   );
 
-  const isVersionsBarVisible = !(config.versionsBar?.hidden || false);
-  const isTeamsBarVisible = !(config.teamsBar?.hidden || false);
+  useEffect(() => {
+    applyChartTheme(theme);
+  }, []);
 
-  const renderGridItem = (item: string) => {
-    const panel = useMemo(() => lazy(() => import(`./panels/${item}`)), [item]);
-
-    return (
-      <View style={styles.gridItemContainer}>
-        <VStack space={2} h="full">
-          {editing && (
-            <Button
-              onPress={() =>
-                setData((data: any) => data.filter((d: any) => d != item))
-              }
-            >
-              Remove
-            </Button>
-          )}
-
-          <ErrorBoundary
-            FallbackComponent={({ error }) => (
-              <Panel id={item} variant="error">
-                <Panel.Title>{item}</Panel.Title>
-                <Panel.Error>
-                  Something went wrong:
-                  <br />
-                  {error.message}
-                </Panel.Error>
-              </Panel>
-            )}
-          >
-            <Suspense fallback={null}>{React.createElement(panel)}</Suspense>
-          </ErrorBoundary>
-        </VStack>
-      </View>
-    );
-  };
+  function renderItem(item: string) {
+    return <GridItem item={item} editing={editing} onRemove={setData} />;
+  }
 
   return (
     <View style={styles.container}>
@@ -91,20 +59,16 @@ export default function Tab({ configKey }: { configKey: string }) {
             horizontal
           >
             <View style={styles.filtersInnerContainer}>
-              {isVersionsBarVisible && (
+              {!isVersionsBarHidden && (
                 <VersionList loopCountdown={60} active={!hasZoomedPanel} />
               )}
-              {isTeamsBarVisible && <TeamList />}
+              {!isTeamsBarHidden && <TeamList />}
             </View>
 
             <View style={styles.dashboardActions}>
               <Notifications />
 
               <ConfigMenu>
-                <Menu.Item>
-                  <AuthenticateMenuItem />
-                </Menu.Item>
-
                 <Menu.Item>
                   <EditPanelsMenuItem
                     editing={editing}
@@ -123,20 +87,22 @@ export default function Tab({ configKey }: { configKey: string }) {
           </ScrollView>
 
           <PanelsBar
-            availablePanels={config.availablePanels}
+            availablePanels={config.get('availablePanels', [])}
+            defaultPanels={defaultPanelsForTab}
             currentPanels={data}
             editing={editing}
             onChange={setData}
           />
 
           <GridView
+            width={debouncedWidth}
             selectedStyle={{}}
-            key={data.length + gridSize}
+            key={`${data.length}${gridSize}${debouncedWidth}`}
             data={data}
             locked={() => !editing}
             numColumns={parseInt(gridSize)}
-            renderLockedItem={renderGridItem}
-            renderItem={renderGridItem}
+            renderLockedItem={renderItem}
+            renderItem={renderItem}
             onReleaseCell={items => setData(items)}
           />
         </ScrollView>
@@ -166,13 +132,8 @@ const themedStyles = styleSheetFactory(theme => ({
   filtersInnerContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    flexWrap: 'wrap',
     flex: 1,
+    overflowX: 'auto',
   },
   dashboardActions: { flexDirection: 'row', alignItems: 'center' },
-  gridItemContainer: {
-    flex: 1,
-    margin: 6,
-    position: 'relative',
-  },
 }));
