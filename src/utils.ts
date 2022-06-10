@@ -100,7 +100,7 @@ export const fetcher = (...args: readonly any[]) => {
 export function applyFilters(
   data: readonly Record<string, any>[] = [],
   filterByVersion: string,
-  team: string,
+  team: string | null | undefined,
   filterKey: string | ((d: any) => string)
 ): readonly any[] {
   let filtered = data;
