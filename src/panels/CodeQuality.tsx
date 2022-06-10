@@ -31,7 +31,8 @@ export default function CodeQuality() {
     window.open(
       `${
         isElectron ? 'file:///' : config.get('web_metricsEndpoint')
-      }/data/codeQualityArtifact${latest.version}_${artifactName}`
+      }/data/codeQualityArtifact${latest.version}_${artifactName}`,
+      '_blank'
     );
   }
 
