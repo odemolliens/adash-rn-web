@@ -1,10 +1,6 @@
 {
-  "versionsBar": {
-    "hidden": true
-  },
-  "teamsBar": {
-    "hidden": true
-  },
+  "versionsBar_hidden": true,
+  "teamsBar_hidden": true,
   "availablePanels": [
     "StatusOperationalChartPanel",
     "GitlabJobsChartPanel",
@@ -15,40 +11,30 @@
     "GitlabPipelineSchedulesPanel",
     "GitlabPipelinesListPanel"
   ],
-  "tabs": {
-    "charts": {
-      "panels": [
-        "GitlabJobsChartPanel",
-        "GitlabMergeRequestsChartPanel",
-        "GitlabPipelinesChartPanel"
-      ],
-      "gridSize": 3
-    },
-    "lists": {
-      "panels": [
-        "StatusOperationalChartPanel",
-        "GitlabMergeRequestsClosedLast24hPanel",
-        "GitlabMergeRequestsListPanel",
-        "GitlabPipelineSchedulesPanel",
-        "GitlabPipelinesListPanel"
-      ],
-      "gridSize": 3
-    }
-  },
-  "themes": {
-    "light": {
-      "backgroundColor": "#16113a",
-      "accentBackgroundColor": "#272A53",
-      "accentBackgroundColor2": "#fff",
-      "textColor": "#fff",
-      "textColor2": "#000"
-    },
-    "dark": {
-      "backgroundColor": "#E9EDC4",
-      "accentBackgroundColor": "#D9D4AB",
-      "accentBackgroundColor2": "#000000",
-      "textColor": "#000",
-      "textColor2": "#fff"
-    }
-  }
+  "metricsEndpoint": "http://localhost:3000",
+  "tabs": ["charts", "lists"],
+  "tabs_charts_panels": [
+    "GitlabJobsChartPanel",
+    "GitlabMergeRequestsChartPanel",
+    "GitlabPipelinesChartPanel"
+  ],
+  "tabs_charts_gridSize": 3,
+  "tabs_lists_panels": [
+    "StatusOperationalChartPanel",
+    "GitlabMergeRequestsClosedLast24hPanel",
+    "GitlabMergeRequestsListPanel",
+    "GitlabPipelineSchedulesPanel",
+    "GitlabPipelinesListPanel"
+  ],
+  "tabs_lists_gridSize": 3,
+  "themes_dark_backgroundColor": "#16113a",
+  "themes_dark_accentBackgroundColor": "#272A53",
+  "themes_dark_accentBackgroundColor2": "#fff",
+  "themes_dark_textColor": "#fff",
+  "themes_dark_textColor2": "#000",
+  "themes_light_backgroundColor": "#E9EDC4",
+  "themes_light_accentBackgroundColor": "#D9D4AB",
+  "themes_light_accentBackgroundColor2": "#000000",
+  "themes_light_textColor": "#000",
+  "themes_light_textColor2": "#fff"
 }

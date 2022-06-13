@@ -9,7 +9,7 @@ import ScreenshotButton from '../components/ScreenshotButton';
 import StatusIcon from '../components/StatusIcon';
 import ZoomButton from '../components/ZoomButton';
 import { useAppContext } from '../contexts/AppContext';
-import { useFetch } from '../hooks/useCollectedData';
+import useFetch from '../hooks/useFetch';
 import { styleSheetFactory } from '../themes';
 import { applyFilters, formatDate, getBrowserStackBuildInfo } from '../utils';
 
@@ -37,9 +37,7 @@ function getVariant(build: { status: string }) {
 }
 
 export default function BrowserStackBuildsStatusPanel() {
-  const { loading, data = [] } = useFetch(
-    'http://localhost:3000/data/browserstack.json'
-  );
+  const { loading, data = [] } = useFetch(`/data/browserstack.db`);
 
   const { filterByVersion, filterByTeam, isFilteringActive } = useAppContext();
   const { colorScheme } = useAppContext();

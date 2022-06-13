@@ -10,7 +10,7 @@ import Panel from '../components/Panel';
 import ScreenshotButton from '../components/ScreenshotButton';
 import ZoomButton from '../components/ZoomButton';
 import { useAppContext } from '../contexts/AppContext';
-import { useFetch } from '../hooks/useCollectedData';
+import useFetch from '../hooks/useFetch';
 import { styleSheetFactory } from '../themes';
 
 const PANEL_ID = 'AllureReportPanel';
@@ -44,7 +44,7 @@ function getVariantFromStatus(status: string) {
 export default function AllureReportPanel() {
   const { colorScheme } = useAppContext();
   const { data: suites = {}, loading } = useFetch<Record<string, any>>(
-    'http://localhost:3000/allure/ios/suites.json'
+    `/allure/ios/suites.db`
   );
 
   const [styles] = useTheme(themedStyles, colorScheme);

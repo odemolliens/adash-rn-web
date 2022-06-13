@@ -1,18 +1,14 @@
-import { isEmpty } from 'lodash';
 import React, { ReactNode, useContext, useState } from 'react';
 import { useColorScheme } from 'react-native';
-import { useLocalStorage } from 'usehooks-ts';
 import { ALL_TEAMS } from '../components/TeamList';
 import { ALL_VERSIONS } from '../components/VersionList';
+import useStore from '../hooks/useStore';
+import useSyncMetrics from '../hooks/useSyncMetrics';
 
 type FlashMessage = {
   type: 'error' | 'success';
   message: string;
   panelId?: string;
-};
-
-type Threshold = {
-  max: number;
 };
 
 type AppContextProps = {
@@ -27,13 +23,13 @@ type AppContextProps = {
   isZoomed: (panelName: string) => boolean;
   setZoomedPanel: (panelName: string) => void;
   closeZoomedPanel: () => void;
-  auth: null | { projectId: string; token: string };
-  isAuthenticated: boolean;
-  setAuth: (auth: string) => void;
-  logout: () => void;
   flashMessage?: FlashMessage;
   setFlashMessage: (flashMessage: FlashMessage) => void;
   clearFlashMessage: () => void;
+  hasZoomedPanel: boolean;
+  syncing: Record<string, string>[];
+  addSyncing: (syncMsg: any) => void;
+  removeSyncing: (key: string) => void;
 };
 
 const AppContext = React.createContext({} as AppContextProps);
@@ -41,26 +37,29 @@ const AppContext = React.createContext({} as AppContextProps);
 export const useAppContext = () => useContext(AppContext);
 
 export function AppContextProvider({ children }: { children: ReactNode }) {
+  const { syncing, addSyncing, removeSyncing } = useSyncMetrics();
   const [filterByVersion, setFilterByVersion] = useState(ALL_VERSIONS);
   const [zoomedPanel, setZoomedPanel] = useState('');
   const [filterByTeam, setFilterByTeam] = useState(ALL_TEAMS);
   const isFilteringActive = !!filterByVersion || !!filterByTeam;
-  const defaultColorScheme = useColorScheme() || 'light';
-  const [colorScheme, setColorScheme] = useLocalStorage(
-    'colorScheme',
+  const defaultColorScheme = useColorScheme() || 'dark';
+  const [colorScheme, setColorScheme] = useStore(
+    'themes_defaultTheme',
     defaultColorScheme
   );
-  const [auth, setAuth] = useLocalStorage('auth', '');
   const [flashMessage, setFlashMessage] = useState({} as FlashMessage);
-  const [projectId, token] = auth.split(':');
 
-  const filterSetAuth = (auth: string) => {
-    if (!auth.includes(':')) {
-      alert('`ProjectId:Token` is not in the right format');
-      return;
-    }
-    setAuth(auth);
-  };
+  function closeZoomedPanel() {
+    setZoomedPanel('');
+  }
+
+  function clearFlashMessage() {
+    setFlashMessage({} as FlashMessage);
+  }
+
+  function isZoomed(panelName: string) {
+    return zoomedPanel === panelName;
+  }
 
   return (
     <AppContext.Provider
@@ -72,17 +71,17 @@ export function AppContextProvider({ children }: { children: ReactNode }) {
         isFilteringActive,
         zoomedPanel,
         setZoomedPanel,
-        isZoomed: panelName => zoomedPanel === panelName,
-        closeZoomedPanel: () => setZoomedPanel(''),
+        isZoomed,
+        closeZoomedPanel,
         colorScheme,
         setColorScheme,
-        auth: isEmpty(auth) ? null : { projectId, token },
-        setAuth: filterSetAuth,
-        isAuthenticated: !isEmpty(auth),
-        logout: () => setAuth(''),
         flashMessage,
         setFlashMessage,
-        clearFlashMessage: () => setFlashMessage({} as FlashMessage),
+        clearFlashMessage,
+        hasZoomedPanel: !!zoomedPanel,
+        syncing,
+        addSyncing,
+        removeSyncing,
       }}
     >
       {children}

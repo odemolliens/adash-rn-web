@@ -10,7 +10,7 @@ type FilterDomainProps = {
 
 export type Domain = 'day' | 'week' | 'month';
 
-export const DEFAULT_DOMAIN = 'week';
+export const DEFAULT_DOMAIN = 'day';
 
 export default function FilterDomain({
   active = DEFAULT_DOMAIN,

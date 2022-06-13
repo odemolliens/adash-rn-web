@@ -1,6 +1,8 @@
 const fastify = require('fastify')({ logger: true })
 const path = require('path')
 
+fastify.register(import('@fastify/compress'))
+
 fastify.register(require('fastify-cors'), {
   origin: (origin: any, cb: any) => {
     cb(null, true)

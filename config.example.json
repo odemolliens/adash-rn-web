@@ -1,16 +1,10 @@
 {
-  "versionsBar": {
-    "rotationEnabled": true,
-    "hidden": false
-  },
-  "teamsBar": {
-    "hidden": false
-  },
-  "GitLab": {
-    "projectId": "PROJECTID",
-    "token": "TOKEN"
-  },
-  "teams": ["TEAM1", "TEAM2", "TEAM3", "TEAM4"],
+  "versionsBar_rotationEnabled": true,
+  "versionsBar_hidden": false,
+  "teamsBar_hidden": false,
+  "teamsBar_teams": ["TEAM1", "TEAM2", "TEAM3", "TEAM4"],
+  "GitLab_projectId": "PROJECTID",
+  "GitLab_token": "TOKEN",
   "availablePanels": [
     "StatusOperationalChartPanel",
     "BitriseBuildsChartPanel",
@@ -28,44 +22,37 @@
     "AllureReportPanel",
     "SonarPanel"
   ],
-  "tabs": {
-    "monitoring": {
-      "panels": [
-        "StatusOperationalChartPanel",
-        "BitriseBuildsChartPanel",
-        "IssueListPanel",
-        "BitriseBuildsStatusPanel",
-        "BrowserStackBuildsChartPanel",
-        "BrowserStackBuildsStatusPanel",
-        "GitlabJobsChartPanel",
-        "GitlabMergeRequestsChartPanel",
-        "GitlabMergeRequestsClosedLast24hPanel",
-        "GitlabMergeRequestsListPanel",
-        "GitlabPipelinesChartPanel",
-        "GitlabPipelineSchedulesPanel",
-        "GitlabPipelinesListPanel"
-      ],
-      "gridSize": 3
-    },
-    "quality": {
-      "panels": ["AllureReportPanel", "SonarPanel"],
-      "gridSize": 3
-    }
-  },
-  "themes": {
-    "light": {
-      "backgroundColor": "#16113a",
-      "accentBackgroundColor": "#272A53",
-      "accentBackgroundColor2": "#fff",
-      "textColor": "#fff",
-      "textColor2": "#000"
-    },
-    "dark": {
-      "backgroundColor": "#E9EDC4",
-      "accentBackgroundColor": "#D9D4AB",
-      "accentBackgroundColor2": "#000000",
-      "textColor": "#000",
-      "textColor2": "#fff"
-    }
-  }
+  "web_metricsEndpoint": "http://localhost:3000",
+  "app_metricsRepository": "https://gitlab-ci-token:TOKEN@gitlab.com/proximus.com/REPOSITORY.git",
+  "app_metricsRepositoryBranch": "data",
+  "tabs": ["monitoring", "quality"],
+  "tabs_monitoring_gridSize": 3,
+  "tabs_monitoring_panels": [
+    "StatusOperationalChartPanel",
+    "BitriseBuildsChartPanel",
+    "IssueListPanel",
+    "BitriseBuildsStatusPanel",
+    "BrowserStackBuildsChartPanel",
+    "BrowserStackBuildsStatusPanel",
+    "GitlabJobsChartPanel",
+    "GitlabMergeRequestsChartPanel",
+    "GitlabMergeRequestsClosedLast24hPanel",
+    "GitlabMergeRequestsListPanel",
+    "GitlabPipelinesChartPanel",
+    "GitlabPipelineSchedulesPanel",
+    "GitlabPipelinesListPanel"
+  ],
+  "tabs_quality_panels": ["AllureReportPanel", "SonarPanel"],
+  "tabs_quality_gridSize": 3,
+  "themes_defaultTheme": "dark",
+  "themes_light_backgroundColor": "#16113a",
+  "themes_light_accentBackgroundColor": "#272A53",
+  "themes_light_accentBackgroundColor2": "#fff",
+  "themes_light_textColor": "#fff",
+  "themes_light_textColor2": "#000",
+  "themes_dark_backgroundColor": "#E9EDC4",
+  "themes_dark_accentBackgroundColor": "#D9D4AB",
+  "themes_dark_accentBackgroundColor2": "#000000",
+  "themes_dark_textColor": "#000",
+  "themes_dark_textColor2": "#fff"
 }

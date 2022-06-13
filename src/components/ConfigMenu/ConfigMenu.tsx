@@ -1,4 +1,4 @@
-import { EvilIcons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import { Menu, Pressable, Tooltip } from 'native-base';
 import { ReactNode } from 'react';
 import { useWindowDimensions, View } from 'react-native';
@@ -6,7 +6,6 @@ import { useTheme } from 'react-native-themed-styles';
 import { useAppContext } from '../../contexts/AppContext';
 import { styleSheetFactory } from '../../themes';
 import Chip from '../Chip';
-import DarkLightSwitchMenuItem from './DarkLightSwitchMenuItem';
 
 type ConfigMenuProps = {
   children?: ReactNode;
@@ -30,17 +29,13 @@ export default function ConfigMenu({ children }: ConfigMenuProps) {
                 {...triggerProps}
               >
                 <Chip>
-                  <EvilIcons name="gear" size={15} color={theme.textColor} />
+                  <Ionicons name="build" size={15} color={theme.textColor} />
                 </Chip>
               </Pressable>
             </Tooltip>
           );
         }}
       >
-        <Menu.Item>
-          <DarkLightSwitchMenuItem />
-        </Menu.Item>
-
         {children}
       </Menu>
     </View>

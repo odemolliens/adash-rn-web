@@ -1,4 +1,5 @@
 import { isEmpty, last } from 'lodash';
+import { useMemo } from 'react';
 import { Linking, Text, View } from 'react-native';
 import { useTheme } from 'react-native-themed-styles';
 import Download from '../components/Download';
@@ -6,30 +7,32 @@ import Panel from '../components/Panel';
 import ScreenshotButton from '../components/ScreenshotButton';
 import ZoomButton from '../components/ZoomButton';
 import { useAppContext } from '../contexts/AppContext';
-import { useFetch } from '../hooks/useCollectedData';
+import useFetch from '../hooks/useFetch';
 import { baseCss, styleSheetFactory } from '../themes';
 import { applyFilters, formatDate } from '../utils';
 
 const PANEL_ID = 'GitlabMergeRequestsClosedLast24hPanel';
 
 export default function GitlabMergeRequestsClosedLast24hPanel() {
-  const { loading, data: gitlabData = [] } = useFetch(
-    'http://localhost:3000/data/gitlab.json'
-  );
+  const { loading, data: gitlabData = [] } = useFetch(`/data/gitlab.db`);
 
   const { filterByVersion, filterByTeam, isFilteringActive } = useAppContext();
   const { colorScheme } = useAppContext();
   const [styles] = useTheme(themedStyles, colorScheme);
   const latest = last(gitlabData);
-  const data = last(
-    gitlabData.map(d =>
-      applyFilters(
-        d.GitLabClosedMergeRequests,
-        filterByVersion,
-        filterByTeam,
-        'source_branch'
-      )
-    )
+  const data = useMemo(
+    () =>
+      last(
+        gitlabData.map(d =>
+          applyFilters(
+            d.GitLabClosedMergeRequests,
+            filterByVersion,
+            filterByTeam,
+            'source_branch'
+          )
+        )
+      ),
+    [gitlabData, filterByVersion, filterByTeam]
   );
   const hasData = !isEmpty(data);
 

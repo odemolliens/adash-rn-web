@@ -11,7 +11,7 @@ import Panel from '../components/Panel';
 import ScreenshotButton from '../components/ScreenshotButton';
 import ZoomButton from '../components/ZoomButton';
 import { useAppContext } from '../contexts/AppContext';
-import { useFetch } from '../hooks/useCollectedData';
+import useFetch from '../hooks/useFetch';
 import { baseCss } from '../themes';
 import {
   applyFilters,
@@ -28,12 +28,10 @@ type Pipeline = {
 const PANEL_ID = 'GitlabPipelinesChartPanel';
 
 export default function GitlabPipelinesChartPanel() {
-  const { loading: loading1, data: gitlabData = [] } = useFetch(
-    'http://localhost:3000/data/gitlab.json'
-  );
-  const { loading: loading2, data: thresholdsData = {} } = useFetch<
-    Record<string, any>
-  >('http://localhost:3000/data/thresholds.json');
+  const { loading: loading1, data: gitlabData = [] } =
+    useFetch(`/data/gitlab.db`);
+  const { loading: loading2, data: thresholdsData = {} } =
+    useFetch<Record<string, any>>(`/data/thresholds.db`);
   const loading = loading1 || loading2;
   const { filterByVersion, filterByTeam, isFilteringActive } = useAppContext();
   const latest = last(gitlabData);
@@ -170,6 +168,7 @@ export default function GitlabPipelinesChartPanel() {
           <Chart
             type="bar"
             options={{
+              normalized: true,
               plugins: {
                 legend: {
                   labels: {

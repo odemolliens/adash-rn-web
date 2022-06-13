@@ -1,21 +1,21 @@
-import Constants from 'expo-constants';
 import { isEmpty } from 'lodash';
 import { HStack, Switch, Tooltip } from 'native-base';
 import { useEffect, useState } from 'react';
 import { Linking, Pressable, Text, View } from 'react-native';
 import { useTheme } from 'react-native-themed-styles';
-import { useInterval } from 'usehooks-ts';
 import * as GitlabHelper from '../api/gitlab_helper';
+import ConfigurationButton from '../components/ConfigurationButton';
 import Download from '../components/Download';
 import Panel from '../components/Panel';
 import ScreenshotButton from '../components/ScreenshotButton';
 import StatusIcon from '../components/StatusIcon';
 import ZoomButton from '../components/ZoomButton';
 import { useAppContext } from '../contexts/AppContext';
+import useFetchIssueList from '../hooks/useFetchIssueList';
+import { registerPanelConfigs } from '../panelsStore';
 import { baseCss, styleSheetFactory } from '../themes';
-import { formatDate } from '../utils';
+import { config, formatDate } from '../utils';
 
-const config = Constants.manifest?.extra!;
 const PANEL_ID = 'IssueListPanel';
 
 function getVariantByLabel(issue: GitlabHelper.Issue) {
@@ -34,38 +34,52 @@ function getVariantByLabel(issue: GitlabHelper.Issue) {
   }
 }
 
+registerPanelConfigs({
+  [PANEL_ID]: {
+    label: 'GitLab (IssueList)',
+    configs: [
+      {
+        type: 'string',
+        label: 'Project Id',
+        configKey: 'IssueListPanel_projectId',
+      },
+      {
+        type: 'string',
+        label: 'Token',
+        configKey: 'IssueListPanel_token',
+      },
+    ],
+  },
+});
+
 export default function IssueListPanel() {
-  const { colorScheme, setFlashMessage, clearFlashMessage } = useAppContext();
+  const { colorScheme, setFlashMessage, clearFlashMessage, hasZoomedPanel } =
+    useAppContext();
+
   const [styles] = useTheme(themedStyles, colorScheme);
-  const [issues, setIssues] = useState<GitlabHelper.Issue[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [lastUpdate, setLastUpdate] = useState<Date | undefined>();
   const [showCritical, setShowCritical] = useState(true);
 
-  const fetchIssues = async () => {
-    try {
-      setLoading(true);
-      setIssues(
-        await GitlabHelper.getIssues(
-          config.GitLab.projectId,
-          config.GitLab.token
-        )
-      );
-
-      setLastUpdate(new Date());
-      clearFlashMessage();
-    } catch (e) {
-      setFlashMessage({ type: 'error', message: String(e), panelId: PANEL_ID });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useInterval(fetchIssues, 60 * 1000);
+  const {
+    data: issues = [],
+    loading,
+    error,
+    lastUpdate,
+  } = useFetchIssueList(
+    config.get('IssueListPanel_projectId'),
+    config.get('IssueListPanel_token')
+  );
 
   useEffect(() => {
-    fetchIssues();
-  }, []);
+    clearFlashMessage();
+
+    if (error) {
+      setFlashMessage({
+        type: 'error',
+        message: String(error),
+        panelId: PANEL_ID,
+      });
+    }
+  }, [error]);
 
   const hasData = !isEmpty(issues);
   const inError = !hasData;
@@ -95,6 +109,7 @@ export default function IssueListPanel() {
         )}
 
         <ScreenshotButton panelId={PANEL_ID} />
+        {!hasZoomedPanel && <ConfigurationButton />}
       </Panel.Actions>
 
       {hasData && (

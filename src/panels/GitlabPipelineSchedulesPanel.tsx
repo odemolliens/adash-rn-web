@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { useTheme } from 'react-native-themed-styles';
 import * as GitlabHelper from '../api/gitlab_helper';
+import ConfigurationButton from '../components/ConfigurationButton';
 import Download from '../components/Download';
 import Panel from '../components/Panel';
 import PlayButton from '../components/PlayButton';
@@ -11,9 +12,10 @@ import ScreenshotButton from '../components/ScreenshotButton';
 import StatusIcon from '../components/StatusIcon';
 import ZoomButton from '../components/ZoomButton';
 import { useAppContext } from '../contexts/AppContext';
-import { useFetch } from '../hooks/useCollectedData';
+import useFetch from '../hooks/useFetch';
+import { registerPanelConfigs } from '../panelsStore';
 import { styleSheetFactory } from '../themes';
-import { formatDate } from '../utils';
+import { config, formatDate } from '../utils';
 
 type PipelineSchedule = {
   id: string;
@@ -37,21 +39,30 @@ function getVariant(active: boolean) {
 
 const PANEL_ID = 'GitlabPipelineSchedulesPanel';
 
+registerPanelConfigs({
+  [PANEL_ID]: {
+    label: 'Gitlab (PipelineSchedulesPanel)',
+    configs: [
+      {
+        type: 'string',
+        label: 'Project id',
+        configKey: 'GitlabPipelineSchedulesPanel_projectId',
+      },
+      {
+        type: 'string',
+        label: 'Token',
+        configKey: 'GitlabPipelineSchedulesPanel_token',
+      },
+    ],
+  },
+});
+
 export default function GitlabPipelineSchedulesPanel() {
+  const { hasZoomedPanel } = useAppContext();
   const [showInactive, setShowInactive] = useState(false);
   const [runList, setRunList] = useState<string[]>([]);
-
-  const { loading, data: gitlabData = [] } = useFetch(
-    'http://localhost:3000/data/gitlab.json'
-  );
-
-  const {
-    isAuthenticated,
-    clearFlashMessage,
-    colorScheme,
-    setFlashMessage,
-    auth,
-  } = useAppContext();
+  const { loading, data: gitlabData = [] } = useFetch(`/data/gitlab.db`);
+  const { clearFlashMessage, colorScheme, setFlashMessage } = useAppContext();
   const [styles] = useTheme(themedStyles, colorScheme);
   const latest = last(gitlabData);
 
@@ -64,9 +75,9 @@ export default function GitlabPipelineSchedulesPanel() {
   const runPipeline = async ({ id }: { id: string }) => {
     try {
       await GitlabHelper.runScheduledPipelineById(
-        auth!.projectId,
+        config.get('GitlabPipelineSchedulesPanel_projectId'),
         id,
-        auth!.token
+        config.get('GitlabPipelineSchedulesPanel_token')
       );
 
       setFlashMessage({
@@ -87,6 +98,10 @@ export default function GitlabPipelineSchedulesPanel() {
     }
   };
 
+  const isAuthenticated =
+    !isEmpty(config.get('GitlabPipelineSchedulesPanel_projectId')) &&
+    !isEmpty(config.get('GitlabPipelineSchedulesPanel_token'));
+
   return (
     <Panel id={PANEL_ID}>
       <Panel.Title>Gitlab Pipeline Schedules</Panel.Title>
@@ -106,6 +121,7 @@ export default function GitlabPipelineSchedulesPanel() {
         )}
 
         <ScreenshotButton panelId={PANEL_ID} />
+        {!hasZoomedPanel && <ConfigurationButton />}
       </Panel.Actions>
 
       <Panel.Body>

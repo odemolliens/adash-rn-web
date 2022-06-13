@@ -6,7 +6,7 @@ import { Pressable, Text, View } from 'react-native';
 import { useTheme } from 'react-native-themed-styles';
 import { useInterval } from 'usehooks-ts';
 import { useAppContext } from '../contexts/AppContext';
-import { useFetch } from '../hooks/useCollectedData';
+import useFetch from '../hooks/useFetch';
 import { styleSheetFactory } from '../themes';
 import { config, extractVersions } from '../utils';
 import Chip from './Chip';
@@ -25,14 +25,15 @@ export default function VersionList({
 }: VersionListProps) {
   const { filterByVersion, setFilterByVersion } = useAppContext();
   const [counter, setCounter] = useState(loopCountdown);
-  const versionsRotationEnabled = config?.versionsBar?.rotationEnabled ?? true;
-  const [loop, setLoop] = useState(versionsRotationEnabled);
+  const versionsRotationEnabled = config.get(
+    'versionsBar_rotationEnabled',
+    true
+  );
+  const [loop, setLoop] = useState<boolean>(versionsRotationEnabled);
+  const [showAll, setShowAll] = useState<boolean>(false);
   const { colorScheme } = useAppContext();
   const [styles, theme] = useTheme(themedStyles, colorScheme);
-
-  const { data: gitlabData = [] } = useFetch(
-    'http://localhost:3000/data/gitlab.json'
-  );
+  const { data: gitlabData = [] } = useFetch(`/data/gitlab.db`);
 
   // add "All" button
   const versions = useMemo(
@@ -56,8 +57,18 @@ export default function VersionList({
 
   return (
     <View style={styles.versionsContainer}>
+      <Chip
+        onPress={() => {
+          setLoop(false);
+          setFilterByVersion(ALL_VERSIONS);
+        }}
+        variant={isEmpty(filterByVersion) ? 'highlight' : undefined}
+      >
+        All
+      </Chip>
+
       {hasData &&
-        versions.map(v => (
+        versions.slice(1, showAll ? undefined : 5).map(v => (
           <Chip
             key={v}
             onPress={() => {
@@ -66,9 +77,25 @@ export default function VersionList({
             }}
             variant={filterByVersion === v ? 'highlight' : undefined}
           >
-            {v ? v : 'All'}
+            {v}
           </Chip>
         ))}
+
+      {versions.length >= 5 && (
+        <Chip
+          onPress={() => {
+            setShowAll(!showAll);
+          }}
+          variant={
+            !showAll && versions.indexOf(filterByVersion) > 5
+              ? 'highlight'
+              : undefined
+          }
+        >
+          {!showAll ? '...' : '<'}
+        </Chip>
+      )}
+
       {hasData && (
         <Chip
           variant={loop ? 'highlight' : undefined}
@@ -104,6 +131,9 @@ export default function VersionList({
 }
 
 const themedStyles = styleSheetFactory(theme => ({
-  versionsContainer: { flexDirection: 'row' },
+  versionsContainer: {
+    flexDirection: 'row',
+    overflowX: 'auto',
+  },
   counter: { color: theme.textColor },
 }));

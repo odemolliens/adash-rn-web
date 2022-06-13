@@ -2,13 +2,27 @@ The project is based on the EXPO framework (https://docs.expo.dev)
 
 # Getting Started
 
+## Try it first!
+
+You can run the sample project located in the example folder.
+A Gitlab API token is required in order to download the metrics.
+By default the Project ID is configured to gitlab.org repository project Id.
+
+Run the script `start.sh` and insert your Gitlab Project ID\Token when requested and then open the dashboard at the http://localhost:19002
+
+Run the `update.sh` script to collect new metrics (then refresh the page or wait 1 min for the dashboard to detect the changes)
+
 ## Installation
 
 `yarn`
 
 # Run the project
 
-`yarn web`
+`yarn dev`
+
+# Build and deploy
+
+Run `yarn build` to generate a static and optimized version of the dashboard, then deploy the content of the `web-build` folder to your favourite hosting provider.
 
 # Configuration
 
@@ -19,35 +33,37 @@ Rename the file `config.example.json` to `config.json` and adjust the configurat
 Example of configuration can be found at config.example.json
 
 ```json
-"versionsBar": {
-  // activate/deactivate auto-rotation between versions
-  "rotationEnabled": true,
+// activate/deactivate auto-rotation between versions
+"versionsBar_rotationEnabled": true/false
 
-  // hide the versions bar
-  "hidden": false
-}
+// hide the versions bar
+"versionsBar_hidden": true/false
+
 ```
 
 ```json
-"teamsBar": {
   // hide the teams bar
-  "hidden": false
-}
+"teamsBar_hidden": true/false
 ```
 
-Used in the Issues Panel and in the Scheduled Pipeline Panel
+Metrics endpoint URL
 
 ```json
-"GitLab": {
-  "projectId": "PROJECTID",
-  "token": "TOKEN"
-},
+"metricsEndpoint": "http://localhost:3000"
+```
+
+Parameters used by the Issues Panel and in the Scheduled Pipeline Panel
+
+```json
+// panel specific configurations
+"IssueListPanel_projectId": "PROJECTID",
+"IssueListPanel_token": "TOKEN"
 ```
 
 List of project teams
 
 ```json
-"teams": ["TEAM1", "TEAM2", "TEAM3", "TEAM4"]
+"teamsBar_teams": ["TEAM1", "TEAM2", "TEAM3", "TEAM4"]
 ```
 
 Tabs & Panel
@@ -68,50 +84,40 @@ List of available panels
 ```
 
 ```json
-"tabs": {
-  // name of the tab
-  "monitoring": {
-    // list of panels for the monitoring tab
-    "panels": [
-      "StatusOperationalChartPanel",
-      "BitriseBuildsChartPanel",
-      ...other panels
-    ],
+// list of tabs to display
+"tabs": ["monitoring", "quality"],
 
-    // column per row
-    "gridSize": 3
-  },
+// list of panels for the monitoring tab
+"tabs_monitoring_panels": [
+  "StatusOperationalChartPanel",
+  "BitriseBuildsChartPanel",
+  ...other panels
+],
 
-  // name of the tab
-  "quality": {
-    // list of panels for the monitoring tab
-    "panels": ["AllureReportPanel", "SonarPanel"],
+// column per row
+"tabs_monitoring_gridSize": 3
 
-    // column per row
-    "gridSize": 3
-  }
-}
+// list of panels for the monitoring tab
+"tabs_quality_panels": ["AllureReportPanel", "SonarPanel"],
+
+// column per row
+"tabs_quality_gridSize": 3
 ```
 
 Customize the light and dark themes
 
 ```json
-"themes": {
-  "light": {
-    "backgroundColor": "#16113a",
-    "accentBackgroundColor": "#272A53",
-    "accentBackgroundColor2": "#fff",
-    "textColor": "#fff",
-    "textColor2": "#000"
-  },
-  "dark": {
-    "backgroundColor": "#E9EDC4",
-    "accentBackgroundColor": "#D9D4AB",
-    "accentBackgroundColor2": "#000000",
-    "textColor": "#000",
-    "textColor2": "#fff"
-  }
-}
+"themes": ["light", "dark"]
+"themes_light_backgroundColor": "#16113a",
+"themes_light_accentBackgroundColor": "#272A53",
+"themes_light_accentBackgroundColor2": "#fff",
+"themes_light_textColor": "#fff",
+"themes_light_textColor2": "#000"
+"themes_dark_backgroundColor": "#E9EDC4",
+"themes_dark_accentBackgroundColor": "#D9D4AB",
+"themes_dark_accentBackgroundColor2": "#000000",
+"themes_dark_textColor": "#000",
+"themes_dark_textColor2": "#fff"
 ```
 
 # Add a new panel
