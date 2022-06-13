@@ -27,7 +27,6 @@
     "GitlabPipelinesListPanel"
   ],
   "tabs_lists_gridSize": 3,
-  "themes": ["dark", "light"],
   "themes_dark_backgroundColor": "#16113a",
   "themes_dark_accentBackgroundColor": "#272A53",
   "themes_dark_accentBackgroundColor2": "#fff",

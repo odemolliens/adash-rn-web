@@ -33,20 +33,17 @@ Rename the file `config.example.json` to `config.json` and adjust the configurat
 Example of configuration can be found at config.example.json
 
 ```json
-"versionsBar": {
-  // activate/deactivate auto-rotation between versions
-  "rotationEnabled": true,
+// activate/deactivate auto-rotation between versions
+"versionsBar_rotationEnabled": true/false
 
-  // hide the versions bar
-  "hidden": false
-}
+// hide the versions bar
+"versionsBar_hidden": true/false
+
 ```
 
 ```json
-"teamsBar": {
   // hide the teams bar
-  "hidden": false
-}
+"teamsBar_hidden": true/false
 ```
 
 Metrics endpoint URL
@@ -58,16 +55,15 @@ Metrics endpoint URL
 Parameters used by the Issues Panel and in the Scheduled Pipeline Panel
 
 ```json
-"GitLab": {
-  "projectId": "PROJECTID",
-  "token": "TOKEN"
-},
+// panel specific configurations
+"IssueListPanel_projectId": "PROJECTID",
+"IssueListPanel_token": "TOKEN"
 ```
 
 List of project teams
 
 ```json
-"teams": ["TEAM1", "TEAM2", "TEAM3", "TEAM4"]
+"teamsBar_teams": ["TEAM1", "TEAM2", "TEAM3", "TEAM4"]
 ```
 
 Tabs & Panel
@@ -88,50 +84,40 @@ List of available panels
 ```
 
 ```json
-"tabs": {
-  // name of the tab
-  "monitoring": {
-    // list of panels for the monitoring tab
-    "panels": [
-      "StatusOperationalChartPanel",
-      "BitriseBuildsChartPanel",
-      ...other panels
-    ],
+// list of tabs to display
+"tabs": ["monitoring", "quality"],
 
-    // column per row
-    "gridSize": 3
-  },
+// list of panels for the monitoring tab
+"tabs_monitoring_panels": [
+  "StatusOperationalChartPanel",
+  "BitriseBuildsChartPanel",
+  ...other panels
+],
 
-  // name of the tab
-  "quality": {
-    // list of panels for the monitoring tab
-    "panels": ["AllureReportPanel", "SonarPanel"],
+// column per row
+"tabs_monitoring_gridSize": 3
 
-    // column per row
-    "gridSize": 3
-  }
-}
+// list of panels for the monitoring tab
+"tabs_quality_panels": ["AllureReportPanel", "SonarPanel"],
+
+// column per row
+"tabs_quality_gridSize": 3
 ```
 
 Customize the light and dark themes
 
 ```json
-"themes": {
-  "light": {
-    "backgroundColor": "#16113a",
-    "accentBackgroundColor": "#272A53",
-    "accentBackgroundColor2": "#fff",
-    "textColor": "#fff",
-    "textColor2": "#000"
-  },
-  "dark": {
-    "backgroundColor": "#E9EDC4",
-    "accentBackgroundColor": "#D9D4AB",
-    "accentBackgroundColor2": "#000000",
-    "textColor": "#000",
-    "textColor2": "#fff"
-  }
-}
+"themes": ["light", "dark"]
+"themes_light_backgroundColor": "#16113a",
+"themes_light_accentBackgroundColor": "#272A53",
+"themes_light_accentBackgroundColor2": "#fff",
+"themes_light_textColor": "#fff",
+"themes_light_textColor2": "#000"
+"themes_dark_backgroundColor": "#E9EDC4",
+"themes_dark_accentBackgroundColor": "#D9D4AB",
+"themes_dark_accentBackgroundColor2": "#000000",
+"themes_dark_textColor": "#000",
+"themes_dark_textColor2": "#fff"
 ```
 
 # Add a new panel
