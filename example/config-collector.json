@@ -29,13 +29,13 @@
     "monitor": {
       "GitLab Open MR": {
         "key": "GitlabOpenMergeRequestsCount",
-        "filename": "gitlab.json",
+        "filename": "gitlab.db",
         "notification": true,
         "channels": []
       },
       "GitLab Closed MR last 24H": {
         "key": "GitlabClosedMergeRequestsCount",
-        "filename": "gitlab.json",
+        "filename": "gitlab.db",
         "notification": true,
         "channels": []
       }
@@ -43,7 +43,7 @@
     "thresholds": {
       "GitLab Jobs": {
         "key": "GitlabJobQueueSize",
-        "filename": "gitlab.json",
+        "filename": "gitlab.db",
         "max": 10,
         "incident": false,
         "notification": true,
@@ -52,7 +52,7 @@
       },
       "GitLab Pipelines": {
         "key": "GitlabPipelineQueueSize",
-        "filename": "gitlab.json",
+        "filename": "gitlab.db",
         "max": 20,
         "incident": false,
         "notification": true,
@@ -61,7 +61,7 @@
       },
       "GitLab Open MR": {
         "key": "GitlabOpenMergeRequestsCount",
-        "filename": "gitlab.json",
+        "filename": "gitlab.db",
         "max": 20,
         "incident": false,
         "notification": true,
@@ -73,7 +73,7 @@
     "status": {
       "GitLab": {
         "key": "Gitlab.status",
-        "filename": "status.json",
+        "filename": "status.db",
         "success": "operational",
         "incident": false,
         "notification": true,
@@ -82,7 +82,7 @@
       },
       "CocoaPods CDN": {
         "key": "CocoaPods CDN.status",
-        "filename": "status.json",
+        "filename": "status.db",
         "success": "operational",
         "incident": false,
         "notification": true,
@@ -91,7 +91,7 @@
       },
       "NPM": {
         "key": "NPM Package Publishing.status",
-        "filename": "status.json",
+        "filename": "status.db",
         "success": "operational",
         "incident": false,
         "notification": true,
@@ -100,7 +100,7 @@
       },
       "Bitrise Build Processing": {
         "key": "Bitrise Build Processing.status",
-        "filename": "status.json",
+        "filename": "status.db",
         "success": "operational",
         "incident": false,
         "notification": true,
@@ -109,7 +109,7 @@
       },
       "Bitrise Step Issue": {
         "key": "Bitrise Step Issue.status",
-        "filename": "status.json",
+        "filename": "status.db",
         "success": "operational",
         "incident": false,
         "notification": true,
@@ -118,7 +118,7 @@
       },
       "BrowserStack Live": {
         "key": "BrowserStack Live.status",
-        "filename": "status.json",
+        "filename": "status.db",
         "success": "operational",
         "incident": false,
         "notification": true,
@@ -127,7 +127,7 @@
       },
       "BrowserStack App-Automate": {
         "key": "BrowserStack AppAutomate.status",
-        "filename": "status.json",
+        "filename": "status.db",
         "success": "operational",
         "incident": false,
         "notification": true,
@@ -136,7 +136,7 @@
       },
       "Gradle": {
         "key": "Gradle.status",
-        "filename": "status.json",
+        "filename": "status.db",
         "success": "operational",
         "incident": false,
         "notification": true,
